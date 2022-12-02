@@ -25,6 +25,7 @@ use pocketcloud\cloudbridge\network\request\RequestManager;
 use pocketcloud\cloudbridge\task\ChangeStatusTask;
 use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\Internet;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\Server;
@@ -45,9 +46,11 @@ class CloudAPI {
             if ($packet instanceof LoginResponsePacket) {
                 if ($packet->getVerifyStatus() === VerifyStatus::VERIFIED()) {
                     CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new ChangeStatusTask(), 20);
-                    if (ModulesConfig::getInstance()->isSignModule()) CloudSignManager::getInstance()->load();
-                    if (ModulesConfig::getInstance()->isNpcModule()) CloudNPCManager::getInstance()->load();
                     \GlobalLogger::get()->info("This cloud server was §averified §fby the cloud!");
+                    CloudBridge::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function(): void {
+                        if (ModulesConfig::getInstance()->isSignModule()) CloudSignManager::getInstance()->load();
+                        if (ModulesConfig::getInstance()->isNpcModule()) CloudNPCManager::getInstance()->load();
+                    }), 60);
                     $this->verified = VerifyStatus::VERIFIED();
                 } else {
                     \GlobalLogger::get()->error("§4This cloud server wasn't verified §4by the cloud! Shutdown...");
