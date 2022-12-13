@@ -27,6 +27,8 @@ class CloudSign {
                 if ($this->stateIndex !== 1) $this->stateIndex = 1;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
                 if ($this->stateIndex !== 2) $this->stateIndex = 2;
+            } else {
+                if ($this->stateIndex !== 2) $this->stateIndex = 2;
             }
 
             $this->layerIndex++;

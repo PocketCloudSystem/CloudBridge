@@ -22,17 +22,28 @@ class CloudSignTask extends Task {
                 if ($block->getId() == VanillaBlocks::OAK_SIGN()->getId() || $block->getId() == VanillaBlocks::OAK_WALL_SIGN()->getId()) {
                     if ($block instanceof BaseSign) {
                         if ($sign->hasUsingServer()) {
-                            if ($sign->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
+                            if (CloudAPI::getInstance()->getServerByName($sign->getUsingServer()->getName()) !== null) {
+                                if ($sign->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
+                                    $ev = new CloudSignUpdateEvent($sign, $sign->getUsingServer(), null);
+                                    $ev->call();
+                                    if ($ev->isCancelled()) return;
+                                    if (CloudSignManager::getInstance()->isUsingServerName($sign->getUsingServer()->getName())) CloudSignManager::getInstance()->removeUsingServerName($sign->getUsingServer()->getName());
+                                    $sign->setUsingServer($ev->getNewUsingServer());
+                                    if ($ev->getNewUsingServer() !== null) if (!CloudSignManager::getInstance()->isUsingServerName($ev->getNewUsingServer()->getName())) CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer()->getName(), $sign);
+                                    $block->setText(new SignText($sign->next()));
+                                    $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                                } else {
+                                    if (!CloudSignManager::getInstance()->isUsingServerName($sign->getUsingServer()->getName())) CloudSignManager::getInstance()->addUsingServerName($sign->getUsingServer()->getName(), $sign);
+                                    $block->setText(new SignText($sign->next()));
+                                    $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                                }
+                            } else {
                                 $ev = new CloudSignUpdateEvent($sign, $sign->getUsingServer(), null);
                                 $ev->call();
                                 if ($ev->isCancelled()) return;
                                 if (CloudSignManager::getInstance()->isUsingServerName($sign->getUsingServer()->getName())) CloudSignManager::getInstance()->removeUsingServerName($sign->getUsingServer()->getName());
                                 $sign->setUsingServer($ev->getNewUsingServer());
                                 if ($ev->getNewUsingServer() !== null) if (!CloudSignManager::getInstance()->isUsingServerName($ev->getNewUsingServer()->getName())) CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer()->getName(), $sign);
-                                $block->setText(new SignText($sign->next()));
-                                $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
-                            } else {
-                                if (!CloudSignManager::getInstance()->isUsingServerName($sign->getUsingServer()->getName())) CloudSignManager::getInstance()->addUsingServerName($sign->getUsingServer()->getName(), $sign);
                                 $block->setText(new SignText($sign->next()));
                                 $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
                             }
