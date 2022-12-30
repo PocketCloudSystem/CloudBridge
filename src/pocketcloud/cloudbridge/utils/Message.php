@@ -28,8 +28,11 @@ class Message {
     public const SERVER_SAVED = "server-saved";
     public const TEMPLATE_MAINTENANCE = "template-maintenance";
     public const CONNECT_TO_SERVER = "connect-to-server";
+    public const CONNECT_TO_SERVER_TARGET = "connect-to-server-target";
     public const ALREADY_CONNECTED = "already-connected";
+    public const ALREADY_CONNECTED_TARGET = "already-connected-target";
     public const CANT_CONNECT = "cant-connect";
+    public const CANT_CONNECT_TARGET = "cant-connect-target";
     public const NPC_NAME_TAG = "npc-name-tag";
     public const PROCESS_CANCELLED = "process-cancelled";
     public const SELECT_NPC = "select-npc";
