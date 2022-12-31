@@ -91,10 +91,10 @@ class CloudNPCManager {
         if (!ModulesConfig::getInstance()->isNpcModule()) return;
         if (($skin = SkinSaver::get($cloudNPC->getCreator())) !== null) {
             $positionString = Utils::convertToString($cloudNPC->getPosition());
-            if (isset($this->cloudEntitys[$positionString])) {
+            if (isset($this->entities[$positionString])) {
                 /** @var Human $entity */
-                if (($entity = $this->cloudEntitys[$positionString]) !== null) $entity->close();
-                unset($this->cloudEntitys[$positionString]);
+                if (($entity = $this->entities[$positionString]) !== null) $entity->close();
+                unset($this->entities[$positionString]);
             }
             $human = new Human(Location::fromObject($cloudNPC->getPosition(), null), $skin);
             $human->setCanSaveWithChunk(false);
