@@ -15,7 +15,6 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerMoveEvent;
-use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\server\DataPacketReceiveEvent;
 use pocketmine\network\mcpe\protocol\InventoryTransactionPacket;
 use pocketmine\network\mcpe\protocol\MoveActorAbsolutePacket;
@@ -80,10 +79,6 @@ class NPCListener implements Listener {
         }
     }
     
-    public function onJoin(PlayerJoinEvent $e) {
-        CloudNPCManager::getInstance()->spawnCloudNPCs();
-    }
-
     public function onJoin(PlayerJoinEvent $e) {
         CloudNPCManager::getInstance()->spawnCloudNPCs();
     }
