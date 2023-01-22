@@ -18,6 +18,8 @@ class CloudSign {
 
     public function next(): array {
         $useDefault = false;
+        $this->layerIndex++;
+
         if ($this->getUsingServer() !== null) {
             if ($this->getUsingServer()->getTemplate()?->isMaintenance()) {
                 if ($this->stateIndex !== 3) $this->stateIndex = 3;
@@ -30,8 +32,6 @@ class CloudSign {
             } else {
                 if ($this->stateIndex !== 2) $this->stateIndex = 2;
             }
-
-            $this->layerIndex++;
 
             if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
                 $useDefault = true;
@@ -62,8 +62,6 @@ class CloudSign {
             return $layers;
         } else {
             if ($this->stateIndex !== 2) $this->stateIndex = 2;
-
-            $this->layerIndex++;
 
             if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
                 $useDefault = true;

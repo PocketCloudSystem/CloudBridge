@@ -9,6 +9,7 @@ use pocketcloud\cloudbridge\api\template\Template;
 use pocketcloud\cloudbridge\event\CloudSignUpdateEvent;
 use pocketcloud\cloudbridge\module\sign\CloudSignManager;
 use pocketmine\block\BaseSign;
+use pocketmine\block\BlockLegacyIds;
 use pocketmine\block\utils\SignText;
 use pocketmine\block\VanillaBlocks;
 use pocketmine\scheduler\Task;
@@ -19,7 +20,7 @@ class CloudSignTask extends Task {
         foreach (CloudSignManager::getInstance()->getCloudSigns() as $sign) {
             if ($sign->getPosition()->world !== null && $sign->getPosition()->world->isLoaded()) {
                 $block = $sign->getPosition()->getWorld()->getBlock($sign->getPosition()->asVector3());
-                if ($block->getId() == VanillaBlocks::OAK_SIGN()->getId() || $block->getId() == VanillaBlocks::OAK_WALL_SIGN()->getId()) {
+                if ($block->getIdInfo()->getBlockId() == BlockLegacyIds::SIGN_POST || $block->getIdInfo()->getBlockId() == BlockLegacyIds::WALL_SIGN) {
                     if ($block instanceof BaseSign) {
                         if ($sign->hasUsingServer()) {
                             if (CloudAPI::getInstance()->getServerByName($sign->getUsingServer()->getName()) !== null) {
