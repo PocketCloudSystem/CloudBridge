@@ -4,9 +4,7 @@ namespace pocketcloud\cloudbridge\listener;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\player\CloudPlayer;
-use pocketcloud\cloudbridge\event\NetworkPacketReceiveEvent;
 use pocketcloud\cloudbridge\network\Network;
-use pocketcloud\cloudbridge\network\packet\impl\normal\LocalTemplateUpdatePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerConnectPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerDisconnectPacket;
 use pocketcloud\cloudbridge\network\packet\impl\request\CheckPlayerMaintenanceRequestPacket;
@@ -17,7 +15,6 @@ use pocketcloud\cloudbridge\utils\Message;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\Listener;
-use pocketmine\Server;
 
 class EventListener implements Listener {
 

@@ -30,7 +30,6 @@ class SignListener implements Listener {
         if ($event->getAction() === $event::LEFT_CLICK_BLOCK) return;
         if (($sign = CloudSignManager::getInstance()->getCloudSign($event->getBlock()->getPosition())) !== null) {
             if (!isset(CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()])) CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()] = 0;
-
             if (Server::getInstance()->getTick() >= CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()]) {
                 CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()] = Server::getInstance()->getTick() + 10;
                 if ($sign->hasUsingServer() && !$sign->getUsingServer()->getTemplate()->isMaintenance()) {
