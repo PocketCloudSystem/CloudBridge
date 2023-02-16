@@ -11,7 +11,7 @@ class ChangeStatusTask extends Task {
 
     public function onRun(): void {
         if (CloudAPI::getInstance()->getCurrentServer()?->getServerStatus() === ServerStatus::IN_GAME() || CloudAPI::getInstance()->getCurrentServer()?->getServerStatus() === ServerStatus::STOPPING()) return;
-        if (count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers()) {
+        if (count(Server::getInstance()->getOnlinePlayers()) >= (CloudAPI::getInstance()->getCurrentTemplate()?->getMaxPlayerCount() ?? Server::getInstance()->getMaxPlayers())) {
             CloudAPI::getInstance()->changeStatus(ServerStatus::FULL());
         } else {
             if (CloudAPI::getInstance()->getCurrentServer()?->getServerStatus() === ServerStatus::FULL()) {
