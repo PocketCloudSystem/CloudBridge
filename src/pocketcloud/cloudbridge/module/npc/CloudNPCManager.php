@@ -97,7 +97,6 @@ class CloudNPCManager {
                 unset($this->entities[$positionString]);
             }
             $position = $cloudNPC->getPosition();
-            var_dump($position);
             $yaw = ($position instanceof Location ? $position->getYaw() : lcg_value() * 360);
             $pitch = ($position instanceof Location ? $position->getPitch() : 0);
             $human = new Human(Location::fromObject($position, null, $yaw, $pitch), $skin);
