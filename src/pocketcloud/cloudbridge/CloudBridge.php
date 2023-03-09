@@ -15,6 +15,7 @@ use pocketcloud\cloudbridge\module\hubcommand\HubCommand;
 use pocketcloud\cloudbridge\module\npc\CloudNPCManager;
 use pocketcloud\cloudbridge\module\sign\CloudSignManager;
 use pocketcloud\cloudbridge\network\Network;
+use pocketcloud\cloudbridge\network\packet\handler\PacketHandler;
 use pocketcloud\cloudbridge\network\packet\impl\normal\DisconnectPacket;
 use pocketcloud\cloudbridge\network\packet\impl\types\DisconnectReason;
 use pocketcloud\cloudbridge\task\TimeoutTask;
@@ -54,9 +55,9 @@ class CloudBridge extends PluginBase {
         $this->modulesConfig = new ModulesConfig();
         $this->messagesConfig = new MessagesConfig();
         $this->signLayoutConfig = new SignLayoutConfig();
-        $this->network = new Network(new Address("127.0.0.1", CloudAPI::getInstance()->getCloudPort()), $networkNotifier = new SleeperNotifier(), $networkBuffer = new \Threaded());
+        $this->network = new Network(new Address("127.0.0.1", CloudAPI::getInstance()->getCloudPort()), $networkNotifier = new SleeperNotifier(), $networkBuffer = new \ThreadedArray());
         $this->getServer()->getTickSleeper()->addNotifier($networkNotifier, function() use ($networkBuffer): void {
-            while (($buffer = $networkBuffer->shift()) !== null) $this->network->getPacketHandler()->handle($buffer);
+            while (($buffer = $networkBuffer->shift()) !== null) PacketHandler::getInstance()->handle($buffer);
         });
         $this->network->start();
 

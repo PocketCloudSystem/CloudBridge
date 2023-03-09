@@ -12,6 +12,7 @@ use pocketcloud\cloudbridge\utils\Message;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\lang\Translatable;
+use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
@@ -22,6 +23,7 @@ class HubCommand extends Command {
     public function __construct() {
         self::setInstance($this);
         parent::__construct("hub", Message::parse(Message::HUB_COMMAND_DESCRIPTION), "/hub", ["lobby"]);
+        $this->setPermission(DefaultPermissions::ROOT_USER);
         if (ModulesConfig::getInstance()->isHubCommandModule()) Server::getInstance()->getCommandMap()->register("hubCommandModule", $this);
     }
 

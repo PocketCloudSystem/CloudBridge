@@ -19,19 +19,11 @@ use pocketmine\thread\Thread;
 class Network extends Thread {
     use SingletonTrait;
 
-    private PacketPool $packetPool;
-    private PacketListener $packetListener;
-    private PacketHandler $packetHandler;
-    private RequestManager $requestManager;
     private \Socket $socket;
     private bool $connected = false;
 
-    public function __construct(private Address $address, private SleeperNotifier $sleeperNotifier, private \Threaded $buffer) {
+    public function __construct(private Address $address, private SleeperNotifier $sleeperNotifier, private \ThreadedArray $buffer) {
         self::setInstance($this);
-        $this->packetPool = new PacketPool();
-        $this->packetListener = new PacketListener();
-        $this->packetHandler = new PacketHandler();
-        $this->requestManager = new RequestManager();
 
         \GlobalLogger::get()->info("Try to connect to §e" . $this->address . "§r...");
         $this->connect();
@@ -99,28 +91,12 @@ class Network extends Thread {
         return $this->address;
     }
 
-    public function getBuffer(): \Threaded {
+    public function getBuffer(): \ThreadedArray {
         return $this->buffer;
     }
 
     public function getSocket(): \Socket {
         return $this->socket;
-    }
-
-    public function getPacketPool(): PacketPool {
-        return $this->packetPool;
-    }
-
-    public function getPacketListener(): PacketListener {
-        return $this->packetListener;
-    }
-
-    public function getPacketHandler(): PacketHandler {
-        return $this->packetHandler;
-    }
-
-    public function getRequestManager(): RequestManager {
-        return $this->requestManager;
     }
 
     public function isConnected(): bool {

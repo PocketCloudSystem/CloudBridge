@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloudbridge\utils;
 
-class Address {
+class Address extends \ThreadedBase {
 
     public function __construct(private string $address, private int $port) {}
 
