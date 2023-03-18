@@ -1,0 +1,14 @@
+{
+  "name": "pocketcloud/cloudbridge",
+  "description": "CloudBridge for PocketCloud",
+  "authors": [
+    {
+      "name": "r3pt1s"
+    }
+  ],
+  "license": "GPL-2.0-or-later",
+  "require": {},
+  "require-dev": {
+    "pocketmine/pocketmine-mp": "^4"
+  }
+}
