@@ -35,8 +35,8 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "CloudBridge-Build(${{ github.run_number }})"
+          automatic_release_tag: "${{ steps.metadata.outputs.VERSION }}"
           prerelease: false
-          title: "CloudBridge-Build(${{ github.run_number }})"
+          title: "Release v${{ steps.metadata.outputs.VERSION }}"
           files: |
             out/*.phar
