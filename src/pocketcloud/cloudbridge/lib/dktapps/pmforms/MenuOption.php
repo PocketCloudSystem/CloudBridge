@@ -54,7 +54,7 @@ class MenuOption implements \JsonSerializable{
 		return $this->image;
 	}
 
-	public function jsonSerialize(){
+	public function jsonSerialize(): array {
 		$json = [
 			"text" => $this->text
 		];

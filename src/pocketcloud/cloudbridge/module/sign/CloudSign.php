@@ -20,7 +20,7 @@ class CloudSign {
         $useDefault = false;
         $this->layerIndex++;
 
-        if ($this->hasUsingServer()) {
+        if ($this->getUsingServer() !== null) {
             if ($this->getUsingServer()->getTemplate()?->isMaintenance()) {
                 if ($this->stateIndex !== 3) $this->stateIndex = 3;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::ONLINE()) {

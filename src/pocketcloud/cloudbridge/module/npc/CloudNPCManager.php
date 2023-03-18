@@ -42,7 +42,7 @@ class CloudNPCManager {
         foreach ($this->getNPCConfig()->getAll() as $positionString => $cloudNPC) {
             if (!Utils::containKeys($cloudNPC, "Template", "Creator", "Position")) continue;
             /** @var Position $position */
-            if (($position = Utils::convertToVector($cloudNPC["Position"])) instanceof Position) {
+            if (($position = Utils::convertToVector($positionString)) instanceof Position) {
                 if (($template = CloudAPI::getInstance()->getTemplateByName($cloudNPC["Template"])) !== null) {
                     $this->npcs[$positionString] = new CloudNPC(
                         $template,
@@ -96,10 +96,7 @@ class CloudNPCManager {
                 if (($entity = $this->entities[$positionString]) !== null) $entity->close();
                 unset($this->entities[$positionString]);
             }
-            $position = $cloudNPC->getPosition();
-            $yaw = ($position instanceof Location ? $position->getYaw() : lcg_value() * 360);
-            $pitch = ($position instanceof Location ? $position->getPitch() : 0);
-            $human = new Human(Location::fromObject($cloudNPC->getPosition(), null, $yaw, $pitch), $skin);
+            $human = new Human(Location::fromObject($cloudNPC->getPosition(), null), $skin);
             $human->setCanSaveWithChunk(false);
             $ev = new CloudNPCSpawnEvent($cloudNPC, $human);
             $ev->call();
