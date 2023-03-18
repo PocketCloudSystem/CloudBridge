@@ -92,7 +92,7 @@ class NPCListener implements Listener {
             if ($packet instanceof InventoryTransactionPacket) {
                 /** @var UseItemOnEntityTransactionData $trData */
                 if (($trData = $packet->trData) instanceof UseItemOnEntityTransactionData) {
-                    if ($trData->getActionType() == $trData::ACTION_INTERACT) {
+                    if ($trData->getActionType() !== $trData::ACTION_ATTACK) {
                         if (($entity = $player->getWorld()->getEntity($trData->getActorRuntimeId())) !== null) {
                             if (($cloudNPC = CloudNPCManager::getInstance()->getCloudNPC($entity->getPosition())) !== null) {
                                 if (!isset(CloudBridge::getInstance()->npcDelay[$player->getName()])) CloudBridge::getInstance()->npcDelay[$player->getName()] = 0;

@@ -19,11 +19,28 @@ class ModulesConfig {
         self::setInstance($this);
         $this->config = new Config(CloudAPI::getInstance()->getCloudPath() . "storage/inGame/modules.json", 1);
 
-        if (!$this->config->exists("sign-module")) $this->config->set("sign-module", true);
-        if (!$this->config->exists("npc-module")) $this->config->set("npc-module", true);
-        if (!$this->config->exists("global-chat-module")) $this->config->set("global-chat-module", false);
-        if (!$this->config->exists("hubcommand-module")) $this->config->set("hubcommand-module", true);
-        $this->config->save();
+        $save = 0;
+        if (!$this->config->exists("sign-module")) {
+            $this->config->set("sign-module", true);
+            $save++;
+        }
+
+        if (!$this->config->exists("npc-module")) {
+            $this->config->set("npc-module", true);
+            $save++;
+        }
+
+        if (!$this->config->exists("global-chat-module")) {
+            $this->config->set("global-chat-module", false);
+            $save++;
+        }
+
+        if (!$this->config->exists("hubcommand-module")) {
+            $this->config->set("hubcommand-module", true);
+            $save++;
+        }
+
+        if ($save > 0) $this->config->save();
 
         $this->load();
     }
