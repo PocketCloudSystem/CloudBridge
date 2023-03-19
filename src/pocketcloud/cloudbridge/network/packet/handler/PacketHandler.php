@@ -64,7 +64,7 @@ class PacketHandler {
                 else if ($packet->getTextType() === TextType::POPUP()) Server::getInstance()->broadcastPopup($packet->getMessage());
                 else if ($packet->getTextType() === TextType::TIP()) Server::getInstance()->broadcastTip($packet->getMessage());
                 else if ($packet->getTextType() === TextType::TITLE()) Server::getInstance()->broadcastTitle($packet->getMessage());
-                else if ($packet->getTextType() === TextType::ACTION_BAR()) Server::getInstance()->broadcastPackets(Server::getInstance()->getOnlinePlayers(), [SetTitlePacket::actionBarMessage($packet->getMessage())]);
+                else if ($packet->getTextType() === TextType::ACTION_BAR()) foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->sendActionBarMessage($packet->getMessage());
             } else if (($player = Server::getInstance()->getPlayerExact($packet->getPlayer())) !== null) {
                 if ($packet->getTextType() === TextType::MESSAGE()) $player->sendMessage($packet->getMessage());
                 else if ($packet->getTextType() === TextType::POPUP()) $player->sendPopup($packet->getMessage());
@@ -129,6 +129,9 @@ class PacketHandler {
                 RequestManager::getInstance()->callThen($packet);
                 RequestManager::getInstance()->removeRequest($packet->getRequestId());
             }
+        } else {
+            \GlobalLogger::get()->debug("§cReceived an invalid packet.");
+            \GlobalLogger::get()->debug("§e" . $buffer);
         }
     }
 }

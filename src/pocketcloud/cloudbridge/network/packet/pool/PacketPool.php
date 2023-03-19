@@ -3,6 +3,7 @@
 namespace pocketcloud\cloudbridge\network\packet\pool;
 
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
+use pocketcloud\cloudbridge\network\packet\impl\normal\CloudPlayerSwitchServerPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSavePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerStatusChangePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CommandSendPacket;
@@ -62,6 +63,7 @@ class PacketPool {
         $this->registerPacket(PlayerDisconnectPacket::class);
         $this->registerPacket(NotifyPacket::class);
         $this->registerPacket(PlayerNotifyUpdatePacket::class);
+        $this->registerPacket(CloudPlayerSwitchServerPacket::class);
         $this->registerPacket(CheckPlayerNotifyRequestPacket::class);
         $this->registerPacket(CheckPlayerNotifyResponsePacket::class);
         $this->registerPacket(CloudServerStartRequestPacket::class);
