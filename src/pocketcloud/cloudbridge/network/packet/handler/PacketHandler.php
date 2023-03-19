@@ -129,6 +129,9 @@ class PacketHandler {
                 RequestManager::getInstance()->callThen($packet);
                 RequestManager::getInstance()->removeRequest($packet->getRequestId());
             }
+        } else {
+            \GlobalLogger::get()->debug("§cReceived an invalid packet.");
+            \GlobalLogger::get()->debug("§e" . $buffer);
         }
     }
 }
