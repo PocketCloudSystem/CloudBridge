@@ -2,10 +2,11 @@
 
 namespace pocketcloud\cloudbridge\module\sign;
 
+use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\template\Template;
-use pocketcloud\cloudbridge\config\SignLayoutConfig;
+use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
 use pocketmine\world\Position;
 
 class CloudSign {
@@ -15,6 +16,14 @@ class CloudSign {
     private int $layerIndex = 0;
 
     public function __construct(private Template $template, private Position $position) {}
+
+    private function check() {
+        if ($this->usingServer !== null) {
+            if (($usingServer = CloudAPI::getInstance()->getServerByName($this->usingServer->getName())) !== null) {
+                $this->usingServer = $usingServer;
+            }
+        }
+    }
 
     public function next(): array {
         $useDefault = false;
@@ -61,6 +70,7 @@ class CloudSign {
 
             return $layers;
         } else {
+            $this->check();
             if ($this->stateIndex !== 2) $this->stateIndex = 2;
 
             if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
@@ -110,6 +120,6 @@ class CloudSign {
     }
 
     public function hasUsingServer(): bool {
-        return $this->usingServer !== null;
+        return $this->usingServer !== null && CloudAPI::getInstance()->getServerByName($this->usingServer->getName()) !== null;
     }
 }

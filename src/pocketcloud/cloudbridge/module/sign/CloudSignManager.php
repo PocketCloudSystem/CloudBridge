@@ -4,12 +4,11 @@ namespace pocketcloud\cloudbridge\module\sign;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\CloudBridge;
-use pocketcloud\cloudbridge\config\ModulesConfig;
-use pocketcloud\cloudbridge\event\CloudSignAddEvent;
-use pocketcloud\cloudbridge\event\CloudSignRemoveEvent;
-use pocketcloud\cloudbridge\module\sign\listener\SignListener;
+use pocketcloud\cloudbridge\event\sign\CloudSignAddEvent;
+use pocketcloud\cloudbridge\event\sign\CloudSignRemoveEvent;
+use pocketcloud\cloudbridge\module\BaseModuleTrait;
 use pocketcloud\cloudbridge\module\sign\task\CloudSignTask;
-use pocketcloud\cloudbridge\utils\Utils;
+use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\utils\Config;
@@ -17,7 +16,7 @@ use pocketmine\utils\SingletonTrait;
 use pocketmine\world\Position;
 
 class CloudSignManager {
-    use SingletonTrait;
+    use SingletonTrait, BaseModuleTrait;
 
     /** @var array<CloudSign> */
     private array $signs = [];
@@ -26,23 +25,19 @@ class CloudSignManager {
 
     public function __construct() {
         self::setInstance($this);
-        if (ModulesConfig::getInstance()->isSignModule()) {
-            CloudBridge::getInstance()->registerPermission("pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
-            Server::getInstance()->getPluginManager()->registerEvents(new SignListener(), CloudBridge::getInstance());
-        }
     }
 
     public function load() {
-        if (!ModulesConfig::getInstance()->isSignModule()) return;
+        if (!self::isEnabled()) return;
         foreach ($this->getCloudSignConfig()->getAll() as $positionString => $cloudSign) {
             if (!Utils::containKeys($cloudSign, "Template", "Position", "World")) continue;
-            /** @var Vector3 $position */
-            if (($position = Utils::convertToVector($positionString)) instanceof Vector3) {
-                if (($world = Server::getInstance()->getWorldManager()->getWorldByName($cloudSign["World"])) !== null) {
+            if (($world = Server::getInstance()->getWorldManager()->getWorldByName($cloudSign["World"])) !== null) {
+                /** @var Position $position */
+                if (($position = Utils::convertToVector($cloudSign["Position"])) instanceof Position) {
                     if (($template = CloudAPI::getInstance()->getTemplateByName($cloudSign["Template"])) !== null) {
                         $this->signs[$positionString] = new CloudSign(
                             $template,
-                            Position::fromObject($position, $world)
+                            $position
                         );
                     }
                 }
@@ -51,13 +46,18 @@ class CloudSignManager {
         CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new CloudSignTask(), 20);
     }
 
+    public function unload() {
+        if (self::isEnabled()) return;
+        $this->signs = [];
+        $this->usingServerNames = [];
+    }
+
     public function addCloudSign(CloudSign $cloudSign) {
-        if (!ModulesConfig::getInstance()->isSignModule()) return;
-        $ev = new CloudSignAddEvent($cloudSign);
-        $ev->call();
+        if (!self::isEnabled()) return;
+        ($ev = new CloudSignAddEvent($cloudSign))->call();
         if ($ev->isCancelled()) return;
 
-        $positionString = Utils::convertToString($cloudSign->getPosition()->asVector3()) . ":" . $cloudSign->getPosition()->getWorld()->getFolderName();
+        $positionString = Utils::convertToString($cloudSign->getPosition());
         $cfg = $this->getCloudSignConfig();
         $cfg->set($positionString, [
             "Template" => $cloudSign->getTemplate()->getName(),
@@ -70,12 +70,11 @@ class CloudSignManager {
     }
 
     public function removeCloudSign(CloudSign $cloudSign) {
-        if (!ModulesConfig::getInstance()->isSignModule()) return;
-        $ev = new CloudSignRemoveEvent($cloudSign);
-        $ev->call();
+        if (!self::isEnabled()) return;
+        ($ev = new CloudSignRemoveEvent($cloudSign))->call();
         if ($ev->isCancelled()) return;
 
-        $positionString = Utils::convertToString($cloudSign->getPosition()->asVector3()) . ":" . $cloudSign->getPosition()->getWorld()->getFolderName();
+        $positionString = Utils::convertToString($cloudSign->getPosition());
         $cfg = $this->getCloudSignConfig();
         $cfg->remove($positionString);
         $cfg->save();
@@ -85,19 +84,21 @@ class CloudSignManager {
     }
 
     public function addUsingServerName(string $name, CloudSign $cloudSign): bool {
+        if (!self::isEnabled()) return false;
         if (isset($this->usingServerNames[$name])) return false;
         $this->usingServerNames[$name] = $cloudSign;
         return true;
     }
 
     public function removeUsingServerName(string $name): bool {
+        if (!self::isEnabled()) return false;
         if (!isset($this->usingServerNames[$name])) return false;
         unset($this->usingServerNames[$name]);
         return true;
     }
 
     public function getCloudSign(Position $position): ?CloudSign {
-        return $this->signs[Utils::convertToString($position->asVector3()) . ":" . $position->getWorld()->getFolderName()] ?? null;
+        return $this->signs[Utils::convertToString($position)] ?? null;
     }
 
     public function isUsingServerName(string $name): bool {
@@ -110,5 +111,17 @@ class CloudSignManager {
 
     public function getCloudSigns(): array {
         return $this->signs;
+    }
+
+    public static function enable(): void {
+        if (self::isEnabled()) return;
+        self::setEnabled(true);
+        self::getInstance()->load();
+    }
+
+    public static function disable(): void {
+        if (!self::isEnabled()) return;
+        self::setEnabled(false);
+        self::getInstance()->unload();
     }
 }

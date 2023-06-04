@@ -3,24 +3,23 @@
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class PlayerDisconnectPacket extends CloudPacket {
 
-    public function __construct(private ?CloudPlayer $player = null) {}
+    public function __construct(private ?string $playerName = "") {}
 
-    protected function encodePayload(PacketContent $content): void {
-        parent::encodePayload($content);
-        $content->putPlayer($this->player);
+    public function encodePayload(PacketData $packetData): void {
+        $packetData->write($this->playerName);
     }
 
-    protected function decodePayload(PacketContent $content): void {
-        parent::decodePayload($content);
-        $this->player = $content->readPlayer();
+    public function decodePayload(PacketData $packetData): void {
+        $this->playerName = $packetData->readString();
     }
 
-    public function getPlayer(): ?CloudPlayer {
-        return $this->player;
+    public function getPlayer(): string {
+        return $this->playerName;
     }
+
+    public function handle() {}
 }

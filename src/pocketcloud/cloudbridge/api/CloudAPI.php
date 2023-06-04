@@ -2,30 +2,31 @@
 
 namespace pocketcloud\cloudbridge\api;
 
+use JetBrains\PhpStorm\Pure;
 use pocketcloud\cloudbridge\api\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\registry\Registry;
 use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\template\Template;
 use pocketcloud\cloudbridge\CloudBridge;
-use pocketcloud\cloudbridge\config\ModulesConfig;
-use pocketcloud\cloudbridge\module\npc\CloudNPCManager;
-use pocketcloud\cloudbridge\module\sign\CloudSignManager;
+use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSavePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerStatusChangePacket;
+use pocketcloud\cloudbridge\network\packet\impl\normal\ConsoleTextPacket;
 use pocketcloud\cloudbridge\network\packet\impl\request\CloudServerStartRequestPacket;
 use pocketcloud\cloudbridge\network\packet\impl\request\CloudServerStopRequestPacket;
 use pocketcloud\cloudbridge\network\packet\impl\request\LoginRequestPacket;
 use pocketcloud\cloudbridge\network\packet\impl\response\LoginResponsePacket;
+use pocketcloud\cloudbridge\network\packet\impl\types\LogType;
 use pocketcloud\cloudbridge\network\packet\impl\types\VerifyStatus;
 use pocketcloud\cloudbridge\network\packet\RequestPacket;
 use pocketcloud\cloudbridge\network\packet\ResponsePacket;
 use pocketcloud\cloudbridge\network\request\RequestManager;
 use pocketcloud\cloudbridge\task\ChangeStatusTask;
+use pocketcloud\cloudbridge\util\GeneralSettings;
 use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
-use pocketmine\scheduler\ClosureTask;
 use pocketmine\utils\Internet;
 use pocketmine\utils\SingletonTrait;
 use pocketmine\Server;
@@ -37,28 +38,26 @@ class CloudAPI {
 
     public function __construct() {
         self::setInstance($this);
-        $this->verified = VerifyStatus::NOT_VERIFIED();
+        $this->verified = VerifyStatus::NOT_APPLIED();
     }
 
     public function processLogin() {
         if ($this->verified === VerifyStatus::VERIFIED()) return;
-        RequestManager::getInstance()->sendRequest(new LoginRequestPacket($this->getServerName(), getmypid()))->then(function(ResponsePacket $packet): void {
+        RequestManager::getInstance()->sendRequest(new LoginRequestPacket(GeneralSettings::getServerName(), getmypid()))->then(function(ResponsePacket $packet): void {
             if ($packet instanceof LoginResponsePacket) {
-                if ($packet->getVerifyStatus() === VerifyStatus::VERIFIED()) {
+                if ($packet->getStatus() === VerifyStatus::VERIFIED()) {
                     CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new ChangeStatusTask(), 20);
-                    \GlobalLogger::get()->info("This cloud server was §averified §fby the cloud!");
-                    CloudBridge::getInstance()->getScheduler()->scheduleDelayedTask(new ClosureTask(function(): void {
-                        if (ModulesConfig::getInstance()->isSignModule()) CloudSignManager::getInstance()->load();
-                        if (ModulesConfig::getInstance()->isNpcModule()) CloudNPCManager::getInstance()->load();
-                    }), 60);
+                    \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verified"));
                     $this->verified = VerifyStatus::VERIFIED();
                 } else {
-                    \GlobalLogger::get()->error("§4This cloud server wasn't verified §4by the cloud! Shutdown...");
+                    $this->verified = VerifyStatus::DENIED();
+                    \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.denied"));
                     Server::getInstance()->shutdown();
                 }
             }
         })->failure(function(): void {
-            \GlobalLogger::get()->error("§4The cloud didn't respond on the verify request! Shutdown...");
+            $this->verified = VerifyStatus::DENIED();
+            \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.failed"));
             Server::getInstance()->shutdown();
         });
     }
@@ -97,8 +96,26 @@ class CloudAPI {
         return false;
     }
 
+    public function logConsole(string $text, ?LogType $logType = null) {
+        $logType = $logType ?? LogType::INFO();
+        Network::getInstance()->sendPacket(new ConsoleTextPacket($text, $logType));
+    }
+
+    public function pickTemplates(\Closure $conditionClosure): ?array {
+        return array_filter($this->getTemplates(), $conditionClosure);
+    }
+
+    public function getFreeServerByTemplate(Template $template, array $exclude = [], bool $lowest = false): ?CloudServer {
+        $availableServers = array_filter($this->getServersByTemplate($template), fn(CloudServer $server) => !in_array($server->getName(), $exclude) && $server->getServerStatus() === ServerStatus::ONLINE());
+        if (empty($availableServers)) return null;
+        $serverClasses = array_map(fn(CloudServer $server) => $server, $availableServers);
+        $servers = array_map(fn(CloudServer $server) => count($server->getCloudPlayers()), $availableServers);
+        arsort($servers);
+        return ($lowest ? ($serverClasses[array_key_last($servers)] ?? null) : ($serverClasses[array_key_first($servers)] ?? null));
+    }
+
     /** @return array<CloudServer> */
-    public function getServersOfTemplate(Template $template): array {
+    public function getServersByTemplate(Template $template): array {
         return array_filter($this->getServers(), function(CloudServer $server) use($template): bool {
             return $template->getName() == $server->getTemplate()->getName();
         });
@@ -112,15 +129,15 @@ class CloudAPI {
         });
     }
 
-    public function getServerByName(string $name): ?CloudServer {
+    #[Pure] public function getServerByName(string $name): ?CloudServer {
         return Registry::getServers()[$name] ?? null;
     }
 
-    public function getTemplateByName(string $name): ?Template {
+    #[Pure] public function getTemplateByName(string $name): ?Template {
         return Registry::getTemplates()[$name] ?? null;
     }
 
-    public function getPlayerByName(string $name): ?CloudPlayer {
+    #[Pure] public function getPlayerByName(string $name): ?CloudPlayer {
         return Registry::getPlayers()[$name] ?? null;
     }
 
@@ -132,42 +149,26 @@ class CloudAPI {
         return array_filter(Registry::getPlayers(), fn(CloudPlayer $player) => $player->getXboxUserId() == $xboxUserId)[0] ?? null;
     }
 
-    public function getServerName(): string {
-        return Server::getInstance()->getConfigGroup()->getConfigString("server-name");
-    }
-
-    public function getCloudPort(): int {
-        return Server::getInstance()->getConfigGroup()->getConfigInt("cloud-port");
-    }
-
-    public function getCloudPath(): string {
-        return Server::getInstance()->getConfigGroup()->getConfigString("cloud-path");
-    }
-
-    public function getTemplateName(): string {
-        return Server::getInstance()->getConfigGroup()->getConfigString("template");
-    }
-
     public function getCurrentServer(): ?CloudServer {
-        return $this->getServerByName($this->getServerName());
+        return $this->getServerByName(GeneralSettings::getServerName());
     }
 
     public function getCurrentTemplate(): ?Template {
-        return $this->getTemplateByName($this->getTemplateName());
+        return $this->getTemplateByName(GeneralSettings::getTemplateName());
     }
 
     /** @return array<CloudServer> */
-    public function getServers(): array {
+    #[Pure] public function getServers(): array {
         return Registry::getServers();
     }
 
     /** @return array<Template> */
-    public function getTemplates(): array {
+    #[Pure] public function getTemplates(): array {
         return Registry::getTemplates();
     }
 
     /** @return array<CloudPlayer> */
-    public function getPlayers(): array {
+    #[Pure] public function getPlayers(): array {
         return Registry::getPlayers();
     }
 

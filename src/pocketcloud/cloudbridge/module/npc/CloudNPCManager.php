@@ -4,16 +4,14 @@ namespace pocketcloud\cloudbridge\module\npc;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\CloudBridge;
-use pocketcloud\cloudbridge\command\CloudNPCCommand;
-use pocketcloud\cloudbridge\config\ModulesConfig;
-use pocketcloud\cloudbridge\event\CloudNPCCreateEvent;
-use pocketcloud\cloudbridge\event\CloudNPCRemoveEvent;
-use pocketcloud\cloudbridge\event\CloudNPCSpawnEvent;
-use pocketcloud\cloudbridge\module\npc\listener\NPCListener;
+use pocketcloud\cloudbridge\module\BaseModuleTrait;
+use pocketcloud\cloudbridge\module\npc\command\CloudNPCCommand;
 use pocketcloud\cloudbridge\module\npc\task\NameTagChangeTask;
-use pocketcloud\cloudbridge\skin\SkinSaver;
-use pocketcloud\cloudbridge\utils\Message;
-use pocketcloud\cloudbridge\utils\Utils;
+use pocketcloud\cloudbridge\event\npc\CloudNPCCreateEvent;
+use pocketcloud\cloudbridge\event\npc\CloudNPCRemoveEvent;
+use pocketcloud\cloudbridge\event\npc\CloudNPCSpawnEvent;
+use pocketcloud\cloudbridge\util\SkinSaver;
+use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\Server;
@@ -22,7 +20,7 @@ use pocketmine\utils\SingletonTrait;
 use pocketmine\world\Position;
 
 class CloudNPCManager {
-    use SingletonTrait;
+    use SingletonTrait, BaseModuleTrait;
 
     /** @var array<CloudNPC>  */
     private array $npcs = [];
@@ -30,15 +28,10 @@ class CloudNPCManager {
 
     public function __construct() {
         self::setInstance($this);
-        if (ModulesConfig::getInstance()->isNpcModule()) {
-            CloudBridge::getInstance()->registerPermission("pocketcloud.command.cloudnpc");
-            Server::getInstance()->getPluginManager()->registerEvents(new NPCListener(), CloudBridge::getInstance());
-            Server::getInstance()->getCommandMap()->register("npcModule", new CloudNPCCommand("cloudnpc", Message::parse(Message::CLOUD_NPC_COMMAND_DESCRIPTION)));
-        }
     }
 
     public function load() {
-        if (!ModulesConfig::getInstance()->isNpcModule()) return;
+        if (!self::isEnabled()) return;
         foreach ($this->getNPCConfig()->getAll() as $positionString => $cloudNPC) {
             if (!Utils::containKeys($cloudNPC, "Template", "Creator", "Position")) continue;
             /** @var Position $position */
@@ -54,10 +47,14 @@ class CloudNPCManager {
         }
     }
 
+    public function unload() {
+        if (self::isEnabled()) return;
+        $this->npcs = [];
+    }
+
     public function addCloudNPC(CloudNPC $cloudNPC) {
-        if (!ModulesConfig::getInstance()->isNpcModule()) return;
-        $ev = new CloudNPCCreateEvent($cloudNPC);
-        $ev->call();
+        if (!self::isEnabled()) return;
+        ($ev = new CloudNPCCreateEvent($cloudNPC))->call();
         if ($ev->isCancelled()) return;
 
         $positionString = Utils::convertToString($cloudNPC->getPosition());
@@ -74,9 +71,8 @@ class CloudNPCManager {
     }
 
     public function removeCloudNPC(CloudNPC $cloudNPC) {
-        if (!ModulesConfig::getInstance()->isNpcModule()) return;
-        $ev = new CloudNPCRemoveEvent($cloudNPC);
-        $ev->call();
+        if (!self::isEnabled()) return;
+        ($ev = new CloudNPCRemoveEvent($cloudNPC))->call();
         if ($ev->isCancelled()) return;
 
         $positionString = Utils::convertToString($cloudNPC->getPosition());
@@ -88,7 +84,7 @@ class CloudNPCManager {
     }
 
     public function spawnCloudNPC(CloudNPC $cloudNPC) {
-        if (!ModulesConfig::getInstance()->isNpcModule()) return;
+        if (!self::isEnabled()) return;
         if (($skin = SkinSaver::get($cloudNPC->getCreator())) !== null) {
             $positionString = Utils::convertToString($cloudNPC->getPosition());
             if (isset($this->entities[$positionString])) {
@@ -101,8 +97,7 @@ class CloudNPCManager {
             $pitch = ($position instanceof Location ? $position->getPitch() : 0);
             $human = new Human(Location::fromObject($cloudNPC->getPosition(), null, $yaw, $pitch), $skin);
             $human->setCanSaveWithChunk(false);
-            $ev = new CloudNPCSpawnEvent($cloudNPC, $human);
-            $ev->call();
+            ($ev = new CloudNPCSpawnEvent($cloudNPC, $human))->call();
             if ($ev->isCancelled()) return;
             $human->spawnToAll();
             $this->entities[$positionString] = $human;
@@ -111,7 +106,7 @@ class CloudNPCManager {
     }
 
     public function spawnCloudNPCs() {
-        if (!ModulesConfig::getInstance()->isNpcModule()) return;
+        if (!self::isEnabled()) return;
         foreach ($this->getCloudNPCs() as $npc) {
             $this->spawnCloudNPC($npc);
         }
@@ -139,5 +134,26 @@ class CloudNPCManager {
 
     public function getCloudEntities(): array {
         return $this->entities;
+    }
+
+    public static function enable(): void {
+        if (self::isEnabled()) return;
+        self::setEnabled(true);
+        Server::getInstance()->getCommandMap()->register("cloudNpcModule", new CloudNPCCommand());
+        foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
+        self::getInstance()->load();
+        self::getInstance()->spawnCloudNPCs();
+    }
+
+    public static function disable(): void {
+        if (!self::isEnabled()) return;
+        self::setEnabled(false);
+        if (($command = Server::getInstance()->getCommandMap()->getCommand("cloudnpc")) !== null) {
+            if ($command instanceof CloudNPCCommand) {
+                Server::getInstance()->getCommandMap()->unregister($command);
+            }
+        }
+        foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
+        self::getInstance()->unload();
     }
 }

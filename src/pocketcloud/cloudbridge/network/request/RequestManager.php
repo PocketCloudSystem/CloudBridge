@@ -31,8 +31,8 @@ class RequestManager {
         if (isset($this->requests[$packet->getRequestId()])) {
             $requestPacket = $this->requests[$packet->getRequestId()];
             if ($requestPacket instanceof RequestPacket) {
-                if ($requestPacket->getThenClosure() !== null) {
-                    ($requestPacket->getThenClosure())($packet);
+                foreach ($requestPacket->getThenClosures() as $closure) {
+                    ($closure)($packet);
                 }
             }
         }

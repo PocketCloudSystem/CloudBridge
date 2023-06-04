@@ -17,9 +17,8 @@ final class DisconnectReason {
     }
 
     public static function getReasonByName(string $name): ?DisconnectReason {
-        $reason = self::_registryFromString($name);
-        if ($reason instanceof DisconnectReason) return $reason;
-        return null;
+        self::checkInit();
+        return self::$members[strtoupper($name)] ?? null;
     }
 
     public function __construct(private string $name) {}

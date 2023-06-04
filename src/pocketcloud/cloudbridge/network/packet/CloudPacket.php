@@ -2,25 +2,33 @@
 
 namespace pocketcloud\cloudbridge\network\packet;
 
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
+use pocketcloud\cloudbridge\util\Utils;
 
 abstract class CloudPacket {
 
-    public function encode(PacketContent $content): void {
-        $content->put($this->getIdentifier());
-        $this->encodePayload($content);
+    private bool $encoded = false;
+
+    public function encode(PacketData $packetData) {
+        if (!$this->encoded) {
+            $this->encoded = true;
+            $packetData->write((new \ReflectionClass($this))->getShortName());
+            $this->encodePayload($packetData);
+        }
     }
 
-    public function decode(PacketContent $content): void {
-        $content->read();
-        $this->decodePayload($content);
+    public function decode(PacketData $packetData) {
+        $packetData->readString();
+        $this->decodePayload($packetData);
     }
 
-    protected function encodePayload(PacketContent $content): void {}
+    public function encodePayload(PacketData $packetData) {}
 
-    protected function decodePayload(PacketContent $content): void {}
+    public function decodePayload(PacketData $packetData) {}
 
-    public function getIdentifier(): string {
-        return (new \ReflectionClass($this))->getShortName();
+    abstract public function handle();
+
+    public function isEncoded(): bool {
+        return $this->encoded;
     }
 }

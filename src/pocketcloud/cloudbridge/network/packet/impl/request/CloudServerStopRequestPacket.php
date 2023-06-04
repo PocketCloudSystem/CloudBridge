@@ -2,8 +2,8 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\request;
 
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
 use pocketcloud\cloudbridge\network\packet\RequestPacket;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class CloudServerStopRequestPacket extends RequestPacket {
 
@@ -11,14 +11,12 @@ class CloudServerStopRequestPacket extends RequestPacket {
         parent::__construct();
     }
 
-    protected function encodePayload(PacketContent $content): void {
-        parent::encodePayload($content);
-        $content->put($this->server);
+    public function encodePayload(PacketData $packetData) {
+        $packetData->write($this->server);
     }
 
-    protected function decodePayload(PacketContent $content): void {
-        parent::decodePayload($content);
-        $this->server = $content->readString();
+    public function decodePayload(PacketData $packetData) {
+        $this->server = $packetData->readString();
     }
 
     public function getServer(): string {

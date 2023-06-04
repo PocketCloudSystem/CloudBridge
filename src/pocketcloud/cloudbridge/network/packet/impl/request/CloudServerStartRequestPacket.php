@@ -2,25 +2,26 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\request;
 
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
 use pocketcloud\cloudbridge\network\packet\RequestPacket;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class CloudServerStartRequestPacket extends RequestPacket {
 
-    public function __construct(private string $template = "", private int $count = 0) {
+    public function __construct(
+        private string $template = "",
+        private int $count = 0
+    ) {
         parent::__construct();
     }
 
-    protected function encodePayload(PacketContent $content): void {
-        parent::encodePayload($content);
-        $content->put($this->template);
-        $content->put($this->count);
+    public function encodePayload(PacketData $packetData) {
+        $packetData->write($this->template);
+        $packetData->write($this->count);
     }
 
-    protected function decodePayload(PacketContent $content): void {
-        parent::decodePayload($content);
-        $this->template = $content->readString();
-        $this->count = $content->readInt();
+    public function decodePayload(PacketData $packetData) {
+        $this->template = $packetData->readString();
+        $this->count = $packetData->readInt();
     }
 
     public function getTemplate(): string {

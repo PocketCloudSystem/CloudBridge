@@ -2,21 +2,32 @@
 
 namespace pocketcloud\cloudbridge\module\npc\form\sub;
 
-use pocketcloud\cloudbridge\lib\dktapps\pmforms\MenuForm;
-use pocketcloud\cloudbridge\lib\dktapps\pmforms\MenuOption;
+use dktapps\pmforms\MenuForm;
+use dktapps\pmforms\MenuOption;
+use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPC;
 use pocketmine\player\Player;
 
 class NPCListViewForm extends MenuForm {
 
-    public function __construct(CloudNPC $cloudNPC) {
-        $text = "§7Template: §e" . $cloudNPC->getTemplate()->getName();
-        $text .= "\n§7Position: §e" . $cloudNPC->getPosition()->getWorld()->getFolderName() . "§8: §e" . $cloudNPC->getPosition()->getX() . "§8, §e" . $cloudNPC->getPosition()->getY() . "§8, §e" . $cloudNPC->getPosition()->getZ();
-        $text .= "\n§7Creator: §e" . $cloudNPC->getCreator();
-        parent::__construct("§8» §eManage NPCs §8| §eList §8«", $text, [new MenuOption("§cBack")], function(Player $player, int $data): void {
-            $player->sendForm(new NPCListForm());
-        }, function(Player $player): void {
-            $player->sendForm(new NPCListForm());
-        });
+    public function __construct(private CloudNPC $cloudNPC) {
+        $text = "§7Template: §e" . $this->cloudNPC->getTemplate()->getName();
+        $text .= "\n§7Position: §e" . $this->cloudNPC->getPosition()->getWorld()->getFolderName() . "§8: §e" . $this->cloudNPC->getPosition()->getX() . "§8, §e" . $this->cloudNPC->getPosition()->getY() . "§8, §e" . $this->cloudNPC->getPosition()->getZ();
+        $text .= "\n§7Creator: §e" . $this->cloudNPC->getCreator();
+        parent::__construct(
+            Language::current()->translate("inGame.ui.cloudnpc.list_view.title", $this->cloudNPC->getTemplate()->getName()),
+            $text,
+            [
+                new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.list_view.button.teleport")),
+                new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.list_view.button.back"))
+            ],
+            function(Player $player, int $data): void {
+                if ($data == 0) {
+                    $player->teleport($this->cloudNPC->getPosition());
+                } else {
+                    $player->sendForm(new NPCListForm());
+                }
+            }
+        );
     }
 }

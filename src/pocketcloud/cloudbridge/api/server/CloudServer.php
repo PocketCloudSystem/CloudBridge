@@ -7,7 +7,7 @@ use pocketcloud\cloudbridge\api\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\server\data\CloudServerData;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\template\Template;
-use pocketcloud\cloudbridge\utils\Utils;
+use pocketcloud\cloudbridge\util\Utils;
 
 class CloudServer {
 

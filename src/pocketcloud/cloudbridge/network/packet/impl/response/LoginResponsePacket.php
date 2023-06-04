@@ -2,27 +2,30 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\response;
 
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
 use pocketcloud\cloudbridge\network\packet\impl\types\VerifyStatus;
 use pocketcloud\cloudbridge\network\packet\ResponsePacket;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class LoginResponsePacket extends ResponsePacket {
 
-    public function __construct(private string $requestId = "", private ?VerifyStatus $verifyStatus = null) {
-        parent::__construct($this->requestId);
+    public function __construct(
+        string $requestId = "",
+        private ?VerifyStatus $status = null
+    ) {
+        parent::__construct($requestId);
     }
 
-    protected function encodePayload(PacketContent $content): void {
-        parent::encodePayload($content);
-        $content->putVerifyStatus($this->verifyStatus);
+    public function encodePayload(PacketData $packetData) {
+        $packetData->writeVerifyStatus($this->status);
     }
 
-    protected function decodePayload(PacketContent $content): void {
-        parent::decodePayload($content);
-        $this->verifyStatus = $content->readVerifyStatus();
+    public function decodePayload(PacketData $packetData) {
+        $this->status = $packetData->readVerifyStatus();
     }
 
-    public function getVerifyStatus(): VerifyStatus {
-        return $this->verifyStatus;
+    public function getStatus(): ?VerifyStatus {
+        return $this->status;
     }
+
+    public function handle() {}
 }

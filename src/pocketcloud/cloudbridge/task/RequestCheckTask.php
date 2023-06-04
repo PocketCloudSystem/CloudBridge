@@ -12,7 +12,7 @@ class RequestCheckTask extends Task {
 
     public function onRun(): void {
         if (isset(RequestManager::getInstance()->getRequests()[$this->requestPacket->getRequestId()])) {
-            if (($this->requestPacket->getSentTime() + 10) < microtime(true)) {
+            if (($this->requestPacket->getSentTime() + 10) < time()) {
                 RequestManager::getInstance()->callFailure($this->requestPacket);
                 RequestManager::getInstance()->removeRequest($this->requestPacket);
                 $this->getHandler()->cancel();

@@ -2,37 +2,25 @@
 
 namespace pocketcloud\cloudbridge\network;
 
-use pocketcloud\cloudbridge\event\NetworkCloseEvent;
-use pocketcloud\cloudbridge\event\NetworkConnectEvent;
-use pocketcloud\cloudbridge\event\NetworkPacketSendEvent;
+use pmmp\thread\ThreadSafeArray;
+use pocketcloud\cloudbridge\event\network\NetworkCloseEvent;
+use pocketcloud\cloudbridge\event\network\NetworkConnectEvent;
+use pocketcloud\cloudbridge\event\network\NetworkPacketSendEvent;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
-use pocketcloud\cloudbridge\network\packet\handler\encoder\PacketEncoder;
-use pocketcloud\cloudbridge\network\packet\handler\PacketHandler;
-use pocketcloud\cloudbridge\network\packet\pool\PacketPool;
-use pocketcloud\cloudbridge\network\request\RequestManager;
-use pocketcloud\cloudbridge\utils\Address;
-use pocketcloud\cloudbridge\network\packet\listener\PacketListener;
-use pocketmine\utils\SingletonTrait;
-use pocketmine\snooze\SleeperNotifier;
+use pocketcloud\cloudbridge\network\packet\handler\PacketSerializer;
+use pocketcloud\cloudbridge\util\Address;
+use pocketmine\snooze\SleeperHandlerEntry;
 use pocketmine\thread\Thread;
+use pocketmine\utils\SingletonTrait;
 
 class Network extends Thread {
     use SingletonTrait;
 
-    private PacketPool $packetPool;
-    private PacketListener $packetListener;
-    private PacketHandler $packetHandler;
-    private RequestManager $requestManager;
     private \Socket $socket;
     private bool $connected = false;
 
-    public function __construct(private Address $address, private SleeperNotifier $sleeperNotifier, private \Threaded $buffer) {
+    public function __construct(private Address $address, private SleeperHandlerEntry $handlerEntry, private ThreadSafeArray $buffer) {
         self::setInstance($this);
-        $this->packetPool = new PacketPool();
-        $this->packetListener = new PacketListener();
-        $this->packetHandler = new PacketHandler();
-        $this->requestManager = new RequestManager();
-
         \GlobalLogger::get()->info("Try to connect to §e" . $this->address . "§r...");
         $this->connect();
     }
@@ -42,11 +30,14 @@ class Network extends Thread {
         while ($this->isConnected()) {
             if ($this->read($buffer, $address, $port) !== false) {
                 $this->buffer[] = $buffer;
-                $this->sleeperNotifier->wakeupSleeper();
+                $this->handlerEntry->createNotifier()->wakeupSleeper();
             }
         }
     }
 
+    /**
+     * @throws \Exception
+     */
     public function connect() {
         if ($this->connected) return;
         $this->socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
@@ -84,11 +75,10 @@ class Network extends Thread {
 
     public function sendPacket(CloudPacket $packet): bool {
         if ($this->isConnected()) {
-            $json = PacketEncoder::encode($packet);
-            if ($json !== false) {
+            $json = PacketSerializer::encode($packet);
+            if ($json !== "") {
                 $ev = new NetworkPacketSendEvent($packet);
                 $ev->call();
-
                 if (!$ev->isCancelled()) return $this->write($json);
             }
         }
@@ -99,28 +89,12 @@ class Network extends Thread {
         return $this->address;
     }
 
-    public function getBuffer(): \Threaded {
+    public function getBuffer(): ThreadSafeArray {
         return $this->buffer;
     }
 
     public function getSocket(): \Socket {
         return $this->socket;
-    }
-
-    public function getPacketPool(): PacketPool {
-        return $this->packetPool;
-    }
-
-    public function getPacketListener(): PacketListener {
-        return $this->packetListener;
-    }
-
-    public function getPacketHandler(): PacketHandler {
-        return $this->packetHandler;
-    }
-
-    public function getRequestManager(): RequestManager {
-        return $this->requestManager;
     }
 
     public function isConnected(): bool {

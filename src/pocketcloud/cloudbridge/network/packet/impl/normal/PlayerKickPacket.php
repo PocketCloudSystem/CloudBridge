@@ -2,30 +2,43 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
+use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
-use pocketcloud\cloudbridge\network\packet\content\PacketContent;
+use pocketcloud\cloudbridge\network\packet\utils\PacketData;
+use pocketmine\Server;
 
 class PlayerKickPacket extends CloudPacket {
 
-    public function __construct(private string $player = "", private string $reason = "") {}
+    public function __construct(
+        private string $playerName = "",
+        private string $reason = ""
+    ) {}
 
-    protected function encodePayload(PacketContent $content): void {
-        parent::encodePayload($content);
-        $content->put($this->player);
-        $content->put($this->reason);
+    public function encodePayload(PacketData $packetData): void {
+        $packetData->write($this->playerName);
+        $packetData->write($this->reason);
     }
 
-    protected function decodePayload(PacketContent $content): void {
-        parent::decodePayload($content);
-        $this->player = $content->readString();
-        $this->reason = $content->readString();
+    public function decodePayload(PacketData $packetData): void {
+        $this->playerName = $packetData->readString();
+        $this->reason = $packetData->readString();
     }
 
-    public function getPlayer(): string {
-        return $this->player;
+    public function getPlayerName(): string {
+        return $this->playerName;
     }
 
     public function getReason(): string {
         return $this->reason;
+    }
+
+    public function handle() {
+        if (($player = Server::getInstance()->getPlayerExact($this->playerName)) !== null) {
+            if ($this->reason == "MAINTENANCE") {
+                if (!$player->hasPermission("pocketcloud.maintenance.bypass")) $player->kick(Language::current()->translate("inGame.template.kick.maintenance"));
+            } else {
+                $player->kick($this->reason);
+            }
+        }
     }
 }

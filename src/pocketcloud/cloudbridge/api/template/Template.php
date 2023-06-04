@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloudbridge\api\template;
 
-use pocketcloud\cloudbridge\utils\Utils;
+use pocketcloud\cloudbridge\util\Utils;
 
 class Template {
 
@@ -72,6 +72,7 @@ class Template {
         $this->autoStart = $autoStart;
     }
 
+    /** @internal */
     public function apply(array $data) {
         $this->name = $data["name"];
         $this->lobby = $data["lobby"];

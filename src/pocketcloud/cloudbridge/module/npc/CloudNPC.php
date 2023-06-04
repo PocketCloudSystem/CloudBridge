@@ -7,7 +7,11 @@ use pocketmine\world\Position;
 
 class CloudNPC {
 
-    public function __construct(private Template $template, private Position $position, private string $creator) {}
+    public function __construct(
+        private Template $template,
+        private Position $position,
+        private string $creator
+    ) {}
 
     public function getTemplate(): Template {
         return $this->template;

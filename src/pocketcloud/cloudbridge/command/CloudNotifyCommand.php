@@ -2,44 +2,34 @@
 
 namespace pocketcloud\cloudbridge\command;
 
+use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerNotifyUpdatePacket;
-use pocketcloud\cloudbridge\network\packet\impl\request\CheckPlayerNotifyRequestPacket;
-use pocketcloud\cloudbridge\network\packet\impl\response\CheckPlayerNotifyResponsePacket;
-use pocketcloud\cloudbridge\network\packet\ResponsePacket;
-use pocketcloud\cloudbridge\network\request\RequestManager;
-use pocketcloud\cloudbridge\utils\Message;
+use pocketcloud\cloudbridge\util\NotifyList;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 
 class CloudNotifyCommand extends Command {
 
-    public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = []) {
-        parent::__construct($name, $description, $usageMessage, $aliases);
+    public function __construct() {
+        parent::__construct("cloudnotify", Language::current()->translate("inGame.command.description.cloud_notify"), "/cloudnotify", []);
         $this->setPermission("pocketcloud.command.notify");
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): bool {
         if ($sender instanceof Player) {
-            if ($sender->hasPermission($this->getPermission())) {
-                RequestManager::getInstance()->sendRequest($pk = new CheckPlayerNotifyRequestPacket($sender->getName()))->then(function(ResponsePacket $responsePacket) use($sender): void {
-                    if ($responsePacket instanceof CheckPlayerNotifyResponsePacket) {
-                        if (!$responsePacket->getValue()) {
-                            Network::getInstance()->sendPacket(new PlayerNotifyUpdatePacket($sender->getName(), true));
-                            Message::parse(Message::NOTIFICATIONS_ACTIVATED)->target($sender);
-                        } else {
-                            Network::getInstance()->sendPacket(new PlayerNotifyUpdatePacket($sender->getName(), false));
-                            Message::parse(Message::NOTIFICATIONS_DEACTIVATED)->target($sender);
-                        }
-                    }
-                })->failure(function() use($sender, $pk): void {
-                    Message::parse(Message::REQUEST_TIMEOUT, [$pk->getRequestId(), $pk->getIdentifier()])->target($sender);
-                });
-            } else {
-                Message::parse(Message::NO_PERMISSIONS)->target($sender);
-            }
+            if ($this->testPermissionSilent($sender)) {
+                if (NotifyList::exists($sender)) {
+                    NotifyList::remove($sender);
+                    Network::getInstance()->sendPacket(new PlayerNotifyUpdatePacket($sender->getName(), false));
+                    $sender->sendMessage(Language::current()->translate("inGame.notify.deactivated"));
+                } else {
+                    NotifyList::put($sender);
+                    Network::getInstance()->sendPacket(new PlayerNotifyUpdatePacket($sender->getName(), true));
+                    $sender->sendMessage(Language::current()->translate("inGame.notify.activated"));
+                }
+            } else $sender->sendMessage(Language::current()->translate("inGame.no.permission"));
         }
         return true;
     }

@@ -21,9 +21,8 @@ final class ErrorReason {
     }
 
     public static function getReasonByName(string $name): ?ErrorReason {
-        $reason = self::_registryFromString($name);
-        if ($reason instanceof ErrorReason) return $reason;
-        return null;
+        self::checkInit();
+        return self::$members[strtoupper($name)] ?? null;
     }
 
     public function __construct(private string $name) {}

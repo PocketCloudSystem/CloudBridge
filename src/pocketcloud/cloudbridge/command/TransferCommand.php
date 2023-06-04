@@ -3,17 +3,18 @@
 namespace pocketcloud\cloudbridge\command;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\utils\Message;
+use pocketcloud\cloudbridge\CloudBridge;
+use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\util\GeneralSettings;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
-use pocketmine\lang\Translatable;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
 class TransferCommand extends Command {
 
-    public function __construct(string $name, Translatable|string $description = "", Translatable|string|null $usageMessage = null, array $aliases = []) {
-        parent::__construct($name, $description, $usageMessage, $aliases);
+    public function __construct() {
+        parent::__construct("transfer", Language::current()->translate("inGame.command.description.transfer"), "/transfer", []);
         $this->setPermission("pocketcloud.command.transfer");
     }
 
@@ -25,32 +26,28 @@ class TransferCommand extends Command {
 
                 if (($server = CloudAPI::getInstance()->getServerByName($args[0])) !== null) {
                     if ($sender === $player) {
-                        if ($server->getName() == CloudAPI::getInstance()->getServerName()) {
-                            Message::parse(Message::ALREADY_CONNECTED, [$server->getName()])->target($sender);
+                        if ($server->getName() == GeneralSettings::getServerName()) {
+                            $sender->sendMessage(Language::current()->translate("inGame.server.already.connected", $server->getName()));
                         } else {
-                            Message::parse(Message::CONNECT_TO_SERVER, [$server->getName()])->target($sender);
+                            $sender->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));
                             if (!CloudAPI::getInstance()->transferPlayer($sender, $server)) {
-                                Message::parse(Message::CANT_CONNECT, [$server->getName()])->target($sender);
+                                $sender->sendMessage(Language::current()->translate("inGame.server.connect.failed", $server->getName()));
                             }
                         }
                     } else {
-                        if ($server->getName() == CloudAPI::getInstance()->getServerName()) {
-                            Message::parse(Message::ALREADY_CONNECTED_TARGET, [$player->getName(), $server->getName()])->target($sender);
+                        if ($server->getName() == GeneralSettings::getServerName()) {
+                            $sender->sendMessage(Language::current()->translate("inGame.server.target.already.connected", [$server->getName()]));
                         } else {
-                            Message::parse(Message::CONNECT_TO_SERVER_TARGET, [$player->getName(), $server->getName()])->target($sender);
-                            Message::parse(Message::CONNECT_TO_SERVER, [$server->getName()])->target($player);
+                            $sender->sendMessage(Language::current()->translate("inGame.server.target.connect", $player->getName(), $server->getName()));
+                            $player->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));
                             if (!CloudAPI::getInstance()->transferPlayer($player, $server)) {
-                                Message::parse(Message::CANT_CONNECT, [$server->getName()])->target($player);
-                                Message::parse(Message::CANT_CONNECT_TARGET, [$player->getName(), $server->getName()])->target($sender);
+                                $sender->sendMessage(Language::current()->translate("inGame.server.target.connect.failed", $player->getName(), $server->getName()));
+                                $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $server->getName()));
                             }
                         }
                     }
-                } else {
-                    Message::parse(Message::SERVER_EXISTENCE)->target($sender);
-                }
-            } else {
-                Message::parse(Message::TRANSFER_HELP_USAGE)->target($sender);
-            }
+                } else $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
+            } else $sender->sendMessage(CloudBridge::getPrefix() . "§c/transfer <server> [target]");
         }
         return true;
     }
