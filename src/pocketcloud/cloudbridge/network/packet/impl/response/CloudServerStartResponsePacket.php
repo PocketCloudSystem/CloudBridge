@@ -8,18 +8,13 @@ use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class CloudServerStartResponsePacket extends ResponsePacket {
 
-    public function __construct(
-        string $requestId = "",
-        private ?ErrorReason $errorReason = null
-    ) {
-        parent::__construct($requestId);
-    }
+    public function __construct(private ?ErrorReason $errorReason = null) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeErrorReason($this->errorReason);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->errorReason = $packetData->readErrorReason();
     }
 
@@ -27,5 +22,5 @@ class CloudServerStartResponsePacket extends ResponsePacket {
         return $this->errorReason;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

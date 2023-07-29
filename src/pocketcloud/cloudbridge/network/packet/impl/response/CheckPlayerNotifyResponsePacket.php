@@ -7,18 +7,13 @@ use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class CheckPlayerNotifyResponsePacket extends ResponsePacket {
 
-    public function __construct(
-        string $requestId = "",
-        private bool $value = false
-    ) {
-        parent::__construct($requestId);
-    }
+    public function __construct(private bool $value = false) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->value);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->value = $packetData->readBool();
     }
 
@@ -26,5 +21,5 @@ class CheckPlayerNotifyResponsePacket extends ResponsePacket {
         return $this->value;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

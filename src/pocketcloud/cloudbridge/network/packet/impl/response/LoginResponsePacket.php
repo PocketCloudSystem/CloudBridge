@@ -8,18 +8,13 @@ use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 class LoginResponsePacket extends ResponsePacket {
 
-    public function __construct(
-        string $requestId = "",
-        private ?VerifyStatus $status = null
-    ) {
-        parent::__construct($requestId);
-    }
+    public function __construct(private ?VerifyStatus $status = null) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeVerifyStatus($this->status);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->status = $packetData->readVerifyStatus();
     }
 
@@ -27,5 +22,5 @@ class LoginResponsePacket extends ResponsePacket {
         return $this->status;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

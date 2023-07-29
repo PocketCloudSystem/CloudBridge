@@ -6,14 +6,14 @@ use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 
 abstract class ResponsePacket extends CloudPacket {
 
-    public function __construct(private string $requestId) {}
+    private string $requestId = "";
 
-    public function encode(PacketData $packetData) {
+    public function encode(PacketData $packetData): void {
         parent::encode($packetData);
         $packetData->write($this->requestId);
     }
 
-    public function decode(PacketData $packetData) {
+    public function decode(PacketData $packetData): void {
         parent::decode($packetData);
         $this->requestId = $packetData->readString();
     }

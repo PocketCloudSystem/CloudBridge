@@ -16,18 +16,19 @@ class RequestManager {
     private array $requests = [];
 
     public function sendRequest(RequestPacket $packet): RequestPacket {
+        $packet->prepare();
         $this->requests[$packet->getRequestId()] = $packet;
         CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new RequestCheckTask($packet), 20);
         Network::getInstance()->sendPacket($packet);
         return $packet;
     }
 
-    public function removeRequest(RequestPacket|string $request) {
+    public function removeRequest(RequestPacket|string $request): void {
         $requestId = $request instanceof RequestPacket ? $request->getRequestId() : $request;
         unset($this->requests[$requestId]);
     }
 
-    public function callThen(ResponsePacket $packet) {
+    public function callThen(ResponsePacket $packet): void {
         if (isset($this->requests[$packet->getRequestId()])) {
             $requestPacket = $this->requests[$packet->getRequestId()];
             if ($requestPacket instanceof RequestPacket) {
@@ -38,7 +39,7 @@ class RequestManager {
         }
     }
 
-    public function callFailure(RequestPacket $packet) {
+    public function callFailure(RequestPacket $packet): void {
         if (isset($this->requests[$packet->getRequestId()])) {
             if ($packet->getFailureClosure() !== null) {
                 ($packet->getFailureClosure())($packet);

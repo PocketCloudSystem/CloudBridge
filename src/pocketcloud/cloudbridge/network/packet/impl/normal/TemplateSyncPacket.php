@@ -15,12 +15,12 @@ class TemplateSyncPacket extends CloudPacket {
         private bool $removal = false
     ) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeTemplate($this->template);
         $packetData->write($this->removal);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->template = $packetData->readTemplate();
         $this->removal = $packetData->readBool();
     }
@@ -33,7 +33,7 @@ class TemplateSyncPacket extends CloudPacket {
         return $this->removal;
     }
 
-    public function handle() {
+    public function handle(): void {
         if (CloudAPI::getInstance()->getTemplateByName($this->template->getName()) === null) {
             if (!$this->removal) Registry::registerTemplate($this->template);
         } else {

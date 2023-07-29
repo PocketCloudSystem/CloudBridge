@@ -13,11 +13,11 @@ class CommandSendPacket extends CloudPacket {
 
     public function __construct(private string $commandLine = "") {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->commandLine);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->commandLine = $packetData->readString();
     }
 
@@ -25,7 +25,7 @@ class CommandSendPacket extends CloudPacket {
         return $this->commandLine;
     }
 
-    public function handle() {
+    public function handle(): void {
         Server::getInstance()->dispatchCommand($sender = new CloudCommandSender(), $this->commandLine);
         Network::getInstance()->sendPacket(new CommandSendAnswerPacket(
             new CommandExecutionResult($this->commandLine, $sender->getCachedMessages())

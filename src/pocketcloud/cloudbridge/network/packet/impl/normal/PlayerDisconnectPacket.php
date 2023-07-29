@@ -21,5 +21,5 @@ class PlayerDisconnectPacket extends CloudPacket {
         return $this->playerName;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

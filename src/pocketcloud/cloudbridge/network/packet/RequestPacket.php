@@ -14,7 +14,8 @@ abstract class RequestPacket extends CloudPacket {
     private array $thenClosures = [];
     private ?\Closure $failure = null;
 
-    public function __construct() {
+    /** @internal */
+    public function prepare(): void {
         $this->requestId = uniqid();
         $this->sentTime = time();
     }
@@ -56,5 +57,5 @@ abstract class RequestPacket extends CloudPacket {
         return $this->failure;
     }
 
-    final public function handle() {}
+    final public function handle(): void {}
 }

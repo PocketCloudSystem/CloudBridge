@@ -32,7 +32,7 @@ class PlayerKickPacket extends CloudPacket {
         return $this->reason;
     }
 
-    public function handle() {
+    public function handle(): void {
         if (($player = Server::getInstance()->getPlayerExact($this->playerName)) !== null) {
             if ($this->reason == "MAINTENANCE") {
                 if (!$player->hasPermission("pocketcloud.maintenance.bypass")) $player->kick(Language::current()->translate("inGame.template.kick.maintenance"));

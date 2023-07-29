@@ -8,7 +8,7 @@ use pocketcloud\cloudbridge\network\packet\CloudPacket;
 
 class KeepAlivePacket extends CloudPacket {
 
-    public function handle() {
+    public function handle(): void {
         CloudBridge::getInstance()->lastKeepALiveCheck = time();
         Network::getInstance()->sendPacket(new KeepALivePacket());
     }

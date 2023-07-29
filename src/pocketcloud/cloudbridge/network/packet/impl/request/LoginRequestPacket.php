@@ -10,16 +10,14 @@ class LoginRequestPacket extends RequestPacket {
     public function __construct(
         private string $serverName = "",
         private int $processId = 0
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->serverName);
         $packetData->write($this->processId);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->serverName = $packetData->readString();
         $this->processId = $packetData->readInt();
     }

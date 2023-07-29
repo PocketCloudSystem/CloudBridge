@@ -22,5 +22,5 @@ class PlayerConnectPacket extends CloudPacket {
         return $this->player;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

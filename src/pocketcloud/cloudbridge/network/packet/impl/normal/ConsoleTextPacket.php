@@ -15,12 +15,12 @@ class ConsoleTextPacket extends CloudPacket {
         if ($this->logType === null) $this->logType = LogType::INFO();
     }
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->text);
         $packetData->writeLogType($this->logType);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->text = $packetData->readString();
         $this->logType = $packetData->readLogType();
     }
@@ -33,7 +33,7 @@ class ConsoleTextPacket extends CloudPacket {
         return $this->logType;
     }
 
-    public function handle() {
+    public function handle(): void {
         if ($this->logType === LogType::INFO()) \GlobalLogger::get()->info($this->text);
         else if ($this->logType === LogType::DEBUG()) \GlobalLogger::get()->debug($this->text, true);
         else if ($this->logType === LogType::WARN()) \GlobalLogger::get()->warning($this->text);

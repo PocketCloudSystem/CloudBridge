@@ -10,11 +10,11 @@ class CloudServerStatusChangePacket extends CloudPacket {
 
     public function __construct(private ?ServerStatus $newStatus = null) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeServerStatus($this->newStatus);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->newStatus = $packetData->readServerStatus();
     }
 
@@ -22,5 +22,5 @@ class CloudServerStatusChangePacket extends CloudPacket {
         return $this->newStatus;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }

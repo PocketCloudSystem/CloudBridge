@@ -12,11 +12,11 @@ class CloudNotifyPacket extends CloudPacket {
 
     public function __construct(private string $message = "") {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->message);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->message = $packetData->readString();
     }
 
@@ -24,7 +24,7 @@ class CloudNotifyPacket extends CloudPacket {
         return $this->message;
     }
 
-    public function handle() {
+    public function handle(): void {
         foreach (array_filter(Server::getInstance()->getOnlinePlayers(), fn(Player $player) => $player->hasPermission("pocketcloud.notify.receive") && NotifyList::exists($player)) as $player) {
             $player->sendMessage($this->message);
         }

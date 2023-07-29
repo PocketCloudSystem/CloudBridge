@@ -10,16 +10,14 @@ class CloudServerStartRequestPacket extends RequestPacket {
     public function __construct(
         private string $template = "",
         private int $count = 0
-    ) {
-        parent::__construct();
-    }
+    ) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->template);
         $packetData->write($this->count);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->template = $packetData->readString();
         $this->count = $packetData->readInt();
     }

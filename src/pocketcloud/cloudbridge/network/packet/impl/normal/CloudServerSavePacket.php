@@ -6,5 +6,5 @@ use pocketcloud\cloudbridge\network\packet\CloudPacket;
 
 class CloudServerSavePacket extends CloudPacket {
 
-    public function handle() {}
+    public function handle(): void {}
 }

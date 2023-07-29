@@ -12,11 +12,11 @@ class LibrarySyncPacket extends CloudPacket {
 
     public function __construct() {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->data);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->data = $packetData->readArray();
     }
 
@@ -24,7 +24,7 @@ class LibrarySyncPacket extends CloudPacket {
         return $this->data;
     }
 
-    public function handle() {
+    public function handle(): void {
         foreach ($this->data as $lib) {
             Server::getInstance()->getLoader()->addPath("", $lib["path"]);
         }

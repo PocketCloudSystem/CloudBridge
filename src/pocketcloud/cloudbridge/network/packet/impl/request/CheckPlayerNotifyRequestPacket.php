@@ -7,15 +7,13 @@ use pocketcloud\cloudbridge\network\packet\RequestPacket;
 
 class CheckPlayerNotifyRequestPacket extends RequestPacket {
 
-    public function __construct(private string $player = "") {
-        parent::__construct();
-    }
+    public function __construct(private string $player = "") {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->player);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->player = $packetData->readString();
     }
 

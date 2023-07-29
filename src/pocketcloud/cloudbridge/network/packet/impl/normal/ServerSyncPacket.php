@@ -15,12 +15,12 @@ class ServerSyncPacket extends CloudPacket {
         private bool $removal = false
     ) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeServer($this->server);
         $packetData->write($this->removal);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->server = $packetData->readServer();
         $this->removal = $packetData->readBool();
     }
@@ -33,7 +33,7 @@ class ServerSyncPacket extends CloudPacket {
         return $this->removal;
     }
 
-    public function handle() {
+    public function handle(): void {
         if (CloudAPI::getInstance()->getServerByName($this->server->getName()) === null) {
             if (!$this->removal) Registry::registerServer($this->server);
         } else {

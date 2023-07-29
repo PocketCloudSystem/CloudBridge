@@ -11,22 +11,22 @@ class DisconnectPacket extends CloudPacket {
 
     public function __construct(private ?DisconnectReason $disconnectReason = null) {}
 
-    public function encodePayload(PacketData $packetData) {
+    public function encodePayload(PacketData $packetData): void {
         $packetData->writeDisconnectReason($this->disconnectReason);
     }
 
-    public function decodePayload(PacketData $packetData) {
+    public function decodePayload(PacketData $packetData): void {
         $this->disconnectReason = $packetData->readDisconnectReason();
     }
 
-    public function handle() {
+    public function handle(): void {
         if ($this->disconnectReason === DisconnectReason::CLOUD_SHUTDOWN()) {
             \GlobalLogger::get()->emergency("§4Cloud was stopped! Shutdown...");
-            Server::getInstance()->shutdown();
         } else {
             \GlobalLogger::get()->emergency("§4Server shutdown was ordered by the cloud! Shutdown...");
-            Server::getInstance()->shutdown();
         }
+
+        Server::getInstance()->shutdown();
     }
 
     public function getDisconnectReason(): ?DisconnectReason {

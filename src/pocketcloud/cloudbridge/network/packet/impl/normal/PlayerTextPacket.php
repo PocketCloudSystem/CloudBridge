@@ -44,7 +44,7 @@ class PlayerTextPacket extends CloudPacket {
         return $this->textType;
     }
 
-    public function handle() {
+    public function handle(): void {
         $title = "";
         $body = "";
         if ($this->textType === TextType::TOAST_NOTIFICATION()) {

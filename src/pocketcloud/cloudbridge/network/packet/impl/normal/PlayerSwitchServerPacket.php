@@ -27,5 +27,5 @@ class PlayerSwitchServerPacket extends CloudPacket {
         return $this->newServer;
     }
 
-    public function handle() {}
+    public function handle(): void {}
 }
