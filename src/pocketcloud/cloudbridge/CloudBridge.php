@@ -81,7 +81,7 @@ class CloudBridge extends PluginBase {
         CloudAPI::getInstance()->processLogin();
     }
 
-    public function registerPermission(string... $permissions) {
+    public function registerPermission(string... $permissions): void {
         $operator = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
         if ($operator !== null) {
             foreach ($permissions as $permission) {

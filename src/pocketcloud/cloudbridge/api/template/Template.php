@@ -6,7 +6,18 @@ use pocketcloud\cloudbridge\util\Utils;
 
 class Template {
 
-    public function __construct(private string $name, private bool $lobby, private bool $maintenance, private bool $static, private int $maxPlayerCount, private int $minServerCount, private int $maxServerCount, private bool $startNewWhenFull, private bool $autoStart, private string $templateType) {}
+    public function __construct(
+        private string $name,
+        private bool $lobby,
+        private bool $maintenance,
+        private bool $static,
+        private int $maxPlayerCount,
+        private int $minServerCount,
+        private int $maxServerCount,
+        private bool $startNewWhenFull,
+        private bool $autoStart,
+        private string $templateType
+    ) {}
 
     public function getName(): string {
         return $this->name;
@@ -73,7 +84,7 @@ class Template {
     }
 
     /** @internal */
-    public function apply(array $data) {
+    public function apply(array $data): void {
         $this->name = $data["name"];
         $this->lobby = $data["lobby"];
         $this->maintenance = $data["maintenance"];

@@ -10,7 +10,10 @@ use pocketmine\player\Player;
 
 class CloudSelectionForm extends MenuForm {
 
-    public function __construct(private BaseForm $redirectName, private BaseForm $redirectSelection) {
+    public function __construct(
+        private readonly BaseForm $redirectName,
+        private readonly BaseForm $redirectSelection
+    ) {
         parent::__construct(
             Language::current()->translate("inGame.ui.general.selection.title"),
             Language::current()->translate("inGame.ui.general.selection.text"),

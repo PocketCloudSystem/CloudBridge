@@ -41,7 +41,7 @@ class CloudAPI {
         $this->verified = VerifyStatus::NOT_APPLIED();
     }
 
-    public function processLogin() {
+    public function processLogin(): void {
         if ($this->verified === VerifyStatus::VERIFIED()) return;
         RequestManager::getInstance()->sendRequest(new LoginRequestPacket(GeneralSettings::getServerName(), getmypid()))->then(function(ResponsePacket $packet): void {
             if ($packet instanceof LoginResponsePacket) {
@@ -62,7 +62,7 @@ class CloudAPI {
         });
     }
 
-    public function changeStatus(ServerStatus $status) {
+    public function changeStatus(ServerStatus $status): void {
         Network::getInstance()->sendPacket(new CloudServerStatusChangePacket($status));
     }
 
@@ -96,7 +96,7 @@ class CloudAPI {
         return false;
     }
 
-    public function logConsole(string $text, ?LogType $logType = null) {
+    public function logConsole(string $text, ?LogType $logType = null): void {
         $logType = $logType ?? LogType::INFO();
         Network::getInstance()->sendPacket(new ConsoleTextPacket($text, $logType));
     }

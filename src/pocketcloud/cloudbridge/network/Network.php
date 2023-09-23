@@ -19,7 +19,11 @@ class Network extends Thread {
     private \Socket $socket;
     private bool $connected = false;
 
-    public function __construct(private Address $address, private SleeperHandlerEntry $handlerEntry, private ThreadSafeArray $buffer) {
+    public function __construct(
+        private readonly Address $address,
+        private readonly SleeperHandlerEntry $handlerEntry,
+        private ThreadSafeArray $buffer
+    ) {
         self::setInstance($this);
         \GlobalLogger::get()->info("Try to connect to §e" . $this->address . "§r...");
         $this->connect();
@@ -38,7 +42,7 @@ class Network extends Thread {
     /**
      * @throws \Exception
      */
-    public function connect() {
+    public function connect(): void {
         if ($this->connected) return;
         $this->socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         \GlobalLogger::get()->info("Connecting to §b" . $this->address . "§r...");
@@ -65,7 +69,7 @@ class Network extends Thread {
         return @socket_recvfrom($this->socket, $buffer, 65535, 0, $address, $port) !== false;
     }
 
-    public function close() {
+    public function close(): void {
         if ($this->isConnected()) {
             $this->connected = false;
             (new NetworkCloseEvent())->call();

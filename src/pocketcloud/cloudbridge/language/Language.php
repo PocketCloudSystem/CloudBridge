@@ -28,8 +28,8 @@ final class Language {
         ));
     }
 
-    public static function init() {
-        self::setup();
+    public static function init(): void {
+        self::checkInit();
     }
 
     public static function current(): Language {

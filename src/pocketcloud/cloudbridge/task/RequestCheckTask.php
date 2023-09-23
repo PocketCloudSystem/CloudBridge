@@ -8,7 +8,7 @@ use pocketmine\scheduler\Task;
 
 class RequestCheckTask extends Task {
 
-    public function __construct(private RequestPacket $requestPacket) {}
+    public function __construct(private readonly RequestPacket $requestPacket) {}
 
     public function onRun(): void {
         if (isset(RequestManager::getInstance()->getRequests()[$this->requestPacket->getRequestId()])) {

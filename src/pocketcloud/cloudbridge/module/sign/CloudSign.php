@@ -15,9 +15,12 @@ class CloudSign {
     private int $stateIndex = -1;
     private int $layerIndex = 0;
 
-    public function __construct(private Template $template, private Position $position) {}
+    public function __construct(
+        private readonly Template $template,
+        private readonly Position $position
+    ) {}
 
-    private function check() {
+    private function check(): void {
         if ($this->usingServer !== null) {
             if (($usingServer = CloudAPI::getInstance()->getServerByName($this->usingServer->getName())) !== null) {
                 $this->usingServer = $usingServer;

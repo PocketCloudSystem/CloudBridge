@@ -11,7 +11,12 @@ use pocketcloud\cloudbridge\util\Utils;
 
 class CloudServer {
 
-    public function __construct(private int $id, private Template $template, private CloudServerData $cloudServerData, private ServerStatus $serverStatus) {}
+    public function __construct(
+        private readonly int $id,
+        private readonly Template $template,
+        private readonly CloudServerData $cloudServerData,
+        private ServerStatus $serverStatus
+    ) {}
 
     public function getName(): string {
         return $this->template->getName() . "-" . $this->id;

@@ -10,7 +10,7 @@ use pocketmine\player\Player;
 
 class NPCListViewForm extends MenuForm {
 
-    public function __construct(private CloudNPC $cloudNPC) {
+    public function __construct(private readonly CloudNPC $cloudNPC) {
         $text = "§7Template: §e" . $this->cloudNPC->getTemplate()->getName();
         $text .= "\n§7Position: §e" . $this->cloudNPC->getPosition()->getWorld()->getFolderName() . "§8: §e" . $this->cloudNPC->getPosition()->getX() . "§8, §e" . $this->cloudNPC->getPosition()->getY() . "§8, §e" . $this->cloudNPC->getPosition()->getZ();
         $text .= "\n§7Creator: §e" . $this->cloudNPC->getCreator();

@@ -30,7 +30,7 @@ class CloudNPCManager {
         self::setInstance($this);
     }
 
-    public function load() {
+    public function load(): void {
         if (!self::isEnabled()) return;
         foreach ($this->getNPCConfig()->getAll() as $positionString => $cloudNPC) {
             if (!Utils::containKeys($cloudNPC, "Template", "Creator", "Position")) continue;
@@ -47,12 +47,12 @@ class CloudNPCManager {
         }
     }
 
-    public function unload() {
+    public function unload(): void {
         if (self::isEnabled()) return;
         $this->npcs = [];
     }
 
-    public function addCloudNPC(CloudNPC $cloudNPC) {
+    public function addCloudNPC(CloudNPC $cloudNPC): void {
         if (!self::isEnabled()) return;
         ($ev = new CloudNPCCreateEvent($cloudNPC))->call();
         if ($ev->isCancelled()) return;
@@ -70,7 +70,7 @@ class CloudNPCManager {
         if (!isset($this->npcs[$positionString])) $this->npcs[$positionString] = $cloudNPC;
     }
 
-    public function removeCloudNPC(CloudNPC $cloudNPC) {
+    public function removeCloudNPC(CloudNPC $cloudNPC): void {
         if (!self::isEnabled()) return;
         ($ev = new CloudNPCRemoveEvent($cloudNPC))->call();
         if ($ev->isCancelled()) return;
@@ -83,7 +83,7 @@ class CloudNPCManager {
         if (isset($this->npcs[$positionString])) unset($this->npcs[$positionString]);
     }
 
-    public function spawnCloudNPC(CloudNPC $cloudNPC) {
+    public function spawnCloudNPC(CloudNPC $cloudNPC): void {
         if (!self::isEnabled()) return;
         if (($skin = SkinSaver::get($cloudNPC->getCreator())) !== null) {
             $positionString = Utils::convertToString($cloudNPC->getPosition());
@@ -105,7 +105,7 @@ class CloudNPCManager {
         }
     }
 
-    public function spawnCloudNPCs() {
+    public function spawnCloudNPCs(): void {
         if (!self::isEnabled()) return;
         foreach ($this->getCloudNPCs() as $npc) {
             $this->spawnCloudNPC($npc);

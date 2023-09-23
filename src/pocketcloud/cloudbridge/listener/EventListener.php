@@ -20,7 +20,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 
 class EventListener implements Listener {
 
-    public function onLogin(PlayerLoginEvent $event) {
+    public function onLogin(PlayerLoginEvent $event): void {
         $player = $event->getPlayer();
         Network::getInstance()->sendPacket(new PlayerConnectPacket(CloudPlayer::fromPlayer($player)));
 
@@ -37,7 +37,7 @@ class EventListener implements Listener {
         });
     }
 
-    public function onQuit(PlayerQuitEvent $event) {
+    public function onQuit(PlayerQuitEvent $event): void {
         $player = $event->getPlayer();
         Network::getInstance()->sendPacket(new PlayerDisconnectPacket($player->getName()));
     }

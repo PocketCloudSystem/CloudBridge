@@ -35,7 +35,7 @@ final class TextType {
         return self::$members;
     }
 
-    public function __construct(private string $name) {}
+    public function __construct(private readonly string $name) {}
 
     public function getName(): string {
         return $this->name;

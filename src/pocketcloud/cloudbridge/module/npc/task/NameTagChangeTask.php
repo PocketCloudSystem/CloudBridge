@@ -12,7 +12,10 @@ use pocketmine\scheduler\Task;
 
 class NameTagChangeTask extends Task {
 
-    public function __construct(private CloudNPC $cloudNPC, private Human $entity) {}
+    public function __construct(
+        private readonly CloudNPC $cloudNPC,
+        private readonly Human $entity
+    ) {}
 
     public function onRun(): void {
         if ($this->isAlive()) {

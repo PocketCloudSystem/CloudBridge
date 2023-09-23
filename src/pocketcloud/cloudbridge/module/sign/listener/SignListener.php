@@ -15,7 +15,7 @@ use pocketmine\Server;
 
 class SignListener implements Listener {
 
-    public function onChange(SignChangeEvent $event) {
+    public function onChange(SignChangeEvent $event): void {
         if (CloudSignManager::isEnabled()) {
             if ($event->getNewText()->getLine(0) == "[PocketCloud]") {
                 if ($event->getPlayer()->hasPermission("pocketcloud.cloudsign.add")) {
@@ -27,7 +27,7 @@ class SignListener implements Listener {
         }
     }
 
-    public function onInteract(PlayerInteractEvent $event) {
+    public function onInteract(PlayerInteractEvent $event): void {
         if (CloudSignManager::isEnabled()) {
             if ($event->getAction() === $event::LEFT_CLICK_BLOCK) return;
             if (($sign = CloudSignManager::getInstance()->getCloudSign($event->getBlock()->getPosition())) !== null) {
@@ -49,7 +49,7 @@ class SignListener implements Listener {
         }
     }
 
-    public function onBreak(BlockBreakEvent $event) {
+    public function onBreak(BlockBreakEvent $event): void {
         if (CloudSignManager::isEnabled()) {
             if (($sign = CloudSignManager::getInstance()->getCloudSign($event->getBlock()->getPosition())) !== null) {
                 if ($event->getPlayer()->hasPermission("pocketcloud.cloudsign.remove")) {

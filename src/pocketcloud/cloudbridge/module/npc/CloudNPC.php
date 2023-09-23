@@ -8,9 +8,9 @@ use pocketmine\world\Position;
 class CloudNPC {
 
     public function __construct(
-        private Template $template,
-        private Position $position,
-        private string $creator
+        private readonly Template $template,
+        private readonly Position $position,
+        private readonly string $creator
     ) {}
 
     public function getTemplate(): Template {

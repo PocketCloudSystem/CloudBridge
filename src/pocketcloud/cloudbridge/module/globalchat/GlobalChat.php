@@ -24,7 +24,7 @@ class GlobalChat implements Listener {
         self::setInstance($this);
     }
 
-    public static function enable() {
+    public static function enable(): void {
         if (self::isEnabled()) return;
         self::setEnabled(true);
         self::$listener = Server::getInstance()->getPluginManager()->registerEvent(PlayerChatEvent::class, function(PlayerChatEvent $event): void {
@@ -42,7 +42,7 @@ class GlobalChat implements Listener {
         }, EventPriority::HIGHEST, CloudBridge::getInstance());
     }
 
-    public static function disable() {
+    public static function disable(): void {
         if (!self::isEnabled()) return;
         self::setEnabled(false);
         HandlerListManager::global()->getListFor(PlayerChatEvent::class)->unregister(self::$listener);

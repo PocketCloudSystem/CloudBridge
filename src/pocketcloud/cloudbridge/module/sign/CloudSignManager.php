@@ -27,7 +27,7 @@ class CloudSignManager {
         self::setInstance($this);
     }
 
-    public function load() {
+    public function load(): void {
         if (!self::isEnabled()) return;
         foreach ($this->getCloudSignConfig()->getAll() as $positionString => $cloudSign) {
             if (!Utils::containKeys($cloudSign, "Template", "Position", "World")) continue;
@@ -46,13 +46,13 @@ class CloudSignManager {
         CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new CloudSignTask(), 20);
     }
 
-    public function unload() {
+    public function unload(): void {
         if (self::isEnabled()) return;
         $this->signs = [];
         $this->usingServerNames = [];
     }
 
-    public function addCloudSign(CloudSign $cloudSign) {
+    public function addCloudSign(CloudSign $cloudSign): void {
         if (!self::isEnabled()) return;
         ($ev = new CloudSignAddEvent($cloudSign))->call();
         if ($ev->isCancelled()) return;
@@ -69,7 +69,7 @@ class CloudSignManager {
         $this->signs[$positionString] = $cloudSign;
     }
 
-    public function removeCloudSign(CloudSign $cloudSign) {
+    public function removeCloudSign(CloudSign $cloudSign): void {
         if (!self::isEnabled()) return;
         ($ev = new CloudSignRemoveEvent($cloudSign))->call();
         if ($ev->isCancelled()) return;

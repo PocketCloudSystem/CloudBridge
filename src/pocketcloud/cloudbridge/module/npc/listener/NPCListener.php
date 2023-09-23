@@ -26,7 +26,7 @@ use pocketmine\world\Position;
 
 class NPCListener implements Listener {
 
-    public function onMove(PlayerMoveEvent $event) {
+    public function onMove(PlayerMoveEvent $event): void {
         if (CloudNPCManager::isEnabled()) {
             $player = $event->getPlayer();
 
@@ -50,7 +50,7 @@ class NPCListener implements Listener {
         }
     }
 
-    public function onHit(EntityDamageByEntityEvent $event) {
+    public function onHit(EntityDamageByEntityEvent $event): void {
         if (CloudNPCManager::isEnabled()) {
             $entity = $event->getEntity();
             $damager = $event->getDamager();
@@ -84,11 +84,11 @@ class NPCListener implements Listener {
         }
     }
     
-    public function onJoin(PlayerJoinEvent $e) {
+    public function onJoin(PlayerJoinEvent $e): void {
         CloudNPCManager::getInstance()->spawnCloudNPCs();
     }
 
-    public function onInteractWithEntity(DataPacketReceiveEvent $event) {
+    public function onInteractWithEntity(DataPacketReceiveEvent $event): void {
         if (CloudNPCManager::isEnabled()) {
             $packet = $event->getPacket();
             $origin = $event->getOrigin();

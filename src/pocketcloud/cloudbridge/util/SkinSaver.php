@@ -11,7 +11,7 @@ class SkinSaver {
     /** @var array<Skin> */
     private static array $savedSkins = [];
 
-    public static function save(Player $player) {
+    public static function save(Player $player): void {
         if (file_exists(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_id.txt")) @unlink(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_id.txt");
         if (file_exists(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_data.txt")) @unlink(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_data.txt");
         if (file_exists(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_cape-data.txt")) @unlink(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player->getName() . "_cape-data.txt");
