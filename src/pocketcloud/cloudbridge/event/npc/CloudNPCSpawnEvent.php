@@ -11,7 +11,10 @@ use pocketmine\event\Event;
 class CloudNPCSpawnEvent extends Event implements Cancellable {
     use CancellableTrait;
 
-    public function __construct(private CloudNPC $cloudNPC, private Human $human) {}
+    public function __construct(
+        private readonly CloudNPC $cloudNPC,
+        private readonly Human $human
+    ) {}
 
     public function getCloudNPC(): CloudNPC {
         return $this->cloudNPC;

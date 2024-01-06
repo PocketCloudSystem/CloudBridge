@@ -10,7 +10,7 @@ use pocketmine\event\Event;
 class CloudNPCRemoveEvent extends Event implements Cancellable {
     use CancellableTrait;
 
-    public function __construct(private CloudNPC $cloudNPC) {}
+    public function __construct(private readonly CloudNPC $cloudNPC) {}
 
     public function getCloudNPC(): CloudNPC {
         return $this->cloudNPC;

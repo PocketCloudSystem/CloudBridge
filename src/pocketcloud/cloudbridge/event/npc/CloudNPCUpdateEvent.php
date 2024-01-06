@@ -10,7 +10,11 @@ use pocketmine\event\Event;
 class CloudNPCUpdateEvent extends Event implements Cancellable {
     use CancellableTrait;
 
-    public function __construct(private CloudNPC $cloudNPC, private string $oldNameTag, private string $newNameTag) {}
+    public function __construct(
+        private readonly CloudNPC $cloudNPC,
+        private readonly string $oldNameTag,
+        private readonly string $newNameTag
+    ) {}
 
     public function getCloudNPC(): CloudNPC {
         return $this->cloudNPC;

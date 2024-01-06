@@ -11,7 +11,7 @@ use pocketmine\world\Position;
 
 class CloudSign {
 
-    private ?CloudServer $usingServer = null;
+    private ?string $usingServer = null;
     private int $stateIndex = -1;
     private int $layerIndex = 0;
 
@@ -20,29 +20,19 @@ class CloudSign {
         private readonly Position $position
     ) {}
 
-    private function check(): void {
-        if ($this->usingServer !== null) {
-            if (($usingServer = CloudAPI::getInstance()->getServerByName($this->usingServer->getName())) !== null) {
-                $this->usingServer = $usingServer;
-            }
-        }
-    }
-
     public function next(): array {
         $useDefault = false;
         $this->layerIndex++;
 
         if ($this->hasUsingServer()) {
             if ($this->getUsingServer()->getTemplate()?->isMaintenance()) {
-                if ($this->stateIndex !== 3) $this->stateIndex = 3;
+                $this->stateIndex = 3;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::ONLINE()) {
-                if ($this->stateIndex !== 0) $this->stateIndex = 0;
+               $this->stateIndex = 0;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::FULL()) {
-                if ($this->stateIndex !== 1) $this->stateIndex = 1;
-            } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
-                if ($this->stateIndex !== 2) $this->stateIndex = 2;
+                $this->stateIndex = 1;
             } else {
-                if ($this->stateIndex !== 2) $this->stateIndex = 2;
+                $this->stateIndex = 2;
             }
 
             if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
@@ -73,8 +63,7 @@ class CloudSign {
 
             return $layers;
         } else {
-            $this->check();
-            if ($this->stateIndex !== 2) $this->stateIndex = 2;
+            $this->stateIndex = 2;
 
             if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
                 $useDefault = true;
@@ -106,7 +95,7 @@ class CloudSign {
         }
     }
 
-    public function setUsingServer(?CloudServer $usingServer): void {
+    public function setUsingServer(?string $usingServer): void {
         $this->usingServer = $usingServer;
     }
 
@@ -119,10 +108,14 @@ class CloudSign {
     }
 
     public function getUsingServer(): ?CloudServer {
+        return $this->usingServer === null ? null : CloudAPI::getInstance()->getServerByName($this->usingServer);
+    }
+
+    public function getUsingServerName(): ?string {
         return $this->usingServer;
     }
 
     public function hasUsingServer(): bool {
-        return $this->usingServer !== null && CloudAPI::getInstance()->getServerByName($this->usingServer->getName()) !== null;
+        return $this->getUsingServer() !== null;
     }
 }

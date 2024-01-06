@@ -11,9 +11,9 @@ class GlobalChatEvent extends Event implements Cancellable {
     use CancellableTrait;
 
     public function __construct(
-        private Player $player,
-        private string $message,
-        private string $format)
+        private readonly Player $player,
+        private readonly string $message,
+        private readonly string $format)
     {}
 
     public function getPlayer(): Player {

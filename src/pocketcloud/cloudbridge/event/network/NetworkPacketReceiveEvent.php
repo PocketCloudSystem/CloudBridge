@@ -10,7 +10,7 @@ use pocketmine\event\CancellableTrait;
 class NetworkPacketReceiveEvent extends Event implements Cancellable {
     use CancellableTrait;
 
-    public function __construct(private CloudPacket $packet) {}
+    public function __construct(private readonly CloudPacket $packet) {}
 
     public function getPacket(): CloudPacket {
         return $this->packet;

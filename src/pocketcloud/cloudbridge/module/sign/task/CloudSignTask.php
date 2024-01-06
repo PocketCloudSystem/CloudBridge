@@ -20,15 +20,16 @@ class CloudSignTask extends Task {
             return;
         }
         foreach (CloudSignManager::getInstance()->getCloudSigns() as $sign) {
-            if ($sign->getPosition()->world !== null && $sign->getPosition()->world->isLoaded()) {
+            if ($sign->getPosition()->isValid()) {
                 $block = $sign->getPosition()->getWorld()->getBlock($sign->getPosition()->asVector3());
                 if ($block instanceof BaseSign) {
                     if ($sign->hasUsingServer()) {
                         if ($sign->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
-                            ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServer(), null))->call();
+                            ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
                             if (!$ev->isCancelled()) {
                                 $sign->setUsingServer($ev->getNewUsingServer());
-                                if ($ev->getNewUsingServer() !== null) CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer()->getName(), $sign);
+                                if ($ev->getNewUsingServer() !== null) CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer(), $sign);
+                                CloudSignManager::getInstance()->removeUsingServerName($ev->getOldUsingServer());
                                 $block->setText(new SignText($sign->next()));
                                 $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
                             }
@@ -37,20 +38,28 @@ class CloudSignTask extends Task {
                             $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
                         }
                     } else {
-                        if ($sign->getUsingServer() !== null) CloudSignManager::getInstance()->removeUsingServerName($sign->getUsingServer()->getName());
-                        $freeServer = $this->getFreeServer($sign->getTemplate());
-                        if ($freeServer !== null) {
-                            ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServer(), $freeServer))->call();
-                            if ($ev->isCancelled()) return;
-                            CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer()->getName(), $sign);
-                            $sign->setUsingServer($ev->getNewUsingServer());
-                            $block->setText(new SignText($sign->next()));
-                            $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                        if ($sign->getUsingServerName() !== null) {
+                            ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
+                            if (!$ev->isCancelled()) {
+                                CloudSignManager::getInstance()->removeUsingServerName($sign->getUsingServerName());
+                                $block->setText(new SignText($sign->next()));
+                                $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
+                            }
                         } else {
-                            $sign->setUsingServer(null);
-                            $block->setText(new SignText($sign->next()));
-                            $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                            $freeServer = $this->getFreeServer($sign->getTemplate());
+                            if ($freeServer !== null) {
+                                ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), $freeServer->getName()))->call();
+                                if ($ev->isCancelled()) return;
+                                CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer(), $sign);
+                                $sign->setUsingServer($ev->getNewUsingServer());
+                                $block->setText(new SignText($sign->next()));
+                                $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                            } else {
+                                $block->setText(new SignText($sign->next()));
+                                $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                            }
                         }
+
                     }
                 }
             }

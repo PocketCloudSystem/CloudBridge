@@ -95,7 +95,7 @@ class CloudNPCManager {
             $position = $cloudNPC->getPosition();
             $yaw = ($position instanceof Location ? $position->getYaw() : lcg_value() * 360);
             $pitch = ($position instanceof Location ? $position->getPitch() : 0);
-            $human = new Human(Location::fromObject($cloudNPC->getPosition(), null, $yaw, $pitch), $skin);
+            $human = new Human(Location::fromObject($position->add(0, 2, 0), $position->getWorld(), $yaw, $pitch), $skin);
             $human->setCanSaveWithChunk(false);
             ($ev = new CloudNPCSpawnEvent($cloudNPC, $human))->call();
             if ($ev->isCancelled()) return;

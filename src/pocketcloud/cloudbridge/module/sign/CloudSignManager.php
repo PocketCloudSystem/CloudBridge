@@ -9,7 +9,6 @@ use pocketcloud\cloudbridge\event\sign\CloudSignRemoveEvent;
 use pocketcloud\cloudbridge\module\BaseModuleTrait;
 use pocketcloud\cloudbridge\module\sign\task\CloudSignTask;
 use pocketcloud\cloudbridge\util\Utils;
-use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
@@ -31,7 +30,7 @@ class CloudSignManager {
         if (!self::isEnabled()) return;
         foreach ($this->getCloudSignConfig()->getAll() as $positionString => $cloudSign) {
             if (!Utils::containKeys($cloudSign, "Template", "Position", "World")) continue;
-            if (($world = Server::getInstance()->getWorldManager()->getWorldByName($cloudSign["World"])) !== null) {
+            if (Server::getInstance()->getWorldManager()->getWorldByName($cloudSign["World"]) !== null) {
                 /** @var Position $position */
                 if (($position = Utils::convertToVector($cloudSign["Position"])) instanceof Position) {
                     if (($template = CloudAPI::getInstance()->getTemplateByName($cloudSign["Template"])) !== null) {

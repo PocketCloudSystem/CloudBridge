@@ -11,21 +11,25 @@ use pocketmine\event\Event;
 class CloudSignUpdateEvent extends Event implements Cancellable {
     use CancellableTrait;
 
-    public function __construct(private CloudSign $cloudSign, private ?CloudServer $oldUsingServer, private ?CloudServer $newUsingServer) {}
+    public function __construct(
+        private readonly CloudSign $cloudSign,
+        private readonly ?string $oldUsingServer,
+        private ?string $newUsingServer
+    ) {}
 
     public function getCloudSign(): CloudSign {
         return $this->cloudSign;
     }
 
-    public function getOldUsingServer(): ?CloudServer {
+    public function getOldUsingServer(): ?string {
         return $this->oldUsingServer;
     }
 
-    public function getNewUsingServer(): ?CloudServer {
+    public function getNewUsingServer(): ?string {
         return $this->newUsingServer;
     }
 
-    public function setNewUsingServer(?CloudServer $newUsingServer): void {
+    public function setNewUsingServer(?string $newUsingServer): void {
         $this->newUsingServer = $newUsingServer;
     }
 }
