@@ -15,7 +15,6 @@ use pocketcloud\cloudbridge\util\SkinSaver;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
-use pocketmine\math\Vector3;
 use pocketmine\world\Position;
 
 class CloudNPC {
