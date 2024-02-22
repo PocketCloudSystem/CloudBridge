@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\network\packet\pool;
 
+use GlobalLogger;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudNotifyPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSavePacket;
@@ -33,6 +34,8 @@ use pocketcloud\cloudbridge\network\packet\impl\response\CloudServerStartRespons
 use pocketcloud\cloudbridge\network\packet\impl\response\CloudServerStopResponsePacket;
 use pocketcloud\cloudbridge\network\packet\impl\response\LoginResponsePacket;
 use pocketmine\utils\SingletonTrait;
+use ReflectionClass;
+use ReflectionException;
 
 class PacketPool {
     use SingletonTrait;
@@ -75,7 +78,11 @@ class PacketPool {
 
     public function registerPacket(string $packetClass): void {
         if (!is_subclass_of($packetClass, CloudPacket::class)) return;
-        $this->packets[(new \ReflectionClass($packetClass))->getShortName()] = $packetClass;
+        try {
+            $this->packets[(new ReflectionClass($packetClass))->getShortName()] = $packetClass;
+        } catch (ReflectionException $e) {
+            GlobalLogger::get()->logException($e);
+        }
     }
 
     public function getPacketById(string $pid): ?CloudPacket {

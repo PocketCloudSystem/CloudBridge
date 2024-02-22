@@ -5,19 +5,14 @@ namespace pocketcloud\cloudbridge\module\hubcommand;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\template\Template;
 use pocketcloud\cloudbridge\language\Language;
-use pocketcloud\cloudbridge\module\BaseModuleTrait;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\player\Player;
-use pocketmine\Server;
-use pocketmine\utils\SingletonTrait;
 
-class HubCommand extends Command {
-    use SingletonTrait, BaseModuleTrait;
+final class HubCommand extends Command {
 
     public function __construct() {
-        self::setInstance($this);
         parent::__construct("hub", Language::current()->translate("inGame.command.description.hub"), "/hub", ["lobby"]);
         $this->setPermission(DefaultPermissions::ROOT_USER);
     }
@@ -49,23 +44,5 @@ class HubCommand extends Command {
             }
         }
         return true;
-    }
-
-    public static function enable(): void {
-        if (self::isEnabled()) return;
-        self::setEnabled(true);
-        Server::getInstance()->getCommandMap()->register("hubCommandModule", new self());
-        foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
-    }
-
-    public static function disable(): void {
-        if (!self::isEnabled()) return;
-        self::setEnabled(false);
-        if (($command = Server::getInstance()->getCommandMap()->getCommand("hub")) !== null) {
-            if ($command instanceof HubCommand) {
-                Server::getInstance()->getCommandMap()->unregister($command);
-            }
-        }
-        foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
     }
 }

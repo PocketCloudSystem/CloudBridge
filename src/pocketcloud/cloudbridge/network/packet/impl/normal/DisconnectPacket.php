@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
+use GlobalLogger;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\impl\types\DisconnectReason;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
@@ -21,9 +22,9 @@ class DisconnectPacket extends CloudPacket {
 
     public function handle(): void {
         if ($this->disconnectReason === DisconnectReason::CLOUD_SHUTDOWN()) {
-            \GlobalLogger::get()->emergency("§4Cloud was stopped! Shutdown...");
+            GlobalLogger::get()->emergency("§4Cloud was stopped! Shutdown...");
         } else {
-            \GlobalLogger::get()->emergency("§4Server shutdown was ordered by the cloud! Shutdown...");
+            GlobalLogger::get()->emergency("§4Server shutdown was ordered by the cloud! Shutdown...");
         }
 
         Server::getInstance()->shutdown();

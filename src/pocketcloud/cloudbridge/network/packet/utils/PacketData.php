@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\network\packet\utils;
 
+use JsonSerializable;
 use pocketcloud\cloudbridge\network\packet\impl\types\CommandExecutionResult;
 use pocketcloud\cloudbridge\network\packet\impl\types\DisconnectReason;
 use pocketcloud\cloudbridge\network\packet\impl\types\ErrorReason;
@@ -13,7 +14,7 @@ use pocketcloud\cloudbridge\api\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\template\Template;
 
-class PacketData implements \JsonSerializable {
+class PacketData implements JsonSerializable {
 
     public function __construct(private array $data = []) {}
 

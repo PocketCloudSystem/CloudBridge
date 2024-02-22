@@ -6,10 +6,10 @@ use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\form\CloudMainForm;
 use pocketcloud\cloudbridge\language\Language;
-use pocketcloud\cloudbridge\module\globalchat\GlobalChat;
-use pocketcloud\cloudbridge\module\hubcommand\HubCommand;
-use pocketcloud\cloudbridge\module\npc\CloudNPCManager;
-use pocketcloud\cloudbridge\module\sign\CloudSignManager;
+use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
+use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
+use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
+use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketcloud\cloudbridge\network\packet\impl\response\CloudServerStartResponsePacket;
 use pocketcloud\cloudbridge\network\packet\impl\response\CloudServerStopResponsePacket;
 use pocketcloud\cloudbridge\network\packet\impl\types\ErrorReason;
@@ -19,11 +19,12 @@ use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
+use ReflectionClass;
 
 class CloudCommand extends Command {
 
     public function __construct() {
-        parent::__construct("cloud", Language::current()->translate("inGame.command.description.cloud"), "/cloud", []);
+        parent::__construct("cloud", Language::current()->translate("inGame.command.description.cloud"), "/cloud");
         $this->setPermission("pocketcloud.command.cloud");
     }
 
@@ -48,7 +49,7 @@ class CloudCommand extends Command {
                                 $sender->sendMessage(Language::current()->translate("inGame.max.servers.reached", $args[0]));
                             }
                         })->failure(function() use($sender, $pk): void {
-                            $sender->sendActionBarMessage("§8[§e" . (new \ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                            $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
                         });
                     } else if ($subCommand == "stop") {
                         if (!isset($args[0])) {
@@ -61,7 +62,7 @@ class CloudCommand extends Command {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
                             }
                         })->failure(function() use($sender, $pk): void {
-                            $sender->sendActionBarMessage("§8[§e" . (new \ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                            $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
                         });
                     } else if ($subCommand == "save") {
                         CloudAPI::getInstance()->saveCurrentServer();
@@ -110,10 +111,10 @@ class CloudCommand extends Command {
                             }
                         } else if ($type == "modules") {
                             $sender->sendMessage(CloudBridge::getPrefix() . "§7Modules: §8(§e4§8)§7:");
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudSignModule §8- §7Status: " . (CloudSignManager::isEnabled() ? "§aEnabled" : "§cDisabled"));
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudNpcModule §8- §7Status: " . (CloudNPCManager::isEnabled() ? "§aEnabled" : "§cDisabled"));
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§eHubCommandModule §8- §7Status: " . (HubCommand::isEnabled() ? "§aEnabled" : "§cDisabled"));
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§eGlobalChatModule §8- §7Status: " . (GlobalChat::isEnabled() ? "§aEnabled" : "§cDisabled"));
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudSignModule §8- §7Status: " . (CloudSignModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudNpcModule §8- §7Status: " . (CloudNPCModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§eHubCommandModule §8- §7Status: " . (HubCommandModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§eGlobalChatModule §8- §7Status: " . (GlobalChatModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
                         } else $sender->sendForm(new CloudMainForm());
                     } else if ($subCommand == "info") {
                         if (!Utils::containKeys($args, 0, 1)) {
@@ -217,29 +218,29 @@ class CloudCommand extends Command {
                         $moduleNamesHub = ["hub", "hubcommand", "hub_module", "hubcommand_module", "hubcommandmodule"];
                         $moduleNamesGG = ["globalchat", "globalchat_module", "globalchatmodule"];
                         if (in_array($module, $moduleNamesSign)) {
-                            if (!CloudSignManager::isEnabled()) {
-                                CloudSignManager::enable();
+                            if (!CloudSignModule::get()->isEnabled()) {
+                                CloudSignModule::get()->setEnabled();
                                 $sender->sendMessage(Language::current()->translate("inGame.module.enabled", "CloudSignModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "CloudSignModule"));
                             }
                         } else if (in_array($module, $moduleNamesNpc)) {
-                            if (!CloudNPCManager::isEnabled()) {
-                                CloudNPCManager::enable();
+                            if (!CloudNPCModule::get()->isEnabled()) {
+                                CloudNPCModule::get()->setEnabled();
                                 $sender->sendMessage(Language::current()->translate("inGame.module.enabled", "CloudNPCModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "CloudNPCModule"));
                             }
                         } else if (in_array($module, $moduleNamesHub)) {
-                            if (!HubCommand::isEnabled()) {
-                                HubCommand::enable();
+                            if (!HubCommandModule::get()->isEnabled()) {
+                                HubCommandModule::get()->setEnabled();
                                 $sender->sendMessage(Language::current()->translate("inGame.module.enabled", "HubCommandModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "HubCommandModule"));
                             }
                         } else if (in_array($module, $moduleNamesGG)) {
-                            if (!GlobalChat::isEnabled()) {
-                                GlobalChat::enable();
+                            if (!GlobalChatModule::get()->isEnabled()) {
+                                GlobalChatModule::get()->setEnabled();
                                 $sender->sendMessage(Language::current()->translate("inGame.module.enabled", "GlobalChatModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "GlobalChatModule"));
@@ -257,29 +258,29 @@ class CloudCommand extends Command {
                         $moduleNamesHub = ["hub", "hubcommand", "hub_module", "hubcommand_module", "hubcommandmodule"];
                         $moduleNamesGG = ["globalchat", "globalchat_module", "globalchatmodule"];
                         if (in_array($module, $moduleNamesSign)) {
-                            if (CloudSignManager::isEnabled()) {
-                                CloudSignManager::disable();
+                            if (CloudSignModule::get()->isEnabled()) {
+                                CloudSignModule::get()->setEnabled(false);
                                 $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "CloudSignModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "CloudSignModule"));
                             }
                         } else if (in_array($module, $moduleNamesNpc)) {
-                            if (CloudNPCManager::isEnabled()) {
-                                CloudNPCManager::disable();
+                            if (CloudNPCModule::get()->isEnabled()) {
+                                CloudNPCModule::get()->setEnabled(false);
                                 $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "CloudNPCModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "CloudNPCModule"));
                             }
                         } else if (in_array($module, $moduleNamesHub)) {
-                            if (HubCommand::isEnabled()) {
-                                HubCommand::disable();
+                            if (HubCommandModule::get()->isEnabled()) {
+                                HubCommandModule::get()->setEnabled(false);
                                 $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "HubCommandModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "HubCommandModule"));
                             }
                         } else if (in_array($module, $moduleNamesGG)) {
-                            if (GlobalChat::isEnabled()) {
-                                GlobalChat::disable();
+                            if (GlobalChatModule::get()->isEnabled()) {
+                                GlobalChatModule::get()->setEnabled(false);
                                 $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "GlobalChatModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "GlobalChatModule"));

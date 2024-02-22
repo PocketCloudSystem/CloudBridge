@@ -3,7 +3,7 @@
 namespace pocketcloud\cloudbridge\network\packet;
 
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\util\Utils;
+use ReflectionClass;
 
 abstract class CloudPacket {
 
@@ -12,7 +12,7 @@ abstract class CloudPacket {
     public function encode(PacketData $packetData): void {
         if (!$this->encoded) {
             $this->encoded = true;
-            $packetData->write((new \ReflectionClass($this))->getShortName());
+            $packetData->write((new ReflectionClass($this))->getShortName());
             $this->encodePayload($packetData);
         }
     }

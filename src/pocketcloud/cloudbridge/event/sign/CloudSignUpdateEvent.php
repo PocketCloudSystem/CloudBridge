@@ -2,7 +2,6 @@
 
 namespace pocketcloud\cloudbridge\event\sign;
 
-use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\module\sign\CloudSign;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;

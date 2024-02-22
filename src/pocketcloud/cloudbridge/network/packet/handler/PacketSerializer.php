@@ -2,10 +2,13 @@
 
 namespace pocketcloud\cloudbridge\network\packet\handler;
 
+use GlobalLogger;
+use JsonException;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\pool\PacketPool;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 use pocketcloud\cloudbridge\util\GeneralSettings;
+use ReflectionClass;
 
 class PacketSerializer {
 
@@ -13,9 +16,9 @@ class PacketSerializer {
         $packet->encode($buffer = new PacketData());
         try {
             return GeneralSettings::isNetworkEncryptionEnabled() ? base64_encode(json_encode($buffer, JSON_THROW_ON_ERROR)) : json_encode($buffer, JSON_THROW_ON_ERROR);
-        } catch (\JsonException $exception) {
-            \GlobalLogger::get()->error("§cFailed to encode packet: §e" . (new \ReflectionClass($packet))->getShortName());
-            \GlobalLogger::get()->logException($exception);
+        } catch (JsonException $exception) {
+            GlobalLogger::get()->error("§cFailed to encode packet: §e" . (new ReflectionClass($packet))->getShortName());
+            GlobalLogger::get()->logException($exception);
         }
         return "";
     }
@@ -32,9 +35,9 @@ class PacketSerializer {
                     }
                 }
             }
-        } catch (\JsonException $exception) {
-            \GlobalLogger::get()->error("§cFailed to decode a packet!");
-            \GlobalLogger::get()->logException($exception);
+        } catch (JsonException $exception) {
+            GlobalLogger::get()->error("§cFailed to decode a packet!");
+            GlobalLogger::get()->logException($exception);
         }
         return null;
     }

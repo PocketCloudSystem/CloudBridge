@@ -2,6 +2,9 @@
 
 namespace pocketcloud\cloudbridge;
 
+use GlobalLogger;
+use pocketcloud\cloudbridge\module\npc\listener\NPCListener;
+use pocketcloud\cloudbridge\module\sign\listener\SignListener;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\command\CloudCommand;
@@ -10,8 +13,6 @@ use pocketcloud\cloudbridge\command\TransferCommand;
 use pocketcloud\cloudbridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\listener\EventListener;
-use pocketcloud\cloudbridge\module\npc\listener\NPCListener;
-use pocketcloud\cloudbridge\module\sign\listener\SignListener;
 use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\handler\PacketSerializer;
 use pocketcloud\cloudbridge\network\packet\impl\normal\DisconnectPacket;
@@ -35,8 +36,6 @@ class CloudBridge extends PluginBase {
     }
 
     public array $signDelay = [];
-    public array $npcDelay = [];
-    public array $npcDetection = [];
     public float|int $lastKeepALiveCheck = 0.0;
     private Network $network;
 
@@ -58,11 +57,11 @@ class CloudBridge extends PluginBase {
                         RequestManager::getInstance()->removeRequest($packet->getRequestId());
                     }
                 } else {
-                    \GlobalLogger::get()->warning("§cReceived an unknown packet from the cloud!");
-                    \GlobalLogger::get()->debug(GeneralSettings::isNetworkEncryptionEnabled() ? base64_decode($buffer) : $buffer);
+                    GlobalLogger::get()->warning("§cReceived an unknown packet from the cloud!");
+                    GlobalLogger::get()->debug(GeneralSettings::isNetworkEncryptionEnabled() ? base64_decode($buffer) : $buffer);
                 }
             }
-        }), $networkBuffer);;
+        }), $networkBuffer);
         $this->network->start();
 
         $this->lastKeepALiveCheck = time();

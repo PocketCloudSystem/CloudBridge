@@ -2,6 +2,8 @@
 
 namespace pocketcloud\cloudbridge\api;
 
+use Closure;
+use GlobalLogger;
 use JetBrains\PhpStorm\Pure;
 use pocketcloud\cloudbridge\api\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\registry\Registry;
@@ -47,17 +49,17 @@ class CloudAPI {
             if ($packet instanceof LoginResponsePacket) {
                 if ($packet->getStatus() === VerifyStatus::VERIFIED()) {
                     CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new ChangeStatusTask(), 20);
-                    \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verified"));
+                    GlobalLogger::get()->info(Language::current()->translate("inGame.server.verified"));
                     $this->verified = VerifyStatus::VERIFIED();
                 } else {
                     $this->verified = VerifyStatus::DENIED();
-                    \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.denied"));
+                    GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.denied"));
                     Server::getInstance()->shutdown();
                 }
             }
         })->failure(function(): void {
             $this->verified = VerifyStatus::DENIED();
-            \GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.failed"));
+            GlobalLogger::get()->info(Language::current()->translate("inGame.server.verify.failed"));
             Server::getInstance()->shutdown();
         });
     }
@@ -81,7 +83,7 @@ class CloudAPI {
         return RequestManager::getInstance()->sendRequest(new CloudServerStopRequestPacket($template));
     }
 
-    public function saveCurrentServer() {
+    public function saveCurrentServer(): void {
         Network::getInstance()->sendPacket(new CloudServerSavePacket());
     }
 
@@ -101,7 +103,7 @@ class CloudAPI {
         Network::getInstance()->sendPacket(new ConsoleTextPacket($text, $logType));
     }
 
-    public function pickTemplates(\Closure $conditionClosure): ?array {
+    public function pickTemplates(Closure $conditionClosure): ?array {
         return array_filter($this->getTemplates(), $conditionClosure);
     }
 

@@ -4,14 +4,16 @@ namespace pocketcloud\cloudbridge\module\npc\form\sub;
 
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
-use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPC;
+use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketmine\player\Player;
 
 class NPCListViewForm extends MenuForm {
 
     public function __construct(private readonly CloudNPC $cloudNPC) {
-        $text = "§7Template: §e" . $this->cloudNPC->getTemplate()->getName();
+        if ($this->cloudNPC->getTemplate() instanceof TemplateGroup) $text = "§7TemplateGroup: §e" . $this->cloudNPC->getTemplate()->getDisplayName() . "§8(§e" . $this->cloudNPC->getTemplate()->getId() . "§8)";
+        else $text = "§7Template: §e" . $this->cloudNPC->getTemplate()->getName();
         $text .= "\n§7Position: §e" . $this->cloudNPC->getPosition()->getWorld()->getFolderName() . "§8: §e" . $this->cloudNPC->getPosition()->getX() . "§8, §e" . $this->cloudNPC->getPosition()->getY() . "§8, §e" . $this->cloudNPC->getPosition()->getZ();
         $text .= "\n§7Creator: §e" . $this->cloudNPC->getCreator();
         parent::__construct(

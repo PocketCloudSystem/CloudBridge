@@ -7,7 +7,7 @@ use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\template\Template;
 use pocketcloud\cloudbridge\event\sign\CloudSignUpdateEvent;
-use pocketcloud\cloudbridge\module\sign\CloudSignManager;
+use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketmine\block\BaseSign;
 use pocketmine\block\utils\SignText;
 use pocketmine\scheduler\Task;
@@ -15,11 +15,7 @@ use pocketmine\scheduler\Task;
 class CloudSignTask extends Task {
 
     public function onRun(): void {
-        if (!CloudSignManager::isEnabled()) {
-            $this->getHandler()->cancel();
-            return;
-        }
-        foreach (CloudSignManager::getInstance()->getCloudSigns() as $sign) {
+        foreach (CloudSignModule::get()->getCloudSigns() as $sign) {
             if ($sign->getPosition()->isValid()) {
                 $block = $sign->getPosition()->getWorld()->getBlock($sign->getPosition()->asVector3());
                 if ($block instanceof BaseSign) {
@@ -28,8 +24,8 @@ class CloudSignTask extends Task {
                             ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
                             if (!$ev->isCancelled()) {
                                 $sign->setUsingServer($ev->getNewUsingServer());
-                                if ($ev->getNewUsingServer() !== null) CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer(), $sign);
-                                CloudSignManager::getInstance()->removeUsingServerName($ev->getOldUsingServer());
+                                if ($ev->getNewUsingServer() !== null) CloudSignModule::get()->addUsingServerName($ev->getNewUsingServer(), $sign);
+                                CloudSignModule::get()->removeUsingServerName($ev->getOldUsingServer());
                                 $block->setText(new SignText($sign->next()));
                                 $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
                             }
@@ -41,7 +37,7 @@ class CloudSignTask extends Task {
                         if ($sign->getUsingServerName() !== null) {
                             ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
                             if (!$ev->isCancelled()) {
-                                CloudSignManager::getInstance()->removeUsingServerName($sign->getUsingServerName());
+                                CloudSignModule::get()->removeUsingServerName($sign->getUsingServerName());
                                 $block->setText(new SignText($sign->next()));
                                 $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
                             }
@@ -50,16 +46,13 @@ class CloudSignTask extends Task {
                             if ($freeServer !== null) {
                                 ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), $freeServer->getName()))->call();
                                 if ($ev->isCancelled()) return;
-                                CloudSignManager::getInstance()->addUsingServerName($ev->getNewUsingServer(), $sign);
+                                CloudSignModule::get()->addUsingServerName($ev->getNewUsingServer(), $sign);
                                 $sign->setUsingServer($ev->getNewUsingServer());
-                                $block->setText(new SignText($sign->next()));
-                                $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
-                            } else {
-                                $block->setText(new SignText($sign->next()));
-                                $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
                             }
-                        }
 
+                            $block->setText(new SignText($sign->next()));
+                            $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
+                        }
                     }
                 }
             }
@@ -69,7 +62,7 @@ class CloudSignTask extends Task {
     private function getFreeServer(Template $template): ?CloudServer {
         foreach (CloudAPI::getInstance()->getServersByTemplate($template) as $server) {
             if ($server->getServerStatus() === ServerStatus::ONLINE() && !$server->getTemplate()->isMaintenance()) {
-                if (!CloudSignManager::getInstance()->isUsingServerName($server->getName())) return $server;
+                if (!CloudSignModule::get()->isUsingServerName($server->getName())) return $server;
             }
         }
         return null;

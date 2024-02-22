@@ -52,9 +52,9 @@ final class Language {
     private array $messages;
 
     public function __construct(
-        private string $name,
-        private string $filePath,
-        private array $aliases
+        private readonly string $name,
+        private readonly string $filePath,
+        private readonly array $aliases
     ) {
         $this->messages = @yaml_parse(@file_get_contents($this->filePath));
     }

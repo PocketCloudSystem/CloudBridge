@@ -8,12 +8,12 @@ use dktapps\pmforms\element\Dropdown;
 use dktapps\pmforms\element\Input;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
+use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
+use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
+use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\form\selection\CloudSelectionForm;
 use pocketcloud\cloudbridge\language\Language;
-use pocketcloud\cloudbridge\module\globalchat\GlobalChat;
-use pocketcloud\cloudbridge\module\hubcommand\HubCommand;
-use pocketcloud\cloudbridge\module\npc\CloudNPCManager;
-use pocketcloud\cloudbridge\module\sign\CloudSignManager;
+use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketmine\player\Player;
 
 class CloudManageModulesSubForm extends MenuForm {
@@ -83,19 +83,19 @@ class CloudManageModulesSubForm extends MenuForm {
 
     private function enabledModules(): array {
         $modules = [];
-        if (CloudSignManager::isEnabled()) $modules[] = "signmodule";
-        if (CloudNPCManager::isEnabled()) $modules[] = "npcmodule";
-        if (HubCommand::isEnabled()) $modules[] = "hubcommand";
-        if (GlobalChat::isEnabled()) $modules[] = "globalchat";
+        if (CloudSignModule::get()->isEnabled()) $modules[] = "signmodule";
+        if (CloudNPCModule::get()->isEnabled()) $modules[] = "npcmodule";
+        if (HubCommandModule::get()->isEnabled()) $modules[] = "hubcommand";
+        if (GlobalChatModule::get()->isEnabled()) $modules[] = "globalchat";
         return $modules;
     }
 
     private function disabledModules(): array {
         $modules = [];
-        if (!CloudSignManager::isEnabled()) $modules[] = "signmodule";
-        if (!CloudNPCManager::isEnabled()) $modules[] = "npcmodule";
-        if (!HubCommand::isEnabled()) $modules[] = "hubcommand";
-        if (!GlobalChat::isEnabled()) $modules[] = "globalchat";
+        if (!CloudSignModule::get()->isEnabled()) $modules[] = "signmodule";
+        if (!CloudNPCModule::get()->isEnabled()) $modules[] = "npcmodule";
+        if (!HubCommandModule::get()->isEnabled()) $modules[] = "hubcommand";
+        if (!GlobalChatModule::get()->isEnabled()) $modules[] = "globalchat";
         return $modules;
     }
 }

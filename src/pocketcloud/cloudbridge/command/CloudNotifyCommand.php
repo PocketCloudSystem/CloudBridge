@@ -13,7 +13,7 @@ use pocketmine\player\Player;
 class CloudNotifyCommand extends Command {
 
     public function __construct() {
-        parent::__construct("cloudnotify", Language::current()->translate("inGame.command.description.cloud_notify"), "/cloudnotify", []);
+        parent::__construct("cloudnotify", Language::current()->translate("inGame.command.description.cloud_notify"), "/cloudnotify");
         $this->setPermission("pocketcloud.command.notify");
     }
 

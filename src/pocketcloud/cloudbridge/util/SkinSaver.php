@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\util;
 
+use JsonException;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketmine\entity\Skin;
 use pocketmine\player\Player;
@@ -22,6 +23,9 @@ class SkinSaver {
         if (!isset(self::$savedSkins[$player->getName()])) self::$savedSkins[$player->getName()] = $player->getSkin();
     }
 
+    /**
+     * @throws JsonException
+     */
     public static function get(string $player): ?Skin {
         if (isset(self::$savedSkins[$player])) if (($savedSkin = self::$savedSkins[$player]) instanceof Skin) return $savedSkin;
         if (!file_exists(CloudBridge::getInstance()->getDataFolder() . "skins/" . $player . "_id.txt")) return null;

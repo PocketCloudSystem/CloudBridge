@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloudbridge\network\packet;
 
-use DaveRandom\CallbackValidator\CallbackType;
+use Closure;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
 use pocketmine\utils\Utils;
 
@@ -10,9 +10,9 @@ abstract class RequestPacket extends CloudPacket {
 
     private string $requestId;
     private int $sentTime;
-    /** @var array<\Closure> */
+    /** @var array<Closure> */
     private array $thenClosures = [];
-    private ?\Closure $failure = null;
+    private ?Closure $failure = null;
 
     /** @internal */
     public function prepare(): void {
@@ -30,12 +30,12 @@ abstract class RequestPacket extends CloudPacket {
         $this->requestId = $packetData->readString();
     }
 
-    public function then(\Closure $closure): self {
+    public function then(Closure $closure): self {
         $this->thenClosures[] = $closure;
         return $this;
     }
 
-    public function failure(\Closure $closure): self {
+    public function failure(Closure $closure): self {
         Utils::validateCallableSignature(function(): void {}, $closure);
         $this->failure = $closure;
         return $this;
@@ -53,7 +53,7 @@ abstract class RequestPacket extends CloudPacket {
         return $this->thenClosures;
     }
 
-    public function getFailureClosure(): ?\Closure {
+    public function getFailureClosure(): ?Closure {
         return $this->failure;
     }
 

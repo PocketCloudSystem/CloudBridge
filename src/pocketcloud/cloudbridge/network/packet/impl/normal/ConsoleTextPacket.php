@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
+use GlobalLogger;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\impl\types\LogType;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
@@ -34,9 +35,9 @@ class ConsoleTextPacket extends CloudPacket {
     }
 
     public function handle(): void {
-        if ($this->logType === LogType::INFO()) \GlobalLogger::get()->info($this->text);
-        else if ($this->logType === LogType::DEBUG()) \GlobalLogger::get()->debug($this->text, true);
-        else if ($this->logType === LogType::WARN()) \GlobalLogger::get()->warning($this->text);
-        else if ($this->logType === LogType::ERROR()) \GlobalLogger::get()->error($this->text);
+        if ($this->logType === LogType::INFO()) GlobalLogger::get()->info($this->text);
+        else if ($this->logType === LogType::DEBUG()) GlobalLogger::get()->debug($this->text, true);
+        else if ($this->logType === LogType::WARN()) GlobalLogger::get()->warning($this->text);
+        else if ($this->logType === LogType::ERROR()) GlobalLogger::get()->error($this->text);
     }
 }

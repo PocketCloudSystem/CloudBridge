@@ -2,17 +2,17 @@
 
 namespace pocketcloud\cloudbridge\module\sign;
 
+use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\template\Template;
-use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
+use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\world\Position;
 
 class CloudSign {
 
     private ?string $usingServer = null;
-    private int $stateIndex = -1;
     private int $layerIndex = 0;
 
     public function __construct(
@@ -21,78 +21,72 @@ class CloudSign {
     ) {}
 
     public function next(): array {
-        $useDefault = false;
         $this->layerIndex++;
 
         if ($this->hasUsingServer()) {
             if ($this->getUsingServer()->getTemplate()?->isMaintenance()) {
-                $this->stateIndex = 3;
+                $stateIndex = 3;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::ONLINE()) {
-               $this->stateIndex = 0;
+               $stateIndex = 0;
             } else if ($this->getUsingServer()->getServerStatus() === ServerStatus::FULL()) {
-                $this->stateIndex = 1;
+                $stateIndex = 1;
             } else {
-                $this->stateIndex = 2;
+                $stateIndex = 2;
             }
 
-            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
-                $useDefault = true;
-            } else {
-                if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex])) {
-                    if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][($this->layerIndex - 1)])) $useDefault = true;
-                }
-            }
-
-            if ($useDefault) {
-                if (!isset(SignLayoutConfig::DEFAULT_LAYOUTS[$this->stateIndex][$this->layerIndex])) $this->layerIndex = 0;
+            if (!$this->checkIndexes($stateIndex, $this->layerIndex)) {
+                if (!isset(SignLayoutConfig::DEFAULT_LAYOUTS[$stateIndex][$this->layerIndex])) $this->layerIndex = 0;
 
                 $layers = [];
-                foreach (SignLayoutConfig::DEFAULT_LAYOUTS[$this->stateIndex][$this->layerIndex] ?? [] as $layer) {
+                foreach (SignLayoutConfig::DEFAULT_LAYOUTS[$stateIndex][$this->layerIndex] ?? [] as $layer) {
                     $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getCloudServerData()->getMaxPlayers()], $layer);
                 }
 
                 return $layers;
             }
 
-            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex])) $this->layerIndex = 0;
+            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$this->layerIndex])) $this->layerIndex = 0;
 
             $layers = [];
-            foreach (SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex] ?? [] as $layer) {
+            foreach (SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$this->layerIndex] ?? [] as $layer) {
                 $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getCloudServerData()->getMaxPlayers()], $layer);
             }
 
-            return $layers;
         } else {
-            $this->stateIndex = 2;
+            $stateIndex = 2;
 
-            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex])) {
-                $useDefault = true;
-            } else {
-                if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex])) {
-                    if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][($this->layerIndex - 1)])) $useDefault = true;
-                }
-            }
-
-            if ($useDefault) {
-                if (!isset(SignLayoutConfig::DEFAULT_LAYOUTS[$this->stateIndex][$this->layerIndex])) $this->layerIndex = 0;
+            if (!$this->checkIndexes($stateIndex, $this->layerIndex)) {
+                if (!isset(SignLayoutConfig::DEFAULT_LAYOUTS[$stateIndex][$this->layerIndex])) $this->layerIndex = 0;
 
                 $layers = [];
-                foreach (SignLayoutConfig::DEFAULT_LAYOUTS[$this->stateIndex][$this->layerIndex] ?? [] as $layer) {
+                foreach (SignLayoutConfig::DEFAULT_LAYOUTS[$stateIndex][$this->layerIndex] ?? [] as $layer) {
                     $layers[] = str_replace(["%template%"], [$this->template->getName()], $layer);
                 }
 
                 return $layers;
             }
 
-            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex])) $this->layerIndex = 0;
+            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$this->layerIndex])) $this->layerIndex = 0;
 
             $layers = [];
-            foreach (SignLayoutConfig::getInstance()->getConfig()->getAll()[$this->stateIndex][$this->layerIndex] ?? [] as $layer) {
+            foreach (SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$this->layerIndex] ?? [] as $layer) {
                 $layers[] = str_replace(["%template%"], [$this->template->getName()], $layer);
             }
 
-            return $layers;
         }
+        return $layers;
+    }
+
+    private function checkIndexes(int $stateIndex, int $layerIndex = -1): bool {
+        if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex])) {
+            return false;
+        } else {
+            if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$layerIndex])) {
+                if (!isset(SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][($layerIndex - 1)])) return false;
+            }
+        }
+
+        return true;
     }
 
     public function setUsingServer(?string $usingServer): void {
@@ -117,5 +111,22 @@ class CloudSign {
 
     public function hasUsingServer(): bool {
         return $this->getUsingServer() !== null;
+    }
+
+    public function toArray(): array {
+        return [
+            "template" => $this->template->getName(),
+            "position" => Utils::convertToString($this->position)
+        ];
+    }
+
+    public static function fromArray(array $data): ?CloudSign {
+        if (!Utils::containKeys($data, "template", "position")) return null;
+        /** @var Position $position */
+        $position = Utils::convertToVector($data["position"]);
+        if (($template = CloudAPI::getInstance()->getTemplateByName($data["template"])) !== null && $position instanceof Position) {
+            return new CloudSign($template, $position);
+        }
+        return null;
     }
 }

@@ -14,7 +14,7 @@ use pocketmine\Server;
 class TransferCommand extends Command {
 
     public function __construct() {
-        parent::__construct("transfer", Language::current()->translate("inGame.command.description.transfer"), "/transfer", []);
+        parent::__construct("transfer", Language::current()->translate("inGame.command.description.transfer"), "/transfer");
         $this->setPermission("pocketcloud.command.transfer");
     }
 

@@ -2,12 +2,13 @@
 
 namespace pocketcloud\cloudbridge\module\npc\form;
 
-use pocketcloud\cloudbridge\CloudBridge;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
-use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\module\npc\form\sub\NPCCreateForm;
 use pocketcloud\cloudbridge\module\npc\form\sub\NPCListForm;
+use pocketcloud\cloudbridge\CloudBridge;
+use pocketcloud\cloudbridge\language\Language;
 use pocketmine\player\Player;
 
 class NPCMainForm extends MenuForm {
@@ -30,7 +31,7 @@ class NPCMainForm extends MenuForm {
                         unset(CloudBridge::getInstance()->npcDetection[$player->getName()]);
                     } else {
                         $player->sendMessage(Language::current()->translate("inGame.cloudnpc.select"));
-                        CloudBridge::getInstance()->npcDetection[$player->getName()] = $player->getName();
+                        CloudNPCModule::get()->npcDetection[$player->getName()] = $player->getName();
                     }
                 } else if ($data == 2) {
                     $player->sendForm(new NPCListForm());

@@ -2,6 +2,8 @@
 
 namespace pocketcloud\cloudbridge\network;
 
+use Exception;
+use GlobalLogger;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloudbridge\event\network\NetworkCloseEvent;
 use pocketcloud\cloudbridge\event\network\NetworkConnectEvent;
@@ -12,11 +14,12 @@ use pocketcloud\cloudbridge\util\Address;
 use pocketmine\snooze\SleeperHandlerEntry;
 use pocketmine\thread\Thread;
 use pocketmine\utils\SingletonTrait;
+use Socket;
 
 class Network extends Thread {
     use SingletonTrait;
 
-    private \Socket $socket;
+    private Socket $socket;
     private bool $connected = false;
 
     public function __construct(
@@ -25,8 +28,13 @@ class Network extends Thread {
         private ThreadSafeArray $buffer
     ) {
         self::setInstance($this);
-        \GlobalLogger::get()->info("Try to connect to §e" . $this->address . "§r...");
-        $this->connect();
+        GlobalLogger::get()->info("Try to connect to §e" . $this->address . "§r...");
+        try {
+            $this->connect();
+        } catch (Exception $exception) {
+            GlobalLogger::get()->critical("Failed to connect to " . $this->address . ": " . trim(socket_strerror(socket_last_error($this->socket))));
+            GlobalLogger::get()->logException($exception);
+        }
     }
 
     public function onRun(): void {
@@ -39,23 +47,17 @@ class Network extends Thread {
         }
     }
 
-    /**
-     * @throws \Exception
-     */
     public function connect(): void {
         if ($this->connected) return;
-        $this->socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
-        \GlobalLogger::get()->info("Connecting to §b" . $this->address . "§r...");
-        if (@socket_connect($this->socket, $this->address->getAddress(), $this->address->getPort())) {
+        GlobalLogger::get()->info("Connecting to §b" . $this->address . "§r...");
+        $this->socket = socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
+        if (socket_connect($this->socket, $this->address->getAddress(), $this->address->getPort())) {
             (new NetworkConnectEvent($this->address))->call();
-            @socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
-            @socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
+            socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
+            socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
             $this->connected = true;
-            \GlobalLogger::get()->info("Successfully connected to §b" . $this->address . "§r!");
-            \GlobalLogger::get()->info("§cWaiting for incoming packets...");
-        } else {
-            $error = socket_last_error($this->socket);
-            throw new \Exception("Failed to connect to $this->address: " . trim(socket_strerror($error)), $error);
+            GlobalLogger::get()->info("Successfully connected to §b" . $this->address . "§r!");
+            GlobalLogger::get()->info("§cWaiting for incoming packets...");
         }
     }
 
@@ -97,7 +99,7 @@ class Network extends Thread {
         return $this->buffer;
     }
 
-    public function getSocket(): \Socket {
+    public function getSocket(): Socket {
         return $this->socket;
     }
 

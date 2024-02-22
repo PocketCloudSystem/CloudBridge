@@ -13,7 +13,7 @@ class CloudNPCUpdateEvent extends Event implements Cancellable {
     public function __construct(
         private readonly CloudNPC $cloudNPC,
         private readonly string $oldNameTag,
-        private readonly string $newNameTag
+        private string $newNameTag
     ) {}
 
     public function getCloudNPC(): CloudNPC {
