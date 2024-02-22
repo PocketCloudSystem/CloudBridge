@@ -4,11 +4,11 @@ namespace pocketcloud\cloudbridge\module\npc\form;
 
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
-use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
-use pocketcloud\cloudbridge\module\npc\form\sub\NPCCreateForm;
-use pocketcloud\cloudbridge\module\npc\form\sub\NPCListForm;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
+use pocketcloud\cloudbridge\module\npc\form\sub\npc\NPCCreateForm;
+use pocketcloud\cloudbridge\module\npc\form\sub\npc\NPCListForm;
 use pocketmine\player\Player;
 
 class NPCMainForm extends MenuForm {

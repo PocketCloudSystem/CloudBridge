@@ -7,6 +7,7 @@ use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\api\server\status\ServerStatus;
+use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\util\GeneralSettings;
@@ -55,8 +56,9 @@ class NPCListener implements Listener {
             if ($damager instanceof Player) {
                 if (isset(CloudNPCModule::get()->npcDetection[$damager->getName()])) {
                     unset(CloudNPCModule::get()->npcDetection[$damager->getName()]);
-                    CloudNPCModule::get()->removeCloudNPC($cloudNPC);
-                    $damager->sendMessage(Language::current()->translate("inGame.cloudnpc.removed"));
+                    if (CloudNPCModule::get()->removeCloudNPC($cloudNPC)) {
+                        $damager->sendMessage(Language::current()->translate("inGame.cloudnpc.removed"));
+                    } else $damager->sendMessage(CloudBridge::getPrefix() . "§cAn error occurred while removing the npc. Please report that incident on our discord.");
                 } else {
                     $servers = array_filter(
                         $cloudNPC->getServers(),

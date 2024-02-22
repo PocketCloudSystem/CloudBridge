@@ -8,6 +8,7 @@ use pocketcloud\cloudbridge\event\npc\CloudNPCCreateEvent;
 use pocketcloud\cloudbridge\event\npc\CloudNPCRemoveEvent;
 use pocketcloud\cloudbridge\module\BaseModule;
 use pocketcloud\cloudbridge\module\npc\command\CloudNPCCommand;
+use pocketcloud\cloudbridge\module\npc\command\TemplateGroupCommand;
 use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketcloud\cloudbridge\module\npc\listener\NPCListener;
 use pocketcloud\cloudbridge\util\Utils;
@@ -31,6 +32,7 @@ class CloudNPCModule extends BaseModule {
         $this->load();
 
         $this->getServer()->getCommandMap()->register("npcModule", new CloudNPCCommand());
+        $this->getServer()->getCommandMap()->register("npcModule", new TemplateGroupCommand());
         foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
     }
 
@@ -43,6 +45,7 @@ class CloudNPCModule extends BaseModule {
         $this->templateGroups = [];
 
         if (($cmd = $this->getServer()->getCommandMap()->getCommand("cloudnpc")) !== null) $this->getServer()->getCommandMap()->unregister($cmd);
+        if (($cmd = $this->getServer()->getCommandMap()->getCommand("templategroup")) !== null) $this->getServer()->getCommandMap()->unregister($cmd);
         foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
     }
 
@@ -158,9 +161,7 @@ class CloudNPCModule extends BaseModule {
         return true;
     }
 
-    public function editTemplateGroup(TemplateGroup $templateGroup, array $data): bool {
-        $templateGroup->applyData($data);
-
+    public function editTemplateGroup(TemplateGroup $templateGroup): bool {
         try {
             ($cfg = $this->getGroupsConfig())->set($templateGroup->getId(), $templateGroup->toArray());
             $cfg->save();
@@ -168,7 +169,7 @@ class CloudNPCModule extends BaseModule {
             CloudNPCModule::get()->getLogger()->logException($exception);
             return false;
         } finally {
-            foreach ($this->getCloudNPCsByGroup($templateGroup) as $npc) $npc->getTemplate()->applyData($data);
+            foreach ($this->getCloudNPCsByGroup($templateGroup) as $npc) $npc->getTemplate()->applyData($templateGroup->toArray());
         }
 
         return true;
