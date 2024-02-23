@@ -21,10 +21,15 @@ class TemplateGroup {
         foreach ($templates as $template) {
             $this->templates[] = $template;
         }
+
+        $this->templates = array_values($this->templates);
     }
 
     public function removeTemplate(string $template): void {
-        if ($this->containsTemplate($template)) unset($this->templates[array_search($template, $this->templates)]);
+        if ($this->containsTemplate($template)) {
+            unset($this->templates[array_search($template, $this->templates)]);
+            $this->templates = array_values($this->templates);
+        }
     }
 
     public function containsTemplate(string $template): bool {
