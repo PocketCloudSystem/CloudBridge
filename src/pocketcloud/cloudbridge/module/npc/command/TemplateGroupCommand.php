@@ -12,7 +12,7 @@ class TemplateGroupCommand extends Command {
 
     public function __construct() {
         parent::__construct("templategroup", Language::current()->translate("inGame.command.description.template_group"), "/templategroup");
-        $this->setPermission("pocketcloud.command.templategroup");
+        $this->setPermission("pocketcloud.command.template_group");
     }
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): bool {

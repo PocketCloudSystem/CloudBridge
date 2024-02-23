@@ -4,7 +4,6 @@ namespace pocketcloud\cloudbridge\module\npc\form;
 
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
-use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\module\npc\form\sub\npc\NPCCreateForm;
@@ -26,9 +25,9 @@ class NPCMainForm extends MenuForm {
                 if ($data == 0) {
                     $player->sendForm(new NPCCreateForm());
                 } else if ($data == 1) {
-                    if (isset(CloudBridge::getInstance()->npcDetection[$player->getName()])) {
+                    if (isset(CloudNPCModule::get()->npcDetection[$player->getName()])) {
                         $player->sendMessage(Language::current()->translate("inGame.cloudnpc.process.cancelled"));
-                        unset(CloudBridge::getInstance()->npcDetection[$player->getName()]);
+                        unset(CloudNPCModule::get()->npcDetection[$player->getName()]);
                     } else {
                         $player->sendMessage(Language::current()->translate("inGame.cloudnpc.select"));
                         CloudNPCModule::get()->npcDetection[$player->getName()] = $player->getName();

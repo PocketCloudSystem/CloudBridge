@@ -3,6 +3,7 @@
 namespace pocketcloud\cloudbridge\module\npc;
 
 use Exception;
+use pocketcloud\cloudbridge\api\server\CloudServer;
 use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\template\Template;
@@ -38,12 +39,9 @@ class CloudNPC {
                     if ($ev->isCancelled()) return;
                     $this->entity->setNameTag($ev->getNewNameTag());
                 }
-
-                if (!$this->entity->isNameTagVisible()) $this->entity->setNameTagVisible();
-                if (!$this->entity->isNameTagAlwaysVisible()) $this->entity->setNameTagAlwaysVisible();
             } else {
                 $this->despawnEntity();
-                $this->tickTask->getHandler()->cancel();
+                $this->tickTask->getHandler()?->cancel();
             }
         }
     }
@@ -55,12 +53,13 @@ class CloudNPC {
                     if ($this->entity !== null && !$this->entity->isClosed()) $this->despawnEntity();
                     $yaw = ($this->position instanceof Location ? $this->position->getYaw() : lcg_value() * 360);
                     $pitch = ($this->position instanceof Location ? $this->position->getPitch() : 0);
-                    $human = new Human(Location::fromObject($this->position->add(0, 2, 0), $this->position->getWorld(), $yaw, $pitch), $skin);
-                    $human->setCanSaveWithChunk(false);
-                    $human->setNoClientPredictions();
-                    ($ev = new CloudNPCSpawnEvent($this, $human))->call();
+                    $this->entity = new Human(Location::fromObject($this->position->add(0, 2, 0), $this->position->getWorld(), $yaw, $pitch), $skin);
+                    $this->entity->setCanSaveWithChunk(false);
+                    $this->entity->setNoClientPredictions();
+                    $this->entity->setNameTagAlwaysVisible();
+                    ($ev = new CloudNPCSpawnEvent($this, $this->entity))->call();
                     if ($ev->isCancelled()) return;
-                    $human->spawnToAll();
+                    $this->entity->spawnToAll();
                     CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask($this->tickTask = new CloudNPCTickTask($this), 10);
                 }
             } catch (Exception $e) {
@@ -73,15 +72,18 @@ class CloudNPC {
         if ($this->entity !== null) {
             $this->entity->flagForDespawn();
             $this->entity = null;
-            $this->tickTask->getHandler()->cancel();
+            $this->tickTask->getHandler()?->cancel();
         }
     }
 
+    /** @return array<CloudServer> */
     public function getServers(): array {
         $servers = [];
         $templates = $this->hasTemplateGroup() ? $this->template->getTemplates() : [$this->template->getName()];
-        foreach (array_filter(array_map(fn(string $name) => CloudAPI::getInstance()->getTemplateByName($name), $templates), fn(?Template $template) => $template !== null) as $template) {
-            foreach (CloudAPI::getInstance()->getServersByTemplate($template) as $server) $servers[] = $server;
+        foreach ($templates as $template) {
+            if (($template = CloudAPI::getInstance()->getTemplateByName($template)) !== null) {
+                foreach (CloudAPI::getInstance()->getServersByTemplate($template) as $server) $servers[] = $server;
+            }
         }
 
         return $servers;
@@ -96,10 +98,9 @@ class CloudNPC {
     }
     
     public function getTemplateOnlineCount(): int {
-        $templates = !$this->hasTemplateGroup() ? [$this->template] : array_map(fn(string $template) => CloudAPI::getInstance()->getTemplateByName($template), $this->template->getTemplates());
-        $count = 0;
-        foreach (array_filter($templates, fn(?Template $template) => $template !== null) as $template) $count += count(CloudAPI::getInstance()->getPlayersOfTemplate($template));
-        return $count;
+        $onlineCount = 0;
+        foreach ($this->getServers() as $server) $onlineCount += count($server->getCloudPlayers());
+        return $onlineCount;
     }
 
     public function getPosition(): Position {
@@ -133,21 +134,22 @@ class CloudNPC {
     }
 
     public static function fromArray(array $data): ?CloudNPC {
-        if (!Utils::containKeys($data, "group_id", "position", "creator") || !Utils::containKeys($data, "template", "position", "creator")) return null;
-        if (isset($data["group_id"])) {
-            if (($group = CloudNPCModule::get()->getTemplateGroup($data["group_id"])) !== null) {
-                /** @var Position $position */
-                if (($position = Utils::convertToVector($data["position"])) instanceof Position) {
-                    return new CloudNPC($group, $position, $data["creator"]);
+        if (Utils::containKeys($data, "group_id", "position", "creator") || Utils::containKeys($data, "template", "position", "creator")) {
+            if (isset($data["group_id"])) {
+                if (($group = CloudNPCModule::get()->getTemplateGroup($data["group_id"])) !== null) {
+                    /** @var Position $position */
+                    if (($position = Utils::convertToVector($data["position"])) instanceof Position) {
+                        return new CloudNPC($group, $position, $data["creator"]);
+                    }
                 }
+                return null;
             }
-            return null;
-        }
 
-        /** @var Position $position */
-        $position = Utils::convertToVector($data["position"]);
-        if (($template = CloudAPI::getInstance()->getTemplateByName($data["template"])) !== null && $position instanceof Position) {
-            return new CloudNPC($template, $position, $data["creator"]);
+            /** @var Position $position */
+            $position = Utils::convertToVector($data["position"]);
+            if (($template = CloudAPI::getInstance()->getTemplateByName($data["template"])) !== null && $position instanceof Position) {
+                return new CloudNPC($template, $position, $data["creator"]);
+            }
         }
         return null;
     }

@@ -35,7 +35,7 @@ class TemplateGroupEditForm extends MenuForm {
                         function (Player $player, int $data) use($group, $templates): void {
                             $template = $templates[$data] ?? null;
                             if ($template !== null) {
-                                $group->addTemplate($template);
+                                $group->addTemplate($template->getName());
                                 if (CloudNPCModule::get()->editTemplateGroup($group)) {
                                     $player->sendForm(new self($group));
                                 } else $player->sendMessage(CloudBridge::getPrefix() . "§cAn error occurred while editing the group: §e" . $group->getId() . "§c. Please report that incident on our discord.");
@@ -52,7 +52,7 @@ class TemplateGroupEditForm extends MenuForm {
                     $player->sendForm(new MenuForm(
                         Language::current()->translate("inGame.ui.template_group.remove_template.title"),
                         Language::current()->translate("inGame.ui.template_group.remove_template.text"),
-                        array_map(fn(string $template) => new MenuOption("§e" . $template->getName()), $templates = $group->getTemplates()),
+                        array_map(fn(string $template) => new MenuOption("§e" . $template), $templates = $group->getTemplates()),
                         function (Player $player, int $data) use($group, $templates): void {
                             $template = $templates[$data] ?? null;
                             if ($template !== null) {

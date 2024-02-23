@@ -37,6 +37,7 @@ class CloudNPCModule extends BaseModule {
     }
 
     protected function onDisable(): void {
+        foreach ($this->npcs as $npc) $npc->despawnEntity();
         HandlerListManager::global()->unregisterAll($this->listener);
         $this->listener = null;
         $this->npcDelay = [];
@@ -50,16 +51,16 @@ class CloudNPCModule extends BaseModule {
     }
 
     private function load(): void {
+        foreach ($this->getGroupsConfig()->getAll() as $groupId => $groupData) {
+            if (($templateGroup = TemplateGroup::fromArray($groupData)) !== null && $groupId == $groupData["id"]) {
+                $this->templateGroups[$groupId] = $templateGroup;
+            }
+        }
+
         foreach ($this->getNPCConfig()->getAll() as $positionString => $npcData) {
             if (($cloudNPC = CloudNPC::fromArray($this->checkForMigration($npcData))) !== null && $positionString == $npcData["position"]) {
                 $this->npcs[$positionString] = $cloudNPC;
                 $cloudNPC->spawnEntity();
-            }
-        }
-
-        foreach ($this->getGroupsConfig()->getAll() as $groupId => $groupData) {
-            if (($templateGroup = TemplateGroup::fromArray($groupData)) !== null && $groupId == $groupData["group_id"]) {
-                $this->templateGroups[$groupId] = $templateGroup;
             }
         }
     }

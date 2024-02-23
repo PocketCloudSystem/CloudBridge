@@ -67,9 +67,10 @@ class NPCListener implements Listener {
                             !($server->getTemplate()->isMaintenance() && !$damager->hasPermission("pocketcloud.maintenance.bypass"))
                     );
 
+                    $name = $cloudNPC->hasTemplateGroup() ? $cloudNPC->getTemplate()->getDisplayName() : $cloudNPC->getTemplate()->getName();
                     $damager->sendForm(new MenuForm(
-                        Language::current()->translate("inGame.ui.cloudnpc.choose_server.title", $cloudNPC->getTemplate()?->getName() ?? $cloudNPC->getTemplate()->getDisplayName()),
-                        Language::current()->translate("inGame.ui.cloudnpc.choose_server.text", count($servers), $cloudNPC->getTemplate()?->getName() ?? $cloudNPC->getTemplate()->getDisplayName()),
+                        Language::current()->translate("inGame.ui.cloudnpc.choose_server.title", $name),
+                        Language::current()->translate("inGame.ui.cloudnpc.choose_server.text", count($servers), $name),
                         (count($servers) == 0 ? [new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.choose_server.no.server"))] : array_map(fn(CloudServer $server) => new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.choose_server.button.server", $server->getName(), count($server->getCloudPlayers()), $server->getCloudServerData()->getMaxPlayers())), $servers)),
                         function(Player $player, int $data) use($servers): void {
                             /** @var CloudServer $server */

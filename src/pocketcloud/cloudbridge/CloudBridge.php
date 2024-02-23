@@ -67,7 +67,7 @@ class CloudBridge extends PluginBase {
         $this->lastKeepALiveCheck = time();
         $this->getScheduler()->scheduleRepeatingTask(new TimeoutTask(), 20);
 
-        $this->registerPermission("pocketcloud.command.cloud", "pocketcloud.command.notify", "pocketcloud.notify.receive", "pocketcloud.maintenance.bypass", "pocketcloud.command.transfer", "pocketcloud.command.cloudnpc", "pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
+        $this->registerPermission("pocketcloud.command.cloud", "pocketcloud.command.notify", "pocketcloud.notify.receive", "pocketcloud.maintenance.bypass", "pocketcloud.command.transfer", "pocketcloud.command.cloudnpc", "pocketcloud.command.template_group", "pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new NPCListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new SignListener(), $this);

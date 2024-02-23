@@ -5,6 +5,7 @@ namespace pocketcloud\cloudbridge\module;
 use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
 use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
+use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketcloud\cloudbridge\util\ModuleSettings;
 use pocketmine\utils\SingletonTrait;
 
@@ -19,7 +20,8 @@ class ModuleManager {
         $this->modules = [
             HubCommandModule::class => new HubCommandModule(),
             GlobalChatModule::class => new GlobalChatModule(),
-            CloudNPCModule::class => new CloudNPCModule()
+            CloudNPCModule::class => new CloudNPCModule(),
+            CloudSignModule::class => new CloudSignModule()
         ];
     }
 

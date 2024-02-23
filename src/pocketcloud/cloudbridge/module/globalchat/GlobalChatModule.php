@@ -33,7 +33,7 @@ final class GlobalChatModule extends BaseModule {
                 ));
             }, EventPriority::HIGHEST, $this->getPlugin());
         } catch (Exception $exception) {
-            $this->getLogger()->error("§cFailed to enable §8''§eGlobalChatModule§80'§c. Report this incident on the PocketCloud discord. §8(§9https://discord.com/invite/3HbPEpaE3T§8)");
+            $this->getLogger()->error("§cFailed to enable §8'§eGlobalChatModule§80'§c. Report this incident on the PocketCloud discord. §8(§9https://discord.com/invite/3HbPEpaE3T§8)");
             $this->getLogger()->logException($exception);
         }
     }

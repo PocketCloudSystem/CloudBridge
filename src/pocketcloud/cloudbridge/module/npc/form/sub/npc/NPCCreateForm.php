@@ -23,10 +23,10 @@ class NPCCreateForm extends CustomForm {
             [new Dropdown(
                 "name",
                 Language::current()->translate("inGame.ui.cloudnpc.create.element.name.text"),
-                $options = array_merge(
+                $options = array_values(array_merge(
                     array_map(fn(Template $template) => $template->getName(), CloudAPI::getInstance()->getTemplates()),
                     array_map(fn(TemplateGroup $group) => $group->getDisplayName(), CloudNPCModule::get()->getTemplateGroups())
-                )
+                ))
             )],
             function(Player $player, CustomFormResponse $response) use($options): void {
                 $template = CloudAPI::getInstance()->getTemplateByName($options[$response->getInt("name")]) ?? CloudNPCModule::get()->geTemplateGroupByDisplay($options[$response->getInt("name")]);

@@ -29,7 +29,8 @@ class TemplateGroupMainForm extends MenuForm {
                 if ($data == 0) {
                     $player->sendForm(new TemplateGroupCreateForm());
                 } else if ($data == 1) {
-                    $player->sendForm(new MenuForm(
+                    if (empty(CloudNPCModule::get()->getTemplateGroups())) $player->sendMessage(CloudBridge::getPrefix() . "§7No groups available.");
+                    else $player->sendForm(new MenuForm(
                         Language::current()->translate("inGame.ui.template_group.edit_selection.title"),
                         Language::current()->translate("inGame.ui.template_group.edit_selection.text"),
                         array_map(fn(TemplateGroup $templateGroup) => new MenuOption($templateGroup->getDisplayName() . "\n§r§e" . $templateGroup->getId()), $groups = array_values(CloudNPCModule::get()->getTemplateGroups())),
@@ -41,14 +42,15 @@ class TemplateGroupMainForm extends MenuForm {
                         }
                     ));
                 } else if ($data == 2) {
-                    $player->sendForm(new TemplateGroupRemoveForm());
+                    if (empty(CloudNPCModule::get()->getTemplateGroups())) $player->sendMessage(CloudBridge::getPrefix() . "§7No groups available.");
+                    else $player->sendForm(new TemplateGroupRemoveForm());
                 } else if ($data == 3) {
                     $player->sendMessage(CloudBridge::getPrefix() . "§7Groups: §8(§e" . count(CloudNPCModule::get()->getTemplateGroups()) . "§8)§7:");
                     if (empty(CloudNPCModule::get()->getTemplateGroups())) $player->sendMessage(CloudBridge::getPrefix() . "§7No groups available.");
                     foreach (CloudNPCModule::get()->getTemplateGroups() as $group) {
                         $player->sendMessage(
                             CloudBridge::getPrefix() . "§e" . $group->getId() .
-                            " §8- §7Display: §e" . $player->getDisplayName() .
+                            " §8- §7Display: §e" . $group->getDisplayName() .
                             " §r§8- §7Templates: §e" . (empty($group->getTemplates()) ? "§c/" : implode("§8, §e", $group->getTemplates()))
                         );
                     }
