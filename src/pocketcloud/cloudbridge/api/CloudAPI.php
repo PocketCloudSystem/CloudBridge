@@ -45,7 +45,7 @@ class CloudAPI {
 
     public function processLogin(): void {
         if ($this->verified === VerifyStatus::VERIFIED()) return;
-        RequestManager::getInstance()->sendRequest(new LoginRequestPacket(GeneralSettings::getServerName(), getmypid()))->then(function(ResponsePacket $packet): void {
+        RequestManager::getInstance()->sendRequest(new LoginRequestPacket(GeneralSettings::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers()))->then(function(ResponsePacket $packet): void {
             if ($packet instanceof LoginResponsePacket) {
                 if ($packet->getStatus() === VerifyStatus::VERIFIED()) {
                     CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new ChangeStatusTask(), 20);
