@@ -87,12 +87,12 @@ class CloudAPI {
         Network::getInstance()->sendPacket(new CloudServerSavePacket());
     }
 
-    public function transferPlayer(Player $player, CloudServer $server, ?CloudPlayer $cloudPlayer = null): bool {
-        $cloudPlayer = ($cloudPlayer === null ? $this->getPlayerByName($player->getName()) : $cloudPlayer);
-        if ($cloudPlayer !== null) {
-            if ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL() || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
+    public function transferPlayer(Player|CloudPlayer $player, CloudServer $server, bool $useCustomMaxPlayerCount = false): bool {
+        $player = ($player instanceof Player ? $this->getPlayerByName($player->getName()) : $player);
+        if ($player !== null) {
+            if (($useCustomMaxPlayerCount ? count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
             if ($server->getTemplate()->isMaintenance() && !$player->hasPermission("pocketcloud.maintenance.bypass")) return false;
-            if ($cloudPlayer->getCurrentProxy() === null) return $player->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
+            if ($player->getCurrentProxy() === null) return $player->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
             else return $player->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
         }
         return false;

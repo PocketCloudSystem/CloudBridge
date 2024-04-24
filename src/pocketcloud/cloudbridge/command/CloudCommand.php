@@ -93,7 +93,7 @@ class CloudCommand extends Command {
                                     CloudBridge::getPrefix() . "§e" . $server->getName() .
                                     " §8- §7Port: §e" . $server->getCloudServerData()->getPort() . " §8| §7IPv6: §e" . $server->getCloudServerData()->getPort()+1 .
                                     " §8- §7Template: §e" . $server->getTemplate()->getName() .
-                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() .
+                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() . " §8(§e" . $server->getTemplate()->getMaxPlayerCount() . "§8)" .
                                     " §8- §7Status: §e" . $server->getServerStatus()->getDisplay()
                                 );
                             }
