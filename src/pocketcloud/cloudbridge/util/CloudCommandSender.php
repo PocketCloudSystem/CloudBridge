@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloudbridge\util;
 
+use pocketcloud\cloudbridge\CloudBridge;
 use pocketmine\console\ConsoleCommandSender;
 use pocketmine\lang\Translatable;
 use pocketmine\Server;
@@ -16,8 +17,10 @@ class CloudCommandSender extends ConsoleCommandSender {
 
     public function sendMessage(Translatable|string $message): void {
         if ($message instanceof Translatable) $message = $this->getLanguage()->translate($message);
-        parent::sendMessage($message);
         $this->cachedMessages[] = $message;
+        foreach (explode("\n", trim($message)) as $line) {
+            CloudBridge::getInstance()->getLogger()->info($line);
+        }
     }
 
     public function getName(): string {
