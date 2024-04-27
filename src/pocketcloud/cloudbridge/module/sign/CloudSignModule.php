@@ -31,8 +31,8 @@ class CloudSignModule extends BaseModule {
     }
 
     protected function onDisable(): void {
-        $this->task->getHandler()->cancel();
-        HandlerListManager::global()->unregisterAll($this->listener);
+        $this->task?->getHandler()->cancel();
+        if ($this->listener !== null) HandlerListManager::global()->unregisterAll($this->listener);
         $this->signDelay = [];
         $this->signs = [];
         $this->usingServerNames = [];

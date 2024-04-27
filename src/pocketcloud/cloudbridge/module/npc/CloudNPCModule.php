@@ -38,7 +38,7 @@ class CloudNPCModule extends BaseModule {
 
     protected function onDisable(): void {
         foreach ($this->npcs as $npc) $npc->despawnEntity();
-        HandlerListManager::global()->unregisterAll($this->listener);
+        if ($this->listener !== null) HandlerListManager::global()->unregisterAll($this->listener);
         $this->listener = null;
         $this->npcDelay = [];
         $this->npcDetection = [];
