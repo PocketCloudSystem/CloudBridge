@@ -35,11 +35,10 @@ class ModuleManager {
 
     /** @internal */
     public function syncModuleStates(): void {
-        if (ModuleSettings::isHubCommandModuleEnabled()) HubCommandModule::get()->setEnabled();
-        if (ModuleSettings::isGlobalChatModuleEnabled()) GlobalChatModule::get()->setEnabled();
-        if (ModuleSettings::isNpcModuleEnabled()) CloudNPCModule::get()->setEnabled();
-        if (ModuleSettings::isNpcModuleEnabled()) HubCommandModule::get()->setEnabled();
-
+        HubCommandModule::get()->setEnabled(ModuleSettings::isHubCommandModuleEnabled());
+        GlobalChatModule::get()->setEnabled(ModuleSettings::isGlobalChatModuleEnabled());
+        CloudNPCModule::get()->setEnabled(ModuleSettings::isNpcModuleEnabled());
+        CloudSignModule::get()->setEnabled(ModuleSettings::isSignModuleEnabled());
     }
 
     public function getModule(string $class): ?BaseModule {
