@@ -89,11 +89,12 @@ class CloudAPI {
 
     public function transferPlayer(Player|CloudPlayer $player, CloudServer $server, bool $useCustomMaxPlayerCount = false): bool {
         $player = ($player instanceof Player ? $this->getPlayerByName($player->getName()) : $player);
-        if ($player !== null) {
+        $serverPlayer = $player?->getServerPlayer();
+        if ($player !== null && $serverPlayer !== null) {
             if (($useCustomMaxPlayerCount ? count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
-            if ($server->getTemplate()->isMaintenance() && !$player->hasPermission("pocketcloud.maintenance.bypass")) return false;
-            if ($player->getCurrentProxy() === null) return $player->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
-            else return $player->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
+            if ($server->getTemplate()->isMaintenance() && !$serverPlayer->hasPermission("pocketcloud.maintenance.bypass")) return false;
+            if ($player->getCurrentProxy() === null) return $serverPlayer->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
+            else return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
         }
         return false;
     }
@@ -144,11 +145,11 @@ class CloudAPI {
     }
 
     public function getPlayerByUniqueId(string $uniqueId): ?CloudPlayer {
-        return array_filter(Registry::getPlayers(), fn(CloudPlayer $player) => $player->getUniqueId() == $uniqueId)[0] ?? null;
+        return array_values(array_filter(Registry::getPlayers(), fn(CloudPlayer $player) => $player->getUniqueId() == $uniqueId))[0] ?? null;
     }
 
     public function getPlayerByXboxUserId(string $xboxUserId): ?CloudPlayer {
-        return array_filter(Registry::getPlayers(), fn(CloudPlayer $player) => $player->getXboxUserId() == $xboxUserId)[0] ?? null;
+        return array_values(array_filter(Registry::getPlayers(), fn(CloudPlayer $player) => $player->getXboxUserId() == $xboxUserId))[0] ?? null;
     }
 
     public function getCurrentServer(): ?CloudServer {

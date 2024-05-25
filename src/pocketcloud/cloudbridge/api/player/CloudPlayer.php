@@ -10,6 +10,7 @@ use pocketcloud\cloudbridge\network\packet\impl\types\TextType;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerKickPacket;
 use pocketmine\player\Player;
+use pocketmine\Server;
 
 class CloudPlayer {
 
@@ -86,6 +87,10 @@ class CloudPlayer {
         Network::getInstance()->sendPacket(new PlayerKickPacket(
             $this->name, $reason
         ));
+    }
+
+    public function getServerPlayer(): ?Player {
+        return Server::getInstance()->getPlayerExact($this->name);
     }
 
     public function toArray(): array {

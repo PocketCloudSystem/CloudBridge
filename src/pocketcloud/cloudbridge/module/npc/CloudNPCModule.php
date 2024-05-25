@@ -11,13 +11,14 @@ use pocketcloud\cloudbridge\module\npc\command\CloudNPCCommand;
 use pocketcloud\cloudbridge\module\npc\command\TemplateGroupCommand;
 use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketcloud\cloudbridge\module\npc\listener\NPCListener;
+use pocketcloud\cloudbridge\module\npc\skin\CustomSkinModel;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\event\HandlerListManager;
 use pocketmine\Server;
 use pocketmine\utils\Config;
 use pocketmine\world\Position;
 
-class CloudNPCModule extends BaseModule {
+final class CloudNPCModule extends BaseModule {
 
     public array $npcDelay = [];
     public array $npcDetection = [];
@@ -25,6 +26,8 @@ class CloudNPCModule extends BaseModule {
     private array $npcs = [];
     /** @var array<TemplateGroup> */
     private array $templateGroups = [];
+    /** @var array<CustomSkinModel> */
+    private array $customSkinModels = [];
     private ?NPCListener $listener = null;
 
     protected function onEnable(): void {
@@ -44,6 +47,7 @@ class CloudNPCModule extends BaseModule {
         $this->npcDetection = [];
         $this->npcs = [];
         $this->templateGroups = [];
+        $this->customSkinModels = [];
 
         if (($cmd = $this->getServer()->getCommandMap()->getCommand("cloudnpc")) !== null) $this->getServer()->getCommandMap()->unregister($cmd);
         if (($cmd = $this->getServer()->getCommandMap()->getCommand("templategroup")) !== null) $this->getServer()->getCommandMap()->unregister($cmd);
@@ -54,6 +58,12 @@ class CloudNPCModule extends BaseModule {
         foreach ($this->getGroupsConfig()->getAll() as $groupId => $groupData) {
             if (($templateGroup = TemplateGroup::fromArray($groupData)) !== null && $groupId == $groupData["id"]) {
                 $this->templateGroups[$groupId] = $templateGroup;
+            }
+        }
+
+        foreach ($this->getModelsConfig()->getAll() as $modelId => $modelData) {
+            if (($model = CustomSkinModel::fromArray($modelData)) !== null && $modelId == $modelData["id"]) {
+                $this->customSkinModels[$modelId] = $model;
             }
         }
 
@@ -113,6 +123,22 @@ class CloudNPCModule extends BaseModule {
         return true;
     }
 
+    public function addSkinModel(CustomSkinModel $model): bool {
+        if (isset($this->customSkinModels[$model->getId()])) return false;
+
+        try {
+            ($cfg = $this->getModelsConfig())->set($model->getId(), $model->toArray());
+            $cfg->save();
+        } catch (JsonException $exception) {
+            CloudNPCModule::get()->getLogger()->logException($exception);
+            return false;
+        } finally {
+            $this->customSkinModels[$model->getId()] = $model;
+        }
+
+        return true;
+    }
+
     public function spawnAll(): void {
         foreach ($this->npcs as $npc) $npc->spawnEntity();
     }
@@ -149,13 +175,27 @@ class CloudNPCModule extends BaseModule {
             return false;
         } finally {
             unset($this->templateGroups[$templateGroup->getId()]);
-            foreach ($this->npcs as $npc) {
-                $template = $npc->getTemplate();
-                if ($template instanceof TemplateGroup) {
-                    if ($template->getId() == $templateGroup->getId()) {
-                        $this->removeCloudNPC($npc);
-                    }
-                }
+            foreach (array_filter($this->npcs, fn (CloudNPC $npc) => $npc->hasTemplateGroup() && $npc->getTemplate()->getId() == $templateGroup->getId()) as $npc) {
+                $this->removeCloudNPC($npc);
+            }
+        }
+
+        return true;
+    }
+
+    public function removeSkinModel(CustomSkinModel $model): bool {
+        if (!isset($this->customSkinModels[$model->getId()])) return false;
+
+        try {
+            ($cfg = $this->getModelsConfig())->remove($model->getId());
+            $cfg->save();
+        } catch (JsonException $exception) {
+            CloudNPCModule::get()->getLogger()->logException($exception);
+            return false;
+        } finally {
+            unset($this->customSkinModels[$model->getId()]);
+            foreach (array_filter($this->npcs, fn (CloudNPC $npc) => $npc->getSkinModel() !== null && $npc->getSkinModel()->getId() == $model->getId()) as $npc) {
+                $this->removeCloudNPC($npc);
             }
         }
 
@@ -171,6 +211,18 @@ class CloudNPCModule extends BaseModule {
             return false;
         } finally {
             foreach ($this->getCloudNPCsByGroup($templateGroup) as $npc) $npc->getTemplate()->applyData($templateGroup->toArray());
+        }
+
+        return true;
+    }
+
+    public function editSkinModel(CustomSkinModel $model): bool {
+        try {
+            ($cfg = $this->getModelsConfig())->set($model->getId(), $model->toArray());
+            $cfg->save();
+        } catch (JsonException $exception) {
+            CloudNPCModule::get()->getLogger()->logException($exception);
+            return false;
         }
 
         return true;
@@ -193,6 +245,10 @@ class CloudNPCModule extends BaseModule {
         return $this->templateGroups[$id] ?? null;
     }
 
+    public function getSkinModel(string $id): ?CustomSkinModel {
+        return $this->customSkinModels[$id] ?? null;
+    }
+
     public function geTemplateGroupByDisplay(string $displayName): ?TemplateGroup {
         foreach ($this->templateGroups as $group) {
             if ($group->getDisplayName() == $displayName) return $group;
@@ -208,11 +264,19 @@ class CloudNPCModule extends BaseModule {
         return new Config(CloudBridge::getInstance()->getDataFolder() . "cloudNpcGroups.json", 1);
     }
 
+    private function getModelsConfig(): Config {
+        return new Config(CloudBridge::getInstance()->getDataFolder() . "cloudNpcModels.json", 1);
+    }
+
     public function getCloudNPCs(): array {
         return $this->npcs;
     }
 
     public function getTemplateGroups(): array {
         return $this->templateGroups;
+    }
+
+    public function getSkinModels(): array {
+        return $this->customSkinModels;
     }
 }

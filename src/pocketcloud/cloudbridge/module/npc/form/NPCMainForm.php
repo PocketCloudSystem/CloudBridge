@@ -19,7 +19,8 @@ class NPCMainForm extends MenuForm {
             [
                 new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.main.button.create")),
                 new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.main.button.remove")),
-                new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.main.button.list"))
+                new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.main.button.list")),
+                new MenuOption(Language::current()->translate("inGame.ui.cloudnpc.main.button.models"))
             ],
             function(Player $player, int $data): void {
                 if ($data == 0) {
@@ -34,6 +35,8 @@ class NPCMainForm extends MenuForm {
                     }
                 } else if ($data == 2) {
                     $player->sendForm(new NPCListForm());
+                } else if ($data == 3) {
+                    $player->sendForm(new SkinModelMainForm());
                 }
             }
         );

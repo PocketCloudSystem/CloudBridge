@@ -12,6 +12,7 @@ use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPC;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
+use pocketcloud\cloudbridge\module\npc\skin\CustomSkinModel;
 use pocketcloud\cloudbridge\util\SkinSaver;
 use pocketmine\player\Player;
 
@@ -27,16 +28,22 @@ class NPCCreateForm extends CustomForm {
                     array_map(fn(Template $template) => $template->getName(), CloudAPI::getInstance()->getTemplates()),
                     array_map(fn(TemplateGroup $group) => $group->getDisplayName(), CloudNPCModule::get()->getTemplateGroups())
                 ))
+            ), new Dropdown(
+                "model",
+                Language::current()->translate("inGame.ui.cloudnpc.create.element.model.text"),
+                $modelOptions = array_merge(["NONE"], array_values(array_map(fn(CustomSkinModel $model) => $model->getId(), CloudNPCModule::get()->getSkinModels())))
             )],
-            function(Player $player, CustomFormResponse $response) use($options): void {
+            function(Player $player, CustomFormResponse $response) use($options, $modelOptions): void {
                 $template = CloudAPI::getInstance()->getTemplateByName($options[$response->getInt("name")]) ?? CloudNPCModule::get()->geTemplateGroupByDisplay($options[$response->getInt("name")]);
                 if ($template !== null) {
+                    $model = $modelOptions[$response->getInt("model")] == "NONE" ? null : CloudNPCModule::get()->getSkinModel($modelOptions[$response->getInt("model")]);
                     if (!CloudNPCModule::get()->checkCloudNPC($player->getPosition())) {
                         SkinSaver::save($player);
                         if (CloudNPCModule::get()->addCloudNPC(new CloudNPC(
                             $template,
                             $player->getPosition(),
-                            $player->getName()
+                            $player->getName(),
+                            $model
                         ))) {
                             $player->sendMessage(Language::current()->translate("inGame.cloudnpc.created"));
                         } else $player->sendMessage(CloudBridge::getPrefix() . "§cAn error occurred while creating the npc. Please report that incident on our discord.");

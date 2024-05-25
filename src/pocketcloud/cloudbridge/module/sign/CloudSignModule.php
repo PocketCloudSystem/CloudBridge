@@ -14,7 +14,7 @@ use pocketmine\event\HandlerListManager;
 use pocketmine\utils\Config;
 use pocketmine\world\Position;
 
-class CloudSignModule extends BaseModule {
+final class CloudSignModule extends BaseModule {
 
     public array $signDelay = [];
     /** @var array<CloudSign> */

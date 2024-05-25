@@ -34,4 +34,21 @@ class Utils {
             default => Vector3::zero()
         };
     }
+
+    public static function fromImage($pathOrImage): string {
+        if (is_string($pathOrImage)) $pathOrImage = imagecreatefrompng($pathOrImage);
+        $bytes = "";
+        for ($y = 0; $y < imagesy($pathOrImage); $y++) {
+            for ($x = 0; $x < imagesx($pathOrImage); $x++) {
+                $rgba = @imagecolorat($pathOrImage, $x, $y);
+                $a = ((~($rgba >> 24)) << 1) & 0xff;
+                $r = ($rgba >> 16) & 0xff;
+                $g = ($rgba >> 8) & 0xff;
+                $b = $rgba & 0xff;
+                $bytes .= chr($r) . chr($g) . chr($b) . chr($a);
+            }
+        }
+        @imagedestroy($pathOrImage);
+        return $bytes;
+    }
 }
