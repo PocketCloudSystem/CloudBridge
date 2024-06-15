@@ -111,12 +111,12 @@ class CloudPlayer {
             $player["host"],
             $player["xboxUserId"],
             $player["uniqueId"],
-            (!isset($player["currentServer"]) ? null : CloudAPI::getInstance()->getServerByName($player["currentServer"])),
-            (!isset($player["currentProxy"]) ? null : CloudAPI::getInstance()->getServerByName($player["currentProxy"]))
+            (!isset($player["currentServer"]) ? null : CloudAPI::serverProvider()->getServer($player["currentServer"])),
+            (!isset($player["currentProxy"]) ? null : CloudAPI::serverProvider()->getServer($player["currentProxy"]))
         );
     }
 
     public static function fromPlayer(Player $player): CloudPlayer {
-        return new CloudPlayer($player->getName(), $player->getNetworkSession()->getIp() . ":" . $player->getNetworkSession()->getPort(), $player->getXuid(), $player->getUniqueId()->toString(), CloudAPI::getInstance()->getCurrentServer());
+        return new CloudPlayer($player->getName(), $player->getNetworkSession()->getIp() . ":" . $player->getNetworkSession()->getPort(), $player->getXuid(), $player->getUniqueId()->toString(), CloudAPI::serverProvider()->current());
     }
 }

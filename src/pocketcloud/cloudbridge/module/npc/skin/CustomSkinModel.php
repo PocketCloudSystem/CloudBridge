@@ -5,6 +5,7 @@ namespace pocketcloud\cloudbridge\module\npc\skin;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\entity\Skin;
+use Throwable;
 
 class CustomSkinModel {
 
@@ -22,7 +23,7 @@ class CustomSkinModel {
         try {
             $skinData = Utils::fromImage($skinImageFile);
             return new Skin("Standard_Custom", $skinData, "", $this->geometryName, file_get_contents($geometryDataFile));
-        } catch (\Throwable $exception) {
+        } catch (Throwable $exception) {
             CloudNPCModule::get()->getLogger()->logException($exception);
         }
         return null;

@@ -38,7 +38,6 @@ class Network extends Thread {
     }
 
     public function onRun(): void {
-        $this->registerClassLoaders();
         while ($this->isConnected()) {
             if ($this->read($buffer, $address, $port) !== false) {
                 $this->buffer[] = $buffer;

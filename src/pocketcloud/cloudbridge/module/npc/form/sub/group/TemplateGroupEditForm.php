@@ -31,7 +31,7 @@ class TemplateGroupEditForm extends MenuForm {
                     $player->sendForm(new MenuForm(
                         Language::current()->translate("inGame.ui.template_group.add_template.title"),
                         Language::current()->translate("inGame.ui.template_group.add_template.text"),
-                        array_map(fn(Template $template) => new MenuOption("§e" . $template->getName()), $templates = array_values(CloudAPI::getInstance()->getTemplates())),
+                        array_map(fn(Template $template) => new MenuOption("§e" . $template->getName()), $templates = array_values(CloudAPI::templateProvider()->getTemplates())),
                         function (Player $player, int $data) use($group, $templates): void {
                             $template = $templates[$data] ?? null;
                             if ($template !== null) {

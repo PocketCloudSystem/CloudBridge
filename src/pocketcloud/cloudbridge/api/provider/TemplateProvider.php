@@ -6,11 +6,12 @@ use Closure;
 use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\api\registry\Registry;
 use pocketcloud\cloudbridge\util\GeneralSettings;
+use RuntimeException;
 
 class TemplateProvider {
 
     public function current(): Template {
-        return $this->getTemplate(GeneralSettings::getTemplateName()) ?? throw new \RuntimeException("Current template shouldn't be null");
+        return $this->getTemplate(GeneralSettings::getTemplateName()) ?? throw new RuntimeException("Current template shouldn't be null");
     }
 
     public function pickTemplates(Closure $filterClosure): array {

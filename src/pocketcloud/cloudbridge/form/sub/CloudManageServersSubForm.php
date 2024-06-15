@@ -45,7 +45,7 @@ class CloudManageServersSubForm extends MenuForm {
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_server.sub.start.title"),
                             [
-                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.start.dropdown.text"), array_map(fn(Template $template) => $template->getName(), CloudAPI::getInstance()->getTemplates())),
+                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.start.dropdown.text"), array_map(fn(Template $template) => $template->getName(), CloudAPI::templateProvider()->getTemplates())),
                                 new Slider("count", Language::current()->translate("inGame.ui.manage_server.sub.start.count.text"), 1, 10, 1.0, 1.0)
                             ],
                             function(Player $player, CustomFormResponse $response): void {
@@ -66,7 +66,7 @@ class CloudManageServersSubForm extends MenuForm {
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_server.sub.stop.title"),
                             [
-                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.stop.dropdown.text"), array_map(fn(CloudServer $server) => $server->getName(), CloudAPI::getInstance()->getServers())),
+                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.stop.dropdown.text"), array_map(fn(CloudServer $server) => $server->getName(), CloudAPI::serverProvider()->getServers())),
                                 new Toggle("template", Language::current()->translate("inGame.ui.manage_server.sub.stop.template_option.text")),
                                 new Toggle("all", Language::current()->translate("inGame.ui.manage_server.sub.stop.all_option.text"))
                             ],
@@ -95,7 +95,7 @@ class CloudManageServersSubForm extends MenuForm {
                         ),
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_server.sub.info.title"),
-                            [new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.info.dropdown.text"), array_map(fn(CloudServer $server) => $server->getName(), CloudAPI::getInstance()->getServers()))],
+                            [new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.info.dropdown.text"), array_map(fn(CloudServer $server) => $server->getName(), CloudAPI::serverProvider()->getServers()))],
                             function(Player $player, CustomFormResponse $response): void {
                                 $server = array_values(CloudAPI::serverProvider()->getServers())[$response->getInt("name")] ?? null;
                                 if ($server !== null) $player->chat("/cloud info server " . $server->getName());

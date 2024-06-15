@@ -49,7 +49,7 @@ class CloudServer {
 
     /** @return array<CloudPlayer> */
     public function getCloudPlayers(): array {
-        return array_filter(CloudAPI::getInstance()->getPlayers(), fn(CloudPlayer $player) => ($this->template->getTemplateType() === "SERVER" ? $player->getCurrentServer() === $this : $player->getCurrentProxy() === $this));
+        return array_filter(CloudAPI::playerProvider()->getPlayers(), fn(CloudPlayer $player) => ($this->template->getTemplateType() === "SERVER" ? $player->getCurrentServer() === $this : $player->getCurrentProxy() === $this));
     }
 
     public function toArray(): array {
@@ -66,7 +66,7 @@ class CloudServer {
 
     public static function fromArray(array $server): ?CloudServer {
         if (!Utils::containKeys($server, "name", "id", "template", "port", "maxPlayers", "processId", "serverStatus")) return null;
-        if (($template = CloudAPI::getInstance()->getTemplateByName($server["template"])) === null) return null;
+        if (($template = CloudAPI::templateProvider()->getTemplate($server["template"])) === null) return null;
         return new CloudServer(
             intval($server["id"]),
             $template,

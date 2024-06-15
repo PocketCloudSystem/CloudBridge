@@ -45,7 +45,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_player.sub.text.title"),
                             [
-                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.text.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::getInstance()->getPlayers())),
+                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.text.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::playerProvider()->getPlayers())),
                                 new Input("message", Language::current()->translate("inGame.ui.manage_player.sub.text.message.text")),
                                 new Dropdown("type", Language::current()->translate("inGame.ui.manage_player.sub.text.text_type.text"), array_map(fn(TextType $textType) => $textType->getName(), array_values(TextType::getTypes())))
                             ],
@@ -70,7 +70,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_player.sub.kick.title"),
                             [
-                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.kick.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::getInstance()->getPlayers())),
+                                new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.kick.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::playerProvider()->getPlayers())),
                                 new Input("reason", Language::current()->translate("inGame.ui.manage_player.sub.kick.reason.text"))
                             ],
                             function(Player $player, CustomFormResponse $response): void {
@@ -92,7 +92,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                         ),
                         new CustomForm(
                             Language::current()->translate("inGame.ui.manage_player.sub.info.title"),
-                            [new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.info.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::getInstance()->getPlayers()))],
+                            [new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.info.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::playerProvider()->getPlayers()))],
                             function(Player $player, CustomFormResponse $response): void {
                                 $target = array_values(CloudAPI::playerProvider()->getPlayers())[$response->getInt("name")] ?? null;
                                 if ($target !== null) $player->chat("/cloud info player " . $target->getName());

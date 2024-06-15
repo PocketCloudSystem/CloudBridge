@@ -15,7 +15,7 @@ use pocketmine\utils\Internet;
 class PlayerProvider {
 
     public function transferPlayer(Player|CloudPlayer $player, CloudServer $server, bool $useCustomMaxPlayerCount = false): bool {
-        $player = ($player instanceof Player ? $this->getPlayerByName($player->getName()) : $player);
+        $player = ($player instanceof Player ? $this->getPlayer($player->getName()) : $player);
         $serverPlayer = $player?->getServerPlayer();
         if ($player !== null && $serverPlayer !== null) {
             if (($useCustomMaxPlayerCount ? count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;

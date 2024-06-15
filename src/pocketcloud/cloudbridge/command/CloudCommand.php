@@ -93,12 +93,12 @@ class CloudCommand extends Command {
                                     CloudBridge::getPrefix() . "§e" . $server->getName() .
                                     " §8- §7Port: §e" . $server->getCloudServerData()->getPort() . " §8| §7IPv6: §e" . $server->getCloudServerData()->getPort()+1 .
                                     " §8- §7Template: §e" . $server->getTemplate()->getName() .
-                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() . " §8(§e" . $server->templateProvider()->getTemplate()->getMaxPlayerCount() . "§8)" .
+                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() . " §8(§e" . $server->getTemplate()->getMaxPlayerCount() . "§8)" .
                                     " §8- §7Status: §e" . $server->getServerStatus()->getDisplay()
                                 );
                             }
                         } else if ($type == "players") {
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Players: §8(§e" . count(CloudAPI::getInstance()->getPlayers()) . "§8)§7:");
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Players: §8(§e" . count(CloudAPI::playerProvider()->getPlayers()) . "§8)§7:");
                             if (empty(CloudAPI::playerProvider()->getPlayers())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No players are online.");
                             foreach (CloudAPI::playerProvider()->getPlayers() as $player) {
                                 $sender->sendMessage(

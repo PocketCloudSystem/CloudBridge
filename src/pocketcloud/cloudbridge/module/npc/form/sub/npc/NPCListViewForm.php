@@ -6,7 +6,6 @@ use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPC;
-use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketmine\player\Player;
 
 class NPCListViewForm extends MenuForm {

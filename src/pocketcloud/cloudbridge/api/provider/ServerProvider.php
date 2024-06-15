@@ -13,11 +13,12 @@ use pocketcloud\cloudbridge\network\packet\impl\request\CloudServerStopRequestPa
 use pocketcloud\cloudbridge\network\packet\RequestPacket;
 use pocketcloud\cloudbridge\network\request\RequestManager;
 use pocketcloud\cloudbridge\util\GeneralSettings;
+use RuntimeException;
 
 class ServerProvider {
 
     public function current(): CloudServer {
-        return $this->getServer(GeneralSettings::getServerName()) ?? throw new \RuntimeException("Current server shouldn't be null");
+        return $this->getServer(GeneralSettings::getServerName()) ?? throw new RuntimeException("Current server shouldn't be null");
     }
 
     public function startServer(Template|string $template, int $count = 1): RequestPacket {

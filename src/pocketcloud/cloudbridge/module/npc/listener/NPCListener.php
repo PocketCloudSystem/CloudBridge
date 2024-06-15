@@ -114,7 +114,7 @@ class NPCListener implements Listener {
                                                 fn(string $template) => new MenuOption(Language::current()->translate(
                                                     "inGame.ui.cloudnpc.choose_template.button.template",
                                                     $template,
-                                                    count(CloudAPI::playerProvider()->getPlayersOfTemplate($template = CloudAPI::getInstance()->getTemplateByName($template))),
+                                                    count(CloudAPI::playerProvider()->getPlayersOfTemplate($template = CloudAPI::templateProvider()->getTemplate($template))),
                                                     $template->getMaxPlayerCount()
                                                 )),
                                                 $templates = $cloudNPC->getTemplate()->getTemplates()
