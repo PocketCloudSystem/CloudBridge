@@ -2,9 +2,9 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
 
 class CloudServerStatusChangePacket extends CloudPacket {
 

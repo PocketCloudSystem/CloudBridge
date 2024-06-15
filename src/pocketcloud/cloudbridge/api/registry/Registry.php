@@ -2,10 +2,10 @@
 
 namespace pocketcloud\cloudbridge\api\registry;
 
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\template\Template;
 
 class Registry {
 

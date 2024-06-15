@@ -24,13 +24,13 @@ class TransferCommand extends Command {
                 $player = $sender;
                 if (isset($args[1])) $player = Server::getInstance()->getPlayerExact($args[1]) ?? $sender;
 
-                if (($server = CloudAPI::getInstance()->getServerByName($args[0])) !== null) {
+                if (($server = CloudAPI::serverProvider()->getServer($args[0])) !== null) {
                     if ($sender === $player) {
                         if ($server->getName() == GeneralSettings::getServerName()) {
                             $sender->sendMessage(Language::current()->translate("inGame.server.already.connected", $server->getName()));
                         } else {
                             $sender->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));
-                            if (!CloudAPI::getInstance()->transferPlayer($sender, $server)) {
+                            if (!CloudAPI::playerProvider()->transferPlayer($sender, $server)) {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.connect.failed", $server->getName()));
                             }
                         }
@@ -40,7 +40,7 @@ class TransferCommand extends Command {
                         } else {
                             $sender->sendMessage(Language::current()->translate("inGame.server.target.connect", $player->getName(), $server->getName()));
                             $player->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));
-                            if (!CloudAPI::getInstance()->transferPlayer($player, $server)) {
+                            if (!CloudAPI::playerProvider()->transferPlayer($player, $server)) {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.target.connect.failed", $player->getName(), $server->getName()));
                                 $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $server->getName()));
                             }

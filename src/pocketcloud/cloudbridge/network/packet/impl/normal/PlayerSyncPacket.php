@@ -3,10 +3,10 @@
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\registry\Registry;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
 
 class PlayerSyncPacket extends CloudPacket {
 
@@ -34,7 +34,7 @@ class PlayerSyncPacket extends CloudPacket {
     }
 
     public function handle(): void {
-        if (CloudAPI::getInstance()->getPlayerByName($this->player->getName()) === null) {
+        if (CloudAPI::playerProvider()->getPlayer($this->player->getName()) === null) {
             if (!$this->removal) Registry::registerPlayer($this->player);
         } else {
             if ($this->removal) {

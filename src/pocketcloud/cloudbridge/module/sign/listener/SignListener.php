@@ -18,7 +18,7 @@ class SignListener implements Listener {
     public function onChange(SignChangeEvent $event): void {
         if ($event->getNewText()->getLine(0) == "[PocketCloud]") {
             if ($event->getPlayer()->hasPermission("pocketcloud.cloudsign.add")) {
-                if (($template = CloudAPI::getInstance()->getTemplateByName($event->getNewText()->getLine(1))) !== null) {
+                if (($template = CloudAPI::templateProvider()->getTemplate($event->getNewText()->getLine(1))) !== null) {
                     CloudSignModule::get()->addCloudSign(new CloudSign($template, $event->getSign()->getPosition()));
                 }
             }
@@ -32,11 +32,11 @@ class SignListener implements Listener {
             if (Server::getInstance()->getTick() >= CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()]) {
                 CloudBridge::getInstance()->signDelay[$event->getPlayer()->getName()] = Server::getInstance()->getTick() + 10;
                 if ($sign->hasUsingServer() && !$sign->getUsingServer()->getTemplate()->isMaintenance()) {
-                    if (CloudAPI::getInstance()->getCurrentServer()?->getName() == $sign->getUsingServer()->getName()) {
+                    if (CloudAPI::serverProvider()->current()?->getName() == $sign->getUsingServer()->getName()) {
                         $event->getPlayer()->sendMessage(Language::current()->translate("inGame.server.already.connected", $sign->getUsingServer()->getName()));
                     } else {
                         $event->getPlayer()->sendMessage(Language::current()->translate("inGame.server.connect", $sign->getUsingServer()->getName()));
-                        if (!CloudAPI::getInstance()->transferPlayer($event->getPlayer(), $sign->getUsingServer())) {
+                        if (!CloudAPI::playerProvider()->transferPlayer($event->getPlayer(), $sign->getUsingServer())) {
                             $event->getPlayer()->sendMessage(Language::current()->translate("inGame.server.connect.failed", $sign->getUsingServer()->getName()));
                         }
                     }

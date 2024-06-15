@@ -5,8 +5,8 @@ namespace pocketcloud\cloudbridge\module\npc\listener;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
@@ -76,7 +76,7 @@ class NPCListener implements Listener {
                             /** @var CloudServer $server */
                             if (($server = ($servers[$data] ?? null)) instanceof CloudServer) {
                                 $player->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));
-                                if (!CloudAPI::getInstance()->transferPlayer($player, $server)) {
+                                if (!CloudAPI::playerProvider()->transferPlayer($player, $server)) {
                                     $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $server->getName()));
                                 }
                             }
@@ -114,17 +114,17 @@ class NPCListener implements Listener {
                                                 fn(string $template) => new MenuOption(Language::current()->translate(
                                                     "inGame.ui.cloudnpc.choose_template.button.template",
                                                     $template,
-                                                    count(CloudAPI::getInstance()->getPlayersOfTemplate($template = CloudAPI::getInstance()->getTemplateByName($template))),
+                                                    count(CloudAPI::playerProvider()->getPlayersOfTemplate($template = CloudAPI::getInstance()->getTemplateByName($template))),
                                                     $template->getMaxPlayerCount()
                                                 )),
                                                 $templates = $cloudNPC->getTemplate()->getTemplates()
                                             ),
                                             function (Player $player, int $data) use($templates): void {
                                                 $template = $templates[$data];
-                                                if (($template = CloudAPI::getInstance()->getTemplateByName($template)) !== null) {
-                                                    if (($bestServer = CloudAPI::getInstance()->getFreeServerByTemplate($template, [GeneralSettings::getServerName()])) !== null) {
+                                                if (($template = CloudAPI::templateProvider()->getTemplate($template)) !== null) {
+                                                    if (($bestServer = CloudAPI::serverProvider()->getFreeServerByTemplate($template, [GeneralSettings::getServerName()])) !== null) {
                                                         $player->sendMessage(Language::current()->translate("inGame.server.connect", $player->getName()));
-                                                        if (!CloudAPI::getInstance()->transferPlayer($player, $bestServer)) {
+                                                        if (!CloudAPI::playerProvider()->transferPlayer($player, $bestServer)) {
                                                             $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $bestServer->getName()));
                                                         }
                                                     } else $player->sendMessage(Language::current()->translate("inGame.cloudnpc.quickjoin.no_server"));
@@ -132,9 +132,9 @@ class NPCListener implements Listener {
                                             }
                                         ));
                                     } else {
-                                        if (($bestServer = CloudAPI::getInstance()->getFreeServerByTemplate($cloudNPC->getTemplate(), [GeneralSettings::getServerName()])) !== null) {
+                                        if (($bestServer = CloudAPI::serverProvider()->getFreeServerByTemplate($cloudNPC->getTemplate(), [GeneralSettings::getServerName()])) !== null) {
                                             $player->sendMessage(Language::current()->translate("inGame.server.connect", $player->getName()));
-                                            if (!CloudAPI::getInstance()->transferPlayer($player, $bestServer)) {
+                                            if (!CloudAPI::playerProvider()->transferPlayer($player, $bestServer)) {
                                                 $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $bestServer->getName()));
                                             }
                                         } else $player->sendMessage(Language::current()->translate("inGame.cloudnpc.quickjoin.no_server"));

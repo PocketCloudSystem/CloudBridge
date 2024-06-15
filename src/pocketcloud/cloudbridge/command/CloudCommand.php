@@ -42,7 +42,7 @@ class CloudCommand extends Command {
                         $count = 1;
                         if (isset($args[1])) if (is_numeric($args[1])) if (intval($args[1]) > 0) $count = intval($args[1]);
 
-                        ($pk = CloudAPI::getInstance()->startServer($args[0], $count))->then(function(CloudServerStartResponsePacket $packet) use($sender, $args): void {
+                        ($pk = CloudAPI::serverProvider()->startServer($args[0], $count))->then(function(CloudServerStartResponsePacket $packet) use($sender, $args): void {
                             if ($packet->getErrorReason() === ErrorReason::TEMPLATE_EXISTENCE()) {
                                 $sender->sendMessage(Language::current()->translate("inGame.template.not.found"));
                             } else if ($packet->getErrorReason() === ErrorReason::MAX_SERVERS()) {
@@ -57,7 +57,7 @@ class CloudCommand extends Command {
                             return true;
                         }
 
-                        ($pk = CloudAPI::getInstance()->stopServer($args[0]))->then(function(CloudServerStopResponsePacket $packet) use($sender): void {
+                        ($pk = CloudAPI::serverProvider()->stopServer($args[0]))->then(function(CloudServerStopResponsePacket $packet) use($sender): void {
                             if ($packet->getErrorReason() === ErrorReason::SERVER_EXISTENCE()) {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
                             }
@@ -65,16 +65,16 @@ class CloudCommand extends Command {
                             $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
                         });
                     } else if ($subCommand == "save") {
-                        CloudAPI::getInstance()->saveCurrentServer();
+                        CloudAPI::serverProvider()->saveCurrent();
                         $sender->sendMessage(Language::current()->translate("inGame.server.saved"));
                     } else if ($subCommand == "list") {
                         $type = "servers";
                         if (isset($args[0])) if (strtolower($args[0]) == "templates" || strtolower($args[0]) == "players" || strtolower($args[0]) == "servers" || strtolower($args[0]) == "modules") $type = strtolower($args[0]);
 
                         if ($type == "templates") {
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Templates: §8(§e" . count(CloudAPI::getInstance()->getTemplates()) . "§8)§7:");
-                            if (empty(CloudAPI::getInstance()->getTemplates())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No templates available.");
-                            foreach (CloudAPI::getInstance()->getTemplates() as $template) {
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Templates: §8(§e" . count(CloudAPI::getInstance()->templateProvider()->getTemplates()) . "§8)§7:");
+                            if (empty(CloudAPI::getInstance()->templateProvider()->getTemplates())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No templates available.");
+                            foreach (CloudAPI::getInstance()->templateProvider()->getTemplates() as $template) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $template->getName() .
                                     " §8- §7isLobby: §a" . ($template->isLobby() ? "§aYES" : "§cNO") .
@@ -86,21 +86,21 @@ class CloudCommand extends Command {
                                 );
                             }
                         } else if ($type == "servers") {
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Servers: §8(§e" . count(CloudAPI::getInstance()->getServers()) . "§8)§7:");
-                            if (empty(CloudAPI::getInstance()->getServers())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No servers available.");
-                            foreach (CloudAPI::getInstance()->getServers() as $server) {
+                            $sender->sendMessage(CloudBridge::getPrefix() . "§7Servers: §8(§e" . count(CloudAPI::serverProvider()->getServers()) . "§8)§7:");
+                            if (empty(CloudAPI::serverProvider()->getServers())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No servers available.");
+                            foreach (CloudAPI::serverProvider()->getServers() as $server) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $server->getName() .
                                     " §8- §7Port: §e" . $server->getCloudServerData()->getPort() . " §8| §7IPv6: §e" . $server->getCloudServerData()->getPort()+1 .
                                     " §8- §7Template: §e" . $server->getTemplate()->getName() .
-                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() . " §8(§e" . $server->getTemplate()->getMaxPlayerCount() . "§8)" .
+                                    " §8- §7Players: §e" . count($server->getCloudPlayers()) . "§8/§e" . $server->getCloudServerData()->getMaxPlayers() . " §8(§e" . $server->templateProvider()->getTemplate()->getMaxPlayerCount() . "§8)" .
                                     " §8- §7Status: §e" . $server->getServerStatus()->getDisplay()
                                 );
                             }
                         } else if ($type == "players") {
                             $sender->sendMessage(CloudBridge::getPrefix() . "§7Players: §8(§e" . count(CloudAPI::getInstance()->getPlayers()) . "§8)§7:");
-                            if (empty(CloudAPI::getInstance()->getPlayers())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No players are online.");
-                            foreach (CloudAPI::getInstance()->getPlayers() as $player) {
+                            if (empty(CloudAPI::playerProvider()->getPlayers())) $sender->sendMessage(CloudBridge::getPrefix() . "§7No players are online.");
+                            foreach (CloudAPI::playerProvider()->getPlayers() as $player) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $player->getName() .
                                     " §8- §7XboxUserId: §e" . $player->getXboxUserId() .
@@ -126,7 +126,7 @@ class CloudCommand extends Command {
                         if (isset($args[0])) if (strtolower($args[0]) == "template" || strtolower($args[0]) == "player" || strtolower($args[0]) == "server") $type = strtolower($args[0]);
 
                         if ($type == "template") {
-                            if (($template = CloudAPI::getInstance()->getTemplateByName($args[1])) !== null) {
+                            if (($template = CloudAPI::templateProvider()->getTemplate($args[1])) !== null) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $template->getName() .
                                     " §8- §7isLobby: §a" . ($template->isLobby() ? "§aYES" : "§cNO") .
@@ -140,7 +140,7 @@ class CloudCommand extends Command {
                                 $sender->sendMessage(Language::current()->translate("inGame.template.not.found"));
                             }
                         } else if ($type == "server") {
-                            if (($server = CloudAPI::getInstance()->getServerByName($args[1])) !== null) {
+                            if (($server = CloudAPI::serverProvider()->getServer($args[1])) !== null) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $server->getName() .
                                     " §8- §7Port: §e" . $server->getCloudServerData()->getPort() . " §8| §7IPv6: §e" . $server->getCloudServerData()->getPort()+1 .
@@ -152,7 +152,7 @@ class CloudCommand extends Command {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
                             }
                         } else if ($type == "player") {
-                            if (($player = CloudAPI::getInstance()->getPlayerByName($args[1])) !== null) {
+                            if (($player = CloudAPI::playerProvider()->getPlayer($args[1])) !== null) {
                                 $sender->sendMessage(
                                     CloudBridge::getPrefix() . "§e" . $player->getName() .
                                     " §8- §7XboxUserId: §e" . $player->getXboxUserId() .
@@ -174,7 +174,7 @@ class CloudCommand extends Command {
                         $textType = TextType::getTypeByName(array_shift($args)) ?? TextType::MESSAGE();
                         $text = implode(" ", $args);
 
-                        if (($target = CloudAPI::getInstance()->getPlayerByName($target)) !== null) {
+                        if (($target = CloudAPI::playerProvider()->getPlayer($target)) !== null) {
                             $sender->sendMessage(Language::current()->translate("inGame.text.successful." . strtolower($textType->getName()), $target->getName()));
                             $target->send($text, $textType);
                         } else {
@@ -189,7 +189,7 @@ class CloudCommand extends Command {
                         $target = array_shift($args);
                         $reason = implode(" ", $args);
 
-                        if (($target = CloudAPI::getInstance()->getPlayerByName($target)) !== null) {
+                        if (($target = CloudAPI::getInstance()->playerProvider()->getPlayer($target)) !== null) {
                             $sender->sendMessage(Language::current()->translate("inGame.kick.successful", $target->getName()));
                             $target->kick($reason);
                         } else {

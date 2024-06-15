@@ -3,7 +3,7 @@
 namespace pocketcloud\cloudbridge\listener;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerConnectPacket;
@@ -24,7 +24,7 @@ class EventListener implements Listener {
         $player = $event->getPlayer();
         Network::getInstance()->sendPacket(new PlayerConnectPacket(CloudPlayer::fromPlayer($player)));
 
-        if (CloudAPI::getInstance()->getCurrentTemplate()?->isMaintenance()) {
+        if (CloudAPI::templateProvider()->current()->isMaintenance()) {
             RequestManager::getInstance()->sendRequest(new CheckPlayerMaintenanceRequestPacket($player->getName()))->then(function(CheckPlayerMaintenanceResponsePacket $packet) use($player): void {
                 if (!$packet->getValue() && !$player->hasPermission("pocketcloud.maintenance.bypass")) {
                     $player->kick(Language::current()->translate("inGame.template.kick.maintenance"));

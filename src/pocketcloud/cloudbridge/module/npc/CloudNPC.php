@@ -3,21 +3,20 @@
 namespace pocketcloud\cloudbridge\module\npc;
 
 use Exception;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\event\npc\CloudNPCSpawnEvent;
 use pocketcloud\cloudbridge\event\npc\CloudNPCUpdateEvent;
 use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\module\npc\group\TemplateGroup;
 use pocketcloud\cloudbridge\module\npc\skin\CustomSkinModel;
 use pocketcloud\cloudbridge\module\npc\task\CloudNPCTickTask;
 use pocketcloud\cloudbridge\util\SkinSaver;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
-use pocketmine\Server;
 use pocketmine\world\Position;
 
 class CloudNPC {
@@ -88,8 +87,8 @@ class CloudNPC {
         $servers = [];
         $templates = $this->hasTemplateGroup() ? $this->template->getTemplates() : [$this->template->getName()];
         foreach ($templates as $template) {
-            if (($template = CloudAPI::getInstance()->getTemplateByName($template)) !== null) {
-                foreach (CloudAPI::getInstance()->getServersByTemplate($template) as $server) $servers[] = $server;
+            if (($template = CloudAPI::templateProvider()->getTemplate($template)) !== null) {
+                foreach (CloudAPI::serverProvider()->getServersByTemplate($template) as $server) $servers[] = $server;
             }
         }
 
@@ -114,7 +113,7 @@ class CloudNPC {
         if ($this->hasTemplateGroup()) {
             $i = 0;
             foreach ($this->getTemplate()->getTemplates() as $template) {
-                if (($template = CloudAPI::getInstance()->getTemplateByName($template)) !== null && $template->isMaintenance()) {
+                if (($template = CloudAPI::templateProvider()->getTemplate($template)) !== null && $template->isMaintenance()) {
                     $i++;
                 }
             }
@@ -177,7 +176,7 @@ class CloudNPC {
 
             /** @var Position $position */
             $position = Utils::convertToVector($data["position"]);
-            if (($template = CloudAPI::getInstance()->getTemplateByName($data["template"])) !== null && $position instanceof Position) {
+            if (($template = CloudAPI::templateProvider()->getTemplate($data["template"])) !== null && $position instanceof Position) {
                 return new CloudNPC($template, $position, $data["creator"], $data["skin_model"]);
             }
         }

@@ -3,16 +3,16 @@
 namespace pocketcloud\cloudbridge\network\packet\utils;
 
 use JsonSerializable;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\network\packet\impl\types\CommandExecutionResult;
 use pocketcloud\cloudbridge\network\packet\impl\types\DisconnectReason;
 use pocketcloud\cloudbridge\network\packet\impl\types\ErrorReason;
 use pocketcloud\cloudbridge\network\packet\impl\types\LogType;
 use pocketcloud\cloudbridge\network\packet\impl\types\TextType;
 use pocketcloud\cloudbridge\network\packet\impl\types\VerifyStatus;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\template\Template;
 
 class PacketData implements JsonSerializable {
 
@@ -117,7 +117,7 @@ class PacketData implements JsonSerializable {
     }
 
     public function readServerStatus(): ?ServerStatus {
-        return ServerStatus::getServerStatusByName($this->readString());
+        return ServerStatus::get($this->readString());
     }
 
     public function readTemplate(): ?Template {

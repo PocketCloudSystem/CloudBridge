@@ -1,14 +1,14 @@
 <?php
 
-namespace pocketcloud\cloudbridge\api\player;
+namespace pocketcloud\cloudbridge\api\object\player;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
 use pocketcloud\cloudbridge\network\Network;
+use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerKickPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerTextPacket;
 use pocketcloud\cloudbridge\network\packet\impl\types\TextType;
 use pocketcloud\cloudbridge\util\Utils;
-use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerKickPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
 

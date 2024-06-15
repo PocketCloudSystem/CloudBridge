@@ -1,12 +1,12 @@
 <?php
 
-namespace pocketcloud\cloudbridge\api\server;
+namespace pocketcloud\cloudbridge\api\object\server;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
-use pocketcloud\cloudbridge\api\server\data\CloudServerData;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
+use pocketcloud\cloudbridge\api\object\server\data\CloudServerData;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\util\Utils;
 
 class CloudServer {
@@ -71,7 +71,7 @@ class CloudServer {
             intval($server["id"]),
             $template,
             new CloudServerData(intval($server["port"]), intval($server["maxPlayers"]), intval($server["processId"])),
-            ServerStatus::getServerStatusByName($server["serverStatus"]) ?? ServerStatus::ONLINE()
+            ServerStatus::get($server["serverStatus"]) ?? ServerStatus::ONLINE()
         );
     }
 }

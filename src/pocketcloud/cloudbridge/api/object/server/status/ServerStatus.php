@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloudbridge\api\server\status;
+namespace pocketcloud\cloudbridge\api\object\server\status;
 
 use pocketmine\utils\RegistryTrait;
 
@@ -25,12 +25,12 @@ final class ServerStatus {
         self::_registryRegister("offline", new ServerStatus("OFFLINE", "§cOFFLINE"));
     }
 
-    public static function getServerStatusByName(string $name): ?ServerStatus {
+    public static function get(string $name): ?ServerStatus {
         self::checkInit();
         return self::$members[strtoupper($name)] ?? null;
     }
 
-    public static function getServerStatuses(): array {
+    public static function getAll(): array {
         self::checkInit();
         return self::$members;
     }

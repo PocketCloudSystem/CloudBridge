@@ -9,7 +9,7 @@ use dktapps\pmforms\element\Input;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
 use pocketcloud\cloudbridge\form\selection\CloudSelectionForm;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\network\packet\impl\types\TextType;
@@ -50,7 +50,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                                 new Dropdown("type", Language::current()->translate("inGame.ui.manage_player.sub.text.text_type.text"), array_map(fn(TextType $textType) => $textType->getName(), array_values(TextType::getTypes())))
                             ],
                             function(Player $player, CustomFormResponse $response): void {
-                                $target = array_values(CloudAPI::getInstance()->getPlayers())[$response->getInt("name")] ?? null;
+                                $target = array_values(CloudAPI::playerProvider()->getPlayers())[$response->getInt("name")] ?? null;
                                 if ($target !== null) $player->chat("/cloud text " . $target->getName() . " " . array_values(TextType::getTypes())[$response->getInt("type")]->getName() . " " . $response->getString("message"));
                             }
                         )
@@ -74,7 +74,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                                 new Input("reason", Language::current()->translate("inGame.ui.manage_player.sub.kick.reason.text"))
                             ],
                             function(Player $player, CustomFormResponse $response): void {
-                                $target = array_values(CloudAPI::getInstance()->getPlayers())[$response->getInt("name")] ?? null;
+                                $target = array_values(CloudAPI::playerProvider()->getPlayers())[$response->getInt("name")] ?? null;
                                 if ($target !== null) $player->chat("/cloud kick " . $target->getName() . " " . $response->getString("reason"));
                             }
                         )
@@ -94,7 +94,7 @@ class CloudManagePlayersSubForm extends MenuForm {
                             Language::current()->translate("inGame.ui.manage_player.sub.info.title"),
                             [new Dropdown("name", Language::current()->translate("inGame.ui.manage_player.sub.info.dropdown.text"), array_map(fn(CloudPlayer $player) => $player->getName(), CloudAPI::getInstance()->getPlayers()))],
                             function(Player $player, CustomFormResponse $response): void {
-                                $target = array_values(CloudAPI::getInstance()->getPlayers())[$response->getInt("name")] ?? null;
+                                $target = array_values(CloudAPI::playerProvider()->getPlayers())[$response->getInt("name")] ?? null;
                                 if ($target !== null) $player->chat("/cloud info player " . $target->getName());
                             }
                         )

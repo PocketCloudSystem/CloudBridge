@@ -3,7 +3,7 @@
 namespace pocketcloud\cloudbridge\module\hubcommand;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\language\Language;
 use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
@@ -19,15 +19,15 @@ final class HubCommand extends Command {
 
     public function execute(CommandSender $sender, string $commandLabel, array $args): bool {
         if ($sender instanceof Player) {
-            if (!CloudAPI::getInstance()->getCurrentTemplate()?->isLobby()) {
-                $availableTemplates = CloudAPI::getInstance()->pickTemplates(fn(Template $template) => $template->isLobby() && !$template->isMaintenance());
+            if (!CloudAPI::templateProvider()->current()->isLobby()) {
+                $availableTemplates = CloudAPI::templateProvider()->pickTemplates(fn(Template $template) => $template->isLobby() && !$template->isMaintenance());
                 if (!empty($availableTemplates)) {
                     $pickedTemplate = $availableTemplates[array_rand($availableTemplates)];
                     if ($pickedTemplate !== null) {
-                        $lobbyServer = CloudAPI::getInstance()->getFreeServerByTemplate($pickedTemplate);
+                        $lobbyServer = CloudAPI::serverProvider()->getFreeServerByTemplate($pickedTemplate);
                         if ($lobbyServer !== null) {
                             $sender->sendMessage(Language::current()->translate("inGame.server.connect", $lobbyServer->getName()));
-                            if (!CloudAPI::getInstance()->transferPlayer($sender, $lobbyServer)) {
+                            if (!CloudAPI::playerProvider()->transferPlayer($sender, $lobbyServer)) {
                                 $sender->sendMessage(Language::current()->translate("inGame.server.connect.failed", $lobbyServer->getName()));
                             }
                         } else {

@@ -2,11 +2,11 @@
 
 namespace pocketcloud\cloudbridge\module\sign;
 
-use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\template\Template;
+use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
 use pocketcloud\cloudbridge\util\Utils;
 use pocketmine\world\Position;
 
@@ -102,7 +102,7 @@ class CloudSign {
     }
 
     public function getUsingServer(): ?CloudServer {
-        return $this->usingServer === null ? null : CloudAPI::getInstance()->getServerByName($this->usingServer);
+        return $this->usingServer === null ? null : CloudAPI::serverProvider()->getServer($this->usingServer);
     }
 
     public function getUsingServerName(): ?string {
@@ -124,7 +124,7 @@ class CloudSign {
         if (!Utils::containKeys($data, "template", "position")) return null;
         /** @var Position $position */
         $position = Utils::convertToVector($data["position"]);
-        if (($template = CloudAPI::getInstance()->getTemplateByName($data["template"])) !== null && $position instanceof Position) {
+        if (($template = CloudAPI::templateProvider()->getTemplate($data["template"])) !== null && $position instanceof Position) {
             return new CloudSign($template, $position);
         }
         return null;

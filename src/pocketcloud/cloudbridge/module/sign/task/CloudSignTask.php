@@ -3,9 +3,9 @@
 namespace pocketcloud\cloudbridge\module\sign\task;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\server\status\ServerStatus;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\event\sign\CloudSignUpdateEvent;
 use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketmine\block\BaseSign;
@@ -60,7 +60,7 @@ class CloudSignTask extends Task {
     }
 
     private function getFreeServer(Template $template): ?CloudServer {
-        foreach (CloudAPI::getInstance()->getServersByTemplate($template) as $server) {
+        foreach (CloudAPI::serverProvider()->getServersByTemplate($template) as $server) {
             if ($server->getServerStatus() === ServerStatus::ONLINE() && !$server->getTemplate()->isMaintenance()) {
                 if (!CloudSignModule::get()->isUsingServerName($server->getName())) return $server;
             }

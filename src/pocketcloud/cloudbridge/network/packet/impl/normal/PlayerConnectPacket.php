@@ -2,9 +2,9 @@
 
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
+use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\api\player\CloudPlayer;
 
 class PlayerConnectPacket extends CloudPacket {
 

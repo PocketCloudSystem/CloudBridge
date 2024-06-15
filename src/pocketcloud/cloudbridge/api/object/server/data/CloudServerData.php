@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloudbridge\api\server\data;
+namespace pocketcloud\cloudbridge\api\object\server\data;
 
 class CloudServerData {
 

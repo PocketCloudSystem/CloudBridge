@@ -11,8 +11,8 @@ use dktapps\pmforms\element\Toggle;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\server\CloudServer;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\form\selection\CloudSelectionForm;
 use pocketcloud\cloudbridge\language\Language;
 use pocketmine\player\Player;
@@ -49,7 +49,7 @@ class CloudManageServersSubForm extends MenuForm {
                                 new Slider("count", Language::current()->translate("inGame.ui.manage_server.sub.start.count.text"), 1, 10, 1.0, 1.0)
                             ],
                             function(Player $player, CustomFormResponse $response): void {
-                                $template = array_values(CloudAPI::getInstance()->getTemplates())[$response->getInt("name")] ?? null;
+                                $template = array_values(CloudAPI::templateProvider()->getTemplates())[$response->getInt("name")] ?? null;
                                 if ($template !== null) $player->chat("/cloud start " . $template->getName() . " " . $response->getFloat("count"));
                             }
                         )
@@ -71,7 +71,7 @@ class CloudManageServersSubForm extends MenuForm {
                                 new Toggle("all", Language::current()->translate("inGame.ui.manage_server.sub.stop.all_option.text"))
                             ],
                             function(Player $player, CustomFormResponse $response): void {
-                                $server = array_values(CloudAPI::getInstance()->getServers())[$response->getInt("name")] ?? null;
+                                $server = array_values(CloudAPI::serverProvider()->getServers())[$response->getInt("name")] ?? null;
                                 if ($response->getBool("all")) {
                                     $player->chat("/cloud stop all");
                                 } else if ($response->getBool("template")) {
@@ -97,7 +97,7 @@ class CloudManageServersSubForm extends MenuForm {
                             Language::current()->translate("inGame.ui.manage_server.sub.info.title"),
                             [new Dropdown("name", Language::current()->translate("inGame.ui.manage_server.sub.info.dropdown.text"), array_map(fn(CloudServer $server) => $server->getName(), CloudAPI::getInstance()->getServers()))],
                             function(Player $player, CustomFormResponse $response): void {
-                                $server = array_values(CloudAPI::getInstance()->getServers())[$response->getInt("name")] ?? null;
+                                $server = array_values(CloudAPI::serverProvider()->getServers())[$response->getInt("name")] ?? null;
                                 if ($server !== null) $player->chat("/cloud info server " . $server->getName());
                             }
                         )

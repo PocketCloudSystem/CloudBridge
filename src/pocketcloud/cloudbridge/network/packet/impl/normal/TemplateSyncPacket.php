@@ -3,10 +3,10 @@
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\api\registry\Registry;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\api\template\Template;
 
 class TemplateSyncPacket extends CloudPacket {
 
@@ -34,7 +34,7 @@ class TemplateSyncPacket extends CloudPacket {
     }
 
     public function handle(): void {
-        if (CloudAPI::getInstance()->getTemplateByName($this->template->getName()) === null) {
+        if (CloudAPI::templateProvider()->getTemplate($this->template->getName()) === null) {
             if (!$this->removal) Registry::registerTemplate($this->template);
         } else {
             if ($this->removal) {

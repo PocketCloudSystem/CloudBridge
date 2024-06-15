@@ -3,10 +3,10 @@
 namespace pocketcloud\cloudbridge\network\packet\impl\normal;
 
 use pocketcloud\cloudbridge\api\CloudAPI;
+use pocketcloud\cloudbridge\api\object\server\CloudServer;
 use pocketcloud\cloudbridge\api\registry\Registry;
 use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\utils\PacketData;
-use pocketcloud\cloudbridge\api\server\CloudServer;
 
 class ServerSyncPacket extends CloudPacket {
 
@@ -34,7 +34,7 @@ class ServerSyncPacket extends CloudPacket {
     }
 
     public function handle(): void {
-        if (CloudAPI::getInstance()->getServerByName($this->server->getName()) === null) {
+        if (CloudAPI::serverProvider()->getServer($this->server->getName()) === null) {
             if (!$this->removal) Registry::registerServer($this->server);
         } else {
             if ($this->removal) {

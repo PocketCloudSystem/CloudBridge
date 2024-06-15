@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloudbridge\api\template;
+namespace pocketcloud\cloudbridge\api\object\template;
 
 use pocketcloud\cloudbridge\util\Utils;
 

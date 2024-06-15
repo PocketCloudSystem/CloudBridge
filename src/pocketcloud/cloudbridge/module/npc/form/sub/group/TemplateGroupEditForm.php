@@ -8,7 +8,7 @@ use dktapps\pmforms\element\Input;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
 use pocketcloud\cloudbridge\api\CloudAPI;
-use pocketcloud\cloudbridge\api\template\Template;
+use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
