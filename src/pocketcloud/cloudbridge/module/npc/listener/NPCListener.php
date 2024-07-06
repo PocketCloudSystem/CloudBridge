@@ -123,7 +123,7 @@ class NPCListener implements Listener {
                                                 $template = $templates[$data];
                                                 if (($template = CloudAPI::templateProvider()->getTemplate($template)) !== null) {
                                                     if (($bestServer = CloudAPI::serverProvider()->getFreeServerByTemplate($template, [GeneralSettings::getServerName()])) !== null) {
-                                                        $player->sendMessage(Language::current()->translate("inGame.server.connect", $player->getName()));
+                                                        $player->sendMessage(Language::current()->translate("inGame.server.connect", $bestServer->getName()));
                                                         if (!CloudAPI::playerProvider()->transferPlayer($player, $bestServer)) {
                                                             $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $bestServer->getName()));
                                                         }
