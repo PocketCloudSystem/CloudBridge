@@ -22,10 +22,15 @@ class TransferCommand extends Command {
         if ($sender instanceof Player) {
             if (isset($args[0])) {
                 $player = $sender;
-                if (isset($args[1])) $player = Server::getInstance()->getPlayerExact($args[1]) ?? $sender;
+                if (isset($args[1])) $player = CloudAPI::playerProvider()->getPlayer($args[1]);
+
+                if ($player === null) {
+                    $sender->sendMessage(Language::current()->translate("inGame.player.not.found"));
+                    return true;
+                }
 
                 if (($server = CloudAPI::serverProvider()->getServer($args[0])) !== null) {
-                    if ($sender === $player) {
+                    if ($sender->getName() === $player->getName()) {
                         if ($server->getName() == GeneralSettings::getServerName()) {
                             $sender->sendMessage(Language::current()->translate("inGame.server.already.connected", $server->getName()));
                         } else {
@@ -35,8 +40,8 @@ class TransferCommand extends Command {
                             }
                         }
                     } else {
-                        if ($server->getName() == GeneralSettings::getServerName()) {
-                            $sender->sendMessage(Language::current()->translate("inGame.server.target.already.connected", [$server->getName()]));
+                        if ($server->getName() == $player->getCurrentServer()?->getName()) {
+                            $sender->sendMessage(Language::current()->translate("inGame.server.target.already.connected", $player->getName(), $player->getCurrentServer()?->getName()));
                         } else {
                             $sender->sendMessage(Language::current()->translate("inGame.server.target.connect", $player->getName(), $server->getName()));
                             $player->sendMessage(Language::current()->translate("inGame.server.connect", $server->getName()));

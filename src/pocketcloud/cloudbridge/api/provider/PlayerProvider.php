@@ -7,6 +7,8 @@ use pocketcloud\cloudbridge\api\object\server\CloudServer;
 use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\api\registry\Registry;
+use pocketcloud\cloudbridge\network\Network;
+use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerTransferPacket;
 use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -16,12 +18,20 @@ class PlayerProvider {
 
     public function transferPlayer(Player|CloudPlayer $player, CloudServer $server, bool $useCustomMaxPlayerCount = false): bool {
         $player = ($player instanceof Player ? $this->getPlayer($player->getName()) : $player);
-        $serverPlayer = $player?->getServerPlayer();
-        if ($player !== null && $serverPlayer !== null) {
+        if ($player !== null) {
+            $serverPlayer = $player->getServerPlayer();
             if (($useCustomMaxPlayerCount ? count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
-            if ($server->getTemplate()->isMaintenance() && !$serverPlayer->hasPermission("pocketcloud.maintenance.bypass")) return false;
-            if ($player->getCurrentProxy() === null) return $serverPlayer->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
-            else return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
+            if ($server->getTemplate()->isMaintenance() && !$serverPlayer?->hasPermission("pocketcloud.maintenance.bypass")) return false;
+
+            if ($player->getCurrentProxy() === null && $serverPlayer !== null) {
+                return $serverPlayer->transfer(Internet::getInternalIP(), $server->getCloudServerData()->getPort());
+            }
+
+            if ($serverPlayer === null) {
+                return Network::getInstance()->sendPacket(new PlayerTransferPacket($player->getName(), $server->getName()));
+            }
+
+            return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
         }
         return false;
     }

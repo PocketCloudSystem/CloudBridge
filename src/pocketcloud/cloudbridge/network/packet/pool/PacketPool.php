@@ -21,6 +21,7 @@ use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerNotifyUpdatePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerSwitchServerPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerSyncPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerTextPacket;
+use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerTransferPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\ServerSyncPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\TemplateSyncPacket;
 use pocketcloud\cloudbridge\network\packet\impl\request\CheckPlayerMaintenanceRequestPacket;
@@ -57,6 +58,7 @@ class PacketPool {
         $this->registerPacket(PlayerTextPacket::class);
         $this->registerPacket(PlayerKickPacket::class);
         $this->registerPacket(PlayerNotifyUpdatePacket::class);
+        $this->registerPacket(PlayerTransferPacket::class);
         $this->registerPacket(CloudServerSavePacket::class);
         $this->registerPacket(CloudServerStatusChangePacket::class);
         $this->registerPacket(PlayerSwitchServerPacket::class);
