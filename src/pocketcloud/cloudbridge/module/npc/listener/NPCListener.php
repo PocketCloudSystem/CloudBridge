@@ -9,6 +9,7 @@ use pocketcloud\cloudbridge\api\object\server\CloudServer;
 use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\language\Language;
+use pocketcloud\cloudbridge\module\npc\CloudNPC;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\util\GeneralSettings;
 use pocketmine\event\entity\EntityDamageByEntityEvent;
@@ -28,7 +29,7 @@ class NPCListener implements Listener {
     public function onMove(PlayerMoveEvent $event): void {
         $player = $event->getPlayer();
 
-        foreach (CloudNPCModule::get()->getCloudNPCs() as $cloudNPC) {
+        foreach (array_filter(CloudNPCModule::get()->getCloudNPCs(), fn(CloudNPC $npc) => $npc->isHeadRotation()) as $cloudNPC) {
             if (($entity = $cloudNPC->getEntity()) !== null) {
                 if ($entity->getPosition()->distance($player->getPosition()) <= 9) {
                     $horizontal = sqrt(($player->getPosition()->x - $entity->getPosition()->x) ** 2 + ($player->getPosition()->z - $entity->getLocation()->z) ** 2);
@@ -123,7 +124,7 @@ class NPCListener implements Listener {
                                                 $template = $templates[$data];
                                                 if (($template = CloudAPI::templateProvider()->getTemplate($template)) !== null) {
                                                     if (($bestServer = CloudAPI::serverProvider()->getFreeServerByTemplate($template, [GeneralSettings::getServerName()])) !== null) {
-                                                        $player->sendMessage(Language::current()->translate("inGame.server.connect", $player->getName()));
+                                                        $player->sendMessage(Language::current()->translate("inGame.server.connect", $bestServer->getName()));
                                                         if (!CloudAPI::playerProvider()->transferPlayer($player, $bestServer)) {
                                                             $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $bestServer->getName()));
                                                         }
@@ -133,7 +134,7 @@ class NPCListener implements Listener {
                                         ));
                                     } else {
                                         if (($bestServer = CloudAPI::serverProvider()->getFreeServerByTemplate($cloudNPC->getTemplate(), [GeneralSettings::getServerName()])) !== null) {
-                                            $player->sendMessage(Language::current()->translate("inGame.server.connect", $player->getName()));
+                                            $player->sendMessage(Language::current()->translate("inGame.server.connect", $bestServer->getName()));
                                             if (!CloudAPI::playerProvider()->transferPlayer($player, $bestServer)) {
                                                 $player->sendMessage(Language::current()->translate("inGame.server.connect.failed", $bestServer->getName()));
                                             }

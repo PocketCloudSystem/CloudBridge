@@ -28,7 +28,8 @@ class CloudNPC {
         private readonly Template|TemplateGroup $template,
         private readonly Position $position,
         private readonly string $creator,
-        private readonly ?CustomSkinModel $customSkinModel
+        private readonly ?CustomSkinModel $customSkinModel,
+        private readonly bool $headRotation
     ) {}
 
     /** @internal */
@@ -136,19 +137,25 @@ class CloudNPC {
         return $this->customSkinModel;
     }
 
+    public function isHeadRotation(): bool {
+        return $this->headRotation;
+    }
+
     public function toArray(): array {
         if ($this->hasTemplateGroup()) return [
             "group_id" => $this->template->getId(),
             "position" => Utils::convertToString($this->position),
             "creator" => $this->creator,
-            "skin_model" => $this->customSkinModel?->getId()
+            "skin_model" => $this->customSkinModel?->getId(),
+            "head_rotation" => $this->headRotation
         ];
 
         return [
             "template" => $this->template->getName(),
             "position" => Utils::convertToString($this->position),
             "creator" => $this->creator,
-            "skin_model" => $this->customSkinModel?->getId()
+            "skin_model" => $this->customSkinModel?->getId(),
+            "head_rotation" => $this->headRotation
         ];
     }
 
@@ -162,13 +169,14 @@ class CloudNPC {
 
     public static function fromArray(array $data): ?CloudNPC {
         if (Utils::containKeys($data, "group_id", "position", "creator", "skin_model") || Utils::containKeys($data, "template", "position", "creator", "skin_model")) {
+            $headRotation = !isset($data["head_rotation"]) || !is_bool($data["head_rotation"]) || $data["head_rotation"];
             if ($data["skin_model"] !== null) $data["skin_model"] = CloudNPCModule::get()->getSkinModel($data["skin_model"]);
 
             if (isset($data["group_id"])) {
                 if (($group = CloudNPCModule::get()->getTemplateGroup($data["group_id"])) !== null) {
                     /** @var Position $position */
                     if (($position = Utils::convertToVector($data["position"])) instanceof Position) {
-                        return new CloudNPC($group, $position, $data["creator"], $data["skin_model"]);
+                        return new CloudNPC($group, $position, $data["creator"], $data["skin_model"], $headRotation);
                     }
                 }
                 return null;
@@ -177,7 +185,7 @@ class CloudNPC {
             /** @var Position $position */
             $position = Utils::convertToVector($data["position"]);
             if (($template = CloudAPI::templateProvider()->getTemplate($data["template"])) !== null && $position instanceof Position) {
-                return new CloudNPC($template, $position, $data["creator"], $data["skin_model"]);
+                return new CloudNPC($template, $position, $data["creator"], $data["skin_model"], $headRotation);
             }
         }
         return null;

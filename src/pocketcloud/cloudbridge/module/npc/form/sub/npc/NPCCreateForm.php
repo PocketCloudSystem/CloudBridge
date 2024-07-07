@@ -5,6 +5,7 @@ namespace pocketcloud\cloudbridge\module\npc\form\sub\npc;
 use dktapps\pmforms\CustomForm;
 use dktapps\pmforms\CustomFormResponse;
 use dktapps\pmforms\element\Dropdown;
+use dktapps\pmforms\element\Toggle;
 use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\CloudBridge;
@@ -32,6 +33,10 @@ class NPCCreateForm extends CustomForm {
                 "model",
                 Language::current()->translate("inGame.ui.cloudnpc.create.element.model.text"),
                 $modelOptions = array_merge(["NONE"], array_values(array_map(fn(CustomSkinModel $model) => $model->getId(), CloudNPCModule::get()->getSkinModels())))
+            ), new Toggle(
+                "headRotation",
+                Language::current()->translate("inGame.ui.cloudnpc.create.element.headRotation.text"),
+                true
             )],
             function(Player $player, CustomFormResponse $response) use($options, $modelOptions): void {
                 $template = CloudAPI::templateProvider()->getTemplate($options[$response->getInt("name")]) ?? CloudNPCModule::get()->geTemplateGroupByDisplay($options[$response->getInt("name")]);
@@ -43,7 +48,8 @@ class NPCCreateForm extends CustomForm {
                             $template,
                             $player->getPosition(),
                             $player->getName(),
-                            $model
+                            $model,
+                            $response->getBool("headRotation")
                         ))) {
                             $player->sendMessage(Language::current()->translate("inGame.cloudnpc.created"));
                         } else $player->sendMessage(CloudBridge::getPrefix() . "§cAn error occurred while creating the npc. Please report that incident on our discord.");
