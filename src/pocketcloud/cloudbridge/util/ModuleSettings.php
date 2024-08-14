@@ -7,14 +7,12 @@ class ModuleSettings {
     private static array $data = [
         "sign" => ["enabled" => true],
         "npc" => ["enabled" => true],
-        "global_chat" => ["enabled" => false],
         "hub_command" => ["enabled" => true],
     ];
 
     public static function sync(array $data): void {
         self::$data["sign"]["enabled"] = $data["sign"]["enabled"];
         self::$data["npc"]["enabled"] = $data["npc"]["enabled"];
-        self::$data["global_chat"]["enabled"] = $data["global_chat"]["enabled"];
         self::$data["hub_command"]["enabled"] = $data["hub_command"]["enabled"];
     }
 
