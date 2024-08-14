@@ -26,7 +26,7 @@ class CloudNPC {
 
     public function __construct(
         private readonly Template|TemplateGroup $template,
-        private readonly Position $position,
+        private readonly Location $position,
         private readonly string $creator,
         private readonly ?CustomSkinModel $customSkinModel,
         private readonly bool $headRotation
@@ -182,7 +182,7 @@ class CloudNPC {
                 return null;
             }
 
-            /** @var Position $position */
+            /** @var Location|Position $position */
             $position = Utils::convertToVector($data["position"]);
             if (($template = CloudAPI::templateProvider()->getTemplate($data["template"])) !== null && $position instanceof Position) {
                 return new CloudNPC($template, $position, $data["creator"], $data["skin_model"], $headRotation);

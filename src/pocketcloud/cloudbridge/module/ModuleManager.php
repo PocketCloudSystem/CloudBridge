@@ -2,7 +2,6 @@
 
 namespace pocketcloud\cloudbridge\module;
 
-use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
 use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\module\sign\CloudSignModule;
@@ -19,7 +18,6 @@ class ModuleManager {
 
         $this->modules = [
             HubCommandModule::class => new HubCommandModule(),
-            GlobalChatModule::class => new GlobalChatModule(),
             CloudNPCModule::class => new CloudNPCModule(),
             CloudSignModule::class => new CloudSignModule()
         ];
@@ -36,7 +34,6 @@ class ModuleManager {
     /** @internal */
     public function syncModuleStates(): void {
         HubCommandModule::get()->setEnabled(ModuleSettings::isHubCommandModuleEnabled());
-        GlobalChatModule::get()->setEnabled(ModuleSettings::isGlobalChatModuleEnabled());
         CloudNPCModule::get()->setEnabled(ModuleSettings::isNpcModuleEnabled());
         CloudSignModule::get()->setEnabled(ModuleSettings::isSignModuleEnabled());
     }

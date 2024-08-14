@@ -6,7 +6,6 @@ use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\CloudBridge;
 use pocketcloud\cloudbridge\form\CloudMainForm;
 use pocketcloud\cloudbridge\language\Language;
-use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
 use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\module\sign\CloudSignModule;
@@ -114,7 +113,6 @@ class CloudCommand extends Command {
                             $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudSignModule §8- §7Status: " . (CloudSignModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
                             $sender->sendMessage(CloudBridge::getPrefix() . "§eCloudNpcModule §8- §7Status: " . (CloudNPCModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
                             $sender->sendMessage(CloudBridge::getPrefix() . "§eHubCommandModule §8- §7Status: " . (HubCommandModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
-                            $sender->sendMessage(CloudBridge::getPrefix() . "§eGlobalChatModule §8- §7Status: " . (GlobalChatModule::get()->isEnabled() ? "§aEnabled" : "§cDisabled"));
                         } else $sender->sendForm(new CloudMainForm());
                     } else if ($subCommand == "info") {
                         if (!Utils::containKeys($args, 0, 1)) {
@@ -216,7 +214,6 @@ class CloudCommand extends Command {
                         $moduleNamesSign = ["sign", "sign_module", "signsystem", "signmodule"];
                         $moduleNamesNpc = ["npc", "npc_module", "npcsystem", "npcmodule"];
                         $moduleNamesHub = ["hub", "hubcommand", "hub_module", "hubcommand_module", "hubcommandmodule"];
-                        $moduleNamesGG = ["globalchat", "globalchat_module", "globalchatmodule"];
                         if (in_array($module, $moduleNamesSign)) {
                             if (!CloudSignModule::get()->isEnabled()) {
                                 CloudSignModule::get()->setEnabled();
@@ -238,13 +235,6 @@ class CloudCommand extends Command {
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "HubCommandModule"));
                             }
-                        } else if (in_array($module, $moduleNamesGG)) {
-                            if (!GlobalChatModule::get()->isEnabled()) {
-                                GlobalChatModule::get()->setEnabled();
-                                $sender->sendMessage(Language::current()->translate("inGame.module.enabled", "GlobalChatModule"));
-                            } else {
-                                $sender->sendMessage(Language::current()->translate("inGame.module.already.enabled", "GlobalChatModule"));
-                            }
                         }
                     } else if ($subCommand == "disable") {
                         if (!Utils::containKeys($args, 0)) {
@@ -256,7 +246,6 @@ class CloudCommand extends Command {
                         $moduleNamesSign = ["sign", "sign_module", "signsystem", "signmodule"];
                         $moduleNamesNpc = ["npc", "npc_module", "npcsystem", "npcmodule"];
                         $moduleNamesHub = ["hub", "hubcommand", "hub_module", "hubcommand_module", "hubcommandmodule"];
-                        $moduleNamesGG = ["globalchat", "globalchat_module", "globalchatmodule"];
                         if (in_array($module, $moduleNamesSign)) {
                             if (CloudSignModule::get()->isEnabled()) {
                                 CloudSignModule::get()->setEnabled(false);
@@ -277,13 +266,6 @@ class CloudCommand extends Command {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "HubCommandModule"));
                             } else {
                                 $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "HubCommandModule"));
-                            }
-                        } else if (in_array($module, $moduleNamesGG)) {
-                            if (GlobalChatModule::get()->isEnabled()) {
-                                GlobalChatModule::get()->setEnabled(false);
-                                $sender->sendMessage(Language::current()->translate("inGame.module.disabled", "GlobalChatModule"));
-                            } else {
-                                $sender->sendMessage(Language::current()->translate("inGame.module.already.disabled", "GlobalChatModule"));
                             }
                         }
                     } else $sender->sendForm(new CloudMainForm());

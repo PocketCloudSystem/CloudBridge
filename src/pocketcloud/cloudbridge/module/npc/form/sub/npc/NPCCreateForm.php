@@ -46,7 +46,7 @@ class NPCCreateForm extends CustomForm {
                         SkinSaver::save($player);
                         if (CloudNPCModule::get()->addCloudNPC(new CloudNPC(
                             $template,
-                            $player->getPosition(),
+                            $player->getLocation(),
                             $player->getName(),
                             $model,
                             $response->getBool("headRotation")

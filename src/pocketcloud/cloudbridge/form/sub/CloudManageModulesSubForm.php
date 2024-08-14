@@ -8,7 +8,6 @@ use dktapps\pmforms\element\Dropdown;
 use dktapps\pmforms\element\Input;
 use dktapps\pmforms\MenuForm;
 use dktapps\pmforms\MenuOption;
-use pocketcloud\cloudbridge\module\globalchat\GlobalChatModule;
 use pocketcloud\cloudbridge\module\hubcommand\HubCommandModule;
 use pocketcloud\cloudbridge\module\npc\CloudNPCModule;
 use pocketcloud\cloudbridge\form\selection\CloudSelectionForm;
@@ -86,7 +85,6 @@ class CloudManageModulesSubForm extends MenuForm {
         if (CloudSignModule::get()->isEnabled()) $modules[] = "signmodule";
         if (CloudNPCModule::get()->isEnabled()) $modules[] = "npcmodule";
         if (HubCommandModule::get()->isEnabled()) $modules[] = "hubcommand";
-        if (GlobalChatModule::get()->isEnabled()) $modules[] = "globalchat";
         return $modules;
     }
 
@@ -95,7 +93,6 @@ class CloudManageModulesSubForm extends MenuForm {
         if (!CloudSignModule::get()->isEnabled()) $modules[] = "signmodule";
         if (!CloudNPCModule::get()->isEnabled()) $modules[] = "npcmodule";
         if (!HubCommandModule::get()->isEnabled()) $modules[] = "hubcommand";
-        if (!GlobalChatModule::get()->isEnabled()) $modules[] = "globalchat";
         return $modules;
     }
 }

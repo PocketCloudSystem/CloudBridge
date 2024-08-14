@@ -26,10 +26,6 @@ class ModuleSettings {
         return self::$data["npc"]["enabled"];
     }
 
-    public static function isGlobalChatModuleEnabled(): bool {
-        return self::$data["global_chat"]["enabled"];
-    }
-
     public static function isHubCommandModuleEnabled(): bool {
         return self::$data["hub_command"]["enabled"];
     }
