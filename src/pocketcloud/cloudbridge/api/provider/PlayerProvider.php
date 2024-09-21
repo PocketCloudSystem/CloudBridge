@@ -31,7 +31,7 @@ class PlayerProvider {
                 return Network::getInstance()->sendPacket(new PlayerTransferPacket($player->getName(), $server->getName()));
             }
 
-            return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort()));
+            return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getCloudServerData()->getPort(), false));
         }
         return false;
     }

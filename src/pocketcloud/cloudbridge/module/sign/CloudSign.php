@@ -8,6 +8,8 @@ use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\module\sign\config\SignLayoutConfig;
 use pocketcloud\cloudbridge\util\Utils;
+use pocketmine\block\BaseSign;
+use pocketmine\block\utils\SignText;
 use pocketmine\world\Position;
 
 class CloudSign {
@@ -20,6 +22,22 @@ class CloudSign {
         private readonly Position $position
     ) {}
 
+    public function onSetServer(?string $server): void {
+        if ($server !== null) CloudSignModule::get()->addUsingServerName($server, $this);
+        if ($this->hasUsingServer()) CloudSignModule::get()->removeUsingServerName($this->usingServer);
+        $this->setUsingServer($server);
+    }
+
+    public function onRemoveServer(): void {
+        CloudSignModule::get()->removeUsingServerName($this->getUsingServerName());
+        $this->setUsingServer(null);
+    }
+
+    public function reloadSign(BaseSign $signBlock): void {
+        $signBlock->setText(new SignText($this->next()));
+        $signBlock->getPosition()->getWorld()->setBlock($signBlock->getPosition()->asVector3(), $signBlock);
+    }
+    
     public function next(): array {
         $this->layerIndex++;
 
@@ -39,7 +57,7 @@ class CloudSign {
 
                 $layers = [];
                 foreach (SignLayoutConfig::DEFAULT_LAYOUTS[$stateIndex][$this->layerIndex] ?? [] as $layer) {
-                    $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getCloudServerData()->getMaxPlayers()], $layer);
+                    $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getTemplate()->getMaxPlayerCount()], $layer);
                 }
 
                 return $layers;
@@ -49,7 +67,7 @@ class CloudSign {
 
             $layers = [];
             foreach (SignLayoutConfig::getInstance()->getConfig()->getAll()[$stateIndex][$this->layerIndex] ?? [] as $layer) {
-                $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getCloudServerData()->getMaxPlayers()], $layer);
+                $layers[] = str_replace(["%template%", "%server%", "%players%", "%max_players%"], [$this->template->getName(), $this->getUsingServer()->getName(), count($this->getUsingServer()->getCloudPlayers()), $this->getUsingServer()->getTemplate()->getMaxPlayerCount()], $layer);
             }
 
         } else {
@@ -111,6 +129,10 @@ class CloudSign {
 
     public function hasUsingServer(): bool {
         return $this->getUsingServer() !== null;
+    }
+
+    public function isHoldingServer(): bool {
+        return $this->usingServer !== null;
     }
 
     public function toArray(): array {

@@ -9,7 +9,6 @@ use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\event\sign\CloudSignUpdateEvent;
 use pocketcloud\cloudbridge\module\sign\CloudSignModule;
 use pocketmine\block\BaseSign;
-use pocketmine\block\utils\SignText;
 use pocketmine\scheduler\Task;
 
 class CloudSignTask extends Task {
@@ -22,38 +21,22 @@ class CloudSignTask extends Task {
                     if ($sign->hasUsingServer()) {
                         if ($sign->getUsingServer()->getServerStatus() === ServerStatus::IN_GAME()) {
                             ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
-                            if (!$ev->isCancelled()) {
-                                $sign->setUsingServer($ev->getNewUsingServer());
-                                if ($ev->getNewUsingServer() !== null) CloudSignModule::get()->addUsingServerName($ev->getNewUsingServer(), $sign);
-                                CloudSignModule::get()->removeUsingServerName($ev->getOldUsingServer());
-                                $block->setText(new SignText($sign->next()));
-                                $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
-                            }
-                        } else {
-                            $block->setText(new SignText($sign->next()));
-                            $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
+                            if (!$ev->isCancelled()) $sign->onRemoveServer();
                         }
                     } else {
-                        if ($sign->getUsingServerName() !== null) {
+                        if ($sign->isHoldingServer()) {
                             ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), null))->call();
-                            if (!$ev->isCancelled()) {
-                                CloudSignModule::get()->removeUsingServerName($sign->getUsingServerName());
-                                $block->setText(new SignText($sign->next()));
-                                $block->getPosition()->getWorld()->setBlock($block->getPosition(), $block);
-                            }
+                            if (!$ev->isCancelled()) $sign->onRemoveServer();
                         } else {
                             $freeServer = $this->getFreeServer($sign->getTemplate());
                             if ($freeServer !== null) {
-                                ($ev = new CloudSignUpdateEvent($sign, $sign->getUsingServerName(), $freeServer->getName()))->call();
-                                if ($ev->isCancelled()) return;
-                                CloudSignModule::get()->addUsingServerName($ev->getNewUsingServer(), $sign);
-                                $sign->setUsingServer($ev->getNewUsingServer());
+                                ($ev = new CloudSignUpdateEvent($sign, null, $freeServer->getName()))->call();
+                                if (!$ev->isCancelled()) $sign->onSetServer($ev->getNewUsingServer());
                             }
-
-                            $block->setText(new SignText($sign->next()));
-                            $block->getPosition()->getWorld()->setBlock($block->getPosition()->asVector3(), $block);
                         }
                     }
+
+                    $sign->reloadSign($block);
                 }
             }
         }
