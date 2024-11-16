@@ -7,6 +7,8 @@ use pocketcloud\cloudbridge\network\packet\CloudPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudNotifyPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSavePacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerStatusChangePacket;
+use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSyncStoragePacket;
+use pocketcloud\cloudbridge\network\packet\impl\normal\CloudSyncStoragesPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CommandSendAnswerPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CommandSendPacket;
 use pocketcloud\cloudbridge\network\packet\impl\normal\ConsoleTextPacket;
@@ -76,6 +78,8 @@ class PacketPool {
         $this->registerPacket(CloudNotifyPacket::class);
         $this->registerPacket(ModuleSyncPacket::class);
         $this->registerPacket(LibrarySyncPacket::class);
+        $this->registerPacket(CloudServerSyncStoragePacket::class);
+        $this->registerPacket(CloudSyncStoragesPacket::class);
     }
 
     public function registerPacket(string $packetClass): void {

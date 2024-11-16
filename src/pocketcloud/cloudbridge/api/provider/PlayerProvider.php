@@ -11,7 +11,6 @@ use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\impl\normal\PlayerTransferPacket;
 use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
-use pocketmine\Server;
 use pocketmine\utils\Internet;
 
 class PlayerProvider {
@@ -20,7 +19,7 @@ class PlayerProvider {
         $player = ($player instanceof Player ? $this->getPlayer($player->getName()) : $player);
         if ($player !== null) {
             $serverPlayer = $player->getServerPlayer();
-            if (($useCustomMaxPlayerCount ? count(Server::getInstance()->getOnlinePlayers()) >= Server::getInstance()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
+            if (($useCustomMaxPlayerCount ? count($server->getCloudPlayers()) >= $server->getCloudServerData()->getMaxPlayers() : ($server->getServerStatus() === ServerStatus::IN_GAME() || $server->getServerStatus() === ServerStatus::FULL())) || $server->getServerStatus() === ServerStatus::STOPPING()) return false;
             if ($server->getTemplate()->isMaintenance() && !$serverPlayer?->hasPermission("pocketcloud.maintenance.bypass")) return false;
 
             if ($player->getCurrentProxy() === null && $serverPlayer !== null) {

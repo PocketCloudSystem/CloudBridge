@@ -6,17 +6,22 @@ use pocketcloud\cloudbridge\api\CloudAPI;
 use pocketcloud\cloudbridge\api\object\player\CloudPlayer;
 use pocketcloud\cloudbridge\api\object\server\data\CloudServerData;
 use pocketcloud\cloudbridge\api\object\server\status\ServerStatus;
+use pocketcloud\cloudbridge\api\object\server\storage\CloudServerStorage;
 use pocketcloud\cloudbridge\api\object\template\Template;
 use pocketcloud\cloudbridge\util\Utils;
 
 class CloudServer {
+
+    private CloudServerStorage $storage;
 
     public function __construct(
         private readonly int $id,
         private readonly Template $template,
         private readonly CloudServerData $cloudServerData,
         private ServerStatus $serverStatus
-    ) {}
+    ) {
+        $this->storage = new CloudServerStorage($this);
+    }
 
     public function getName(): string {
         return $this->template->getName() . "-" . $this->id;
@@ -40,6 +45,10 @@ class CloudServer {
 
     public function setServerStatus(ServerStatus $serverStatus): void {
         $this->serverStatus = $serverStatus;
+    }
+
+    public function getCloudServerStorage(): CloudServerStorage {
+        return $this->storage;
     }
 
     public function getCloudPlayer(string $name): ?CloudPlayer {
