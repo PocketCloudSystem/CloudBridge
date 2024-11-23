@@ -5,6 +5,7 @@ namespace pocketcloud\cloudbridge\api\object\server\storage;
 use pocketcloud\cloudbridge\api\object\server\CloudServer;
 use pocketcloud\cloudbridge\network\Network;
 use pocketcloud\cloudbridge\network\packet\impl\normal\CloudServerSyncStoragePacket;
+use pocketcloud\cloudbridge\util\GeneralSettings;
 
 final class CloudServerStorage {
 
@@ -18,10 +19,14 @@ final class CloudServerStorage {
         $this->storage = $data;
     }
 
+    private function sendSyncPacket(): void {
+        if ($this->server->getName() == GeneralSettings::getServerName()) Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
+    }
+
     public function put(string $k, mixed $v): self {
         if (!isset($this->storage[$k])) {
             $this->storage[$k] = $v;
-            Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
+            $this->sendSyncPacket();
         }
         return $this;
     }
@@ -29,7 +34,7 @@ final class CloudServerStorage {
     public function remove(string $k): self {
         if (isset($this->storage[$k])) {
             unset($this->storage[$k]);
-            Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
+            $this->sendSyncPacket();
         }
         return $this;
     }
@@ -45,14 +50,14 @@ final class CloudServerStorage {
     public function replace(string $k, mixed $v): self {
         if (isset($this->storage[$k])) {
             $this->storage[$k] = $v;
-            Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
+            $this->sendSyncPacket();
         }
         return $this;
     }
 
     public function clear(): self {
         $this->storage = [];
-        Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
+        $this->sendSyncPacket();
         return $this;
     }
 
