@@ -39,7 +39,35 @@ class CloudCommand extends Command {
                         }
 
                         $count = 1;
-                        if (isset($args[1])) if (is_numeric($args[1])) if (intval($args[1]) > 0) $count = intval($args[1]);
+                        if (isset($args[1])) if (is_numeric($args[1]) && intval($args[1]) > 0) {
+                            $count = intval($args[1]);
+                            if (isset($args[2])) {
+                                foreach (array_slice($args, 2) as $arg) {
+                                    ($pk = CloudAPI::serverProvider()->startServer($arg, $count))->then(function(CloudServerStartResponsePacket $packet) use($sender, $arg): void {
+                                        if ($packet->getErrorReason() === ErrorReason::TEMPLATE_EXISTENCE()) {
+                                            $sender->sendMessage(Language::current()->translate("inGame.template.not.found"));
+                                        } else if ($packet->getErrorReason() === ErrorReason::MAX_SERVERS()) {
+                                            $sender->sendMessage(Language::current()->translate("inGame.max.servers.reached", $arg));
+                                        }
+                                    })->failure(function() use($sender, $pk): void {
+                                        $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                                    });
+                                }
+                            }
+                        } else {
+                            foreach (array_slice($args, 1) as $arg) {
+                                ($pk = CloudAPI::serverProvider()->startServer($arg, $count))->then(function(CloudServerStartResponsePacket $packet) use($sender, $arg): void {
+                                    if ($packet->getErrorReason() === ErrorReason::TEMPLATE_EXISTENCE()) {
+                                        $sender->sendMessage(Language::current()->translate("inGame.template.not.found"));
+                                    } else if ($packet->getErrorReason() === ErrorReason::MAX_SERVERS()) {
+                                        $sender->sendMessage(Language::current()->translate("inGame.max.servers.reached", $arg));
+                                    }
+                                })->failure(function() use($sender, $pk): void {
+                                    $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                                });
+                            }
+                        }
+
 
                         ($pk = CloudAPI::serverProvider()->startServer($args[0], $count))->then(function(CloudServerStartResponsePacket $packet) use($sender, $args): void {
                             if ($packet->getErrorReason() === ErrorReason::TEMPLATE_EXISTENCE()) {
@@ -56,13 +84,25 @@ class CloudCommand extends Command {
                             return true;
                         }
 
-                        ($pk = CloudAPI::serverProvider()->stopServer($args[0]))->then(function(CloudServerStopResponsePacket $packet) use($sender): void {
-                            if ($packet->getErrorReason() === ErrorReason::SERVER_EXISTENCE()) {
-                                $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
+                        if (count($args) > 1) {
+                            foreach ($args as $arg) {
+                                ($pk = CloudAPI::serverProvider()->stopServer($arg))->then(function(CloudServerStopResponsePacket $packet) use($sender): void {
+                                    if ($packet->getErrorReason() === ErrorReason::SERVER_EXISTENCE()) {
+                                        $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
+                                    }
+                                })->failure(function() use($sender, $pk): void {
+                                    $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                                });
                             }
-                        })->failure(function() use($sender, $pk): void {
-                            $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
-                        });
+                        } else {
+                            ($pk = CloudAPI::serverProvider()->stopServer($args[0]))->then(function(CloudServerStopResponsePacket $packet) use($sender): void {
+                                if ($packet->getErrorReason() === ErrorReason::SERVER_EXISTENCE()) {
+                                    $sender->sendMessage(Language::current()->translate("inGame.server.not.found"));
+                                }
+                            })->failure(function() use($sender, $pk): void {
+                                $sender->sendActionBarMessage("§8[§e" . (new ReflectionClass($pk))->getShortName() . "§8/§c" . $pk->getRequestId() . "§8] §cRequest timed out");
+                            });
+                        }
                     } else if ($subCommand == "save") {
                         CloudAPI::serverProvider()->saveCurrent();
                         $sender->sendMessage(Language::current()->translate("inGame.server.saved"));
