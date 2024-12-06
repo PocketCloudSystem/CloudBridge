@@ -1,5 +1,5 @@
 name: CloudBridge
-version: 1.5.6
+version: 2.0.0
 api: 5.0.0
-main: pocketcloud\cloudbridge\CloudBridge
+main: pocketcloud\cloud\bridge\CloudBridge
 author: r3pt1s
