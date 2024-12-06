@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\api\CloudAPI;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\PlayerKickPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\PlayerTextPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\TextType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\TextType;
 use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\player\Player;
 use pocketmine\Server;

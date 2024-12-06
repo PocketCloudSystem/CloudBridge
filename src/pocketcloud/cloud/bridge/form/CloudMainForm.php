@@ -12,7 +12,7 @@ use pocketcloud\cloud\bridge\form\sub\CloudManageModulesSubForm;
 use pocketcloud\cloud\bridge\form\sub\CloudManagePlayersSubForm;
 use pocketcloud\cloud\bridge\form\sub\CloudManageServersSubForm;
 use pocketcloud\cloud\bridge\language\Language;
-use pocketcloud\cloud\bridge\network\packet\impl\types\LogType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\LogType;
 use pocketmine\player\Player;
 
 class CloudMainForm extends MenuForm {

@@ -12,7 +12,7 @@ use pocketcloud\cloud\bridge\api\CloudAPI;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\form\selection\CloudSelectionForm;
 use pocketcloud\cloud\bridge\language\Language;
-use pocketcloud\cloud\bridge\network\packet\impl\types\TextType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\TextType;
 use pocketmine\player\Player;
 
 class CloudManagePlayersSubForm extends MenuForm {

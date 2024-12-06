@@ -7,12 +7,12 @@ use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
-use pocketcloud\cloud\bridge\network\packet\impl\types\CommandExecutionResult;
-use pocketcloud\cloud\bridge\network\packet\impl\types\DisconnectReason;
-use pocketcloud\cloud\bridge\network\packet\impl\types\ErrorReason;
-use pocketcloud\cloud\bridge\network\packet\impl\types\LogType;
-use pocketcloud\cloud\bridge\network\packet\impl\types\TextType;
-use pocketcloud\cloud\bridge\network\packet\impl\types\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\impl\type\CommandExecutionResult;
+use pocketcloud\cloud\bridge\network\packet\impl\type\DisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\impl\type\ErrorReason;
+use pocketcloud\cloud\bridge\network\packet\impl\type\LogType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\TextType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\VerifyStatus;
 
 class PacketData implements JsonSerializable {
 

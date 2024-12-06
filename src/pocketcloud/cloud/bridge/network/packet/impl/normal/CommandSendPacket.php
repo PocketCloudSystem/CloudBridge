@@ -3,9 +3,8 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 
 use pocketcloud\cloud\bridge\command\sender\CloudCommandSender;
-use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\CommandExecutionResult;
+use pocketcloud\cloud\bridge\network\packet\impl\type\CommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketmine\Server;
 

@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\impl\types;
+namespace pocketcloud\cloud\bridge\network\packet\impl\type;
 
 use pocketcloud\cloud\bridge\util\Utils;
 

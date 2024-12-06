@@ -3,7 +3,7 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\TextType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\TextType;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketmine\network\mcpe\NetworkBroadcastUtils;
 use pocketmine\network\mcpe\protocol\SetTitlePacket;

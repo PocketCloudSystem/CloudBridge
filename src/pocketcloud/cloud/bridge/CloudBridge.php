@@ -6,13 +6,14 @@ use GlobalLogger;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\api\CloudAPI;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
+use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\listener\EventListener;
 use pocketcloud\cloud\bridge\module\npc\listener\NPCListener;
 use pocketcloud\cloud\bridge\module\sign\listener\SignListener;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\handler\PacketSerializer;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\DisconnectPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\DisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\impl\type\DisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\request\RequestManager;
 use pocketcloud\cloud\bridge\task\TimeoutTask;
@@ -27,10 +28,8 @@ use pocketmine\utils\SingletonTrait;
 class CloudBridge extends PluginBase {
     use SingletonTrait;
 
-    private static string $prefix = "";
-
     public static function getPrefix(): string {
-        return self::$prefix;
+        return Language::current()->translate("inGame.prefix");
     }
 
     public array $signDelay = [];
@@ -85,9 +84,5 @@ class CloudBridge extends PluginBase {
     protected function onDisable(): void {
         $this->network->sendPacket(new DisconnectPacket(DisconnectReason::SERVER_SHUTDOWN()));
         $this->network->close();
-    }
-
-    public static function setPrefix(string $prefix): void {
-        self::$prefix = $prefix;
     }
 }

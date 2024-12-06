@@ -11,19 +11,16 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\CloudServerStatusChangePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\ConsoleTextPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\LogType;
-use pocketcloud\cloud\bridge\network\packet\impl\types\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\impl\type\LogType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\VerifyStatus;
 use pocketcloud\cloud\bridge\task\ChangeStatusTask;
 use pocketcloud\cloud\bridge\util\GeneralSettings;
-use pocketcloud\cloud\network\packet\impl\response\ServerHandshakeResponsePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeResponsePacket;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
 class CloudAPI {
-    use SingletonTrait {
-        getInstance as public get;
-        getInstance as private getInstance;
-    }
+    use SingletonTrait;
 
     private VerifyStatus $verified;
     private static PlayerProvider $playerProvider;
@@ -82,5 +79,14 @@ class CloudAPI {
 
     public static function templates(): TemplateProvider {
         return self::$templateProvider;
+    }
+
+    public static function get(): self {
+        if (self::$instance === null) self::$instance = new self();
+        return self::$instance;
+    }
+
+    private static function getInstance(): self {
+        return self::get();
     }
 }

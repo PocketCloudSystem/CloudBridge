@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 
 use GlobalLogger;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\types\LogType;
+use pocketcloud\cloud\bridge\network\packet\impl\type\LogType;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 class ConsoleTextPacket extends CloudPacket {
