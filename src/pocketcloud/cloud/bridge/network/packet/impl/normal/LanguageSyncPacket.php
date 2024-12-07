@@ -9,23 +9,30 @@ use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class LanguageSyncPacket extends CloudPacket {
 
-    public function __construct(private array $data = []) {}
+    public function __construct(
+        private string $language = "",
+        private array $messages = []
+    ) {}
 
     public function encodePayload(PacketData $packetData): void {
-        $packetData->write($this->data);
+        $packetData->write($this->language)
+            ->write($this->messages);
     }
 
     public function decodePayload(PacketData $packetData): void {
-        $this->data = $packetData->readArray();
+        $this->language = $packetData->readString();
+        $this->messages = $packetData->readArray();
     }
 
-    public function getData(): array {
-        return $this->data;
+    public function getLanguage(): string {
+        return $this->language;
+    }
+
+    public function getMessages(): array {
+        return $this->messages;
     }
 
     public function handle(): void {
-        foreach ($this->data as $lang => $messages) {
-            Language::get($lang)?->sync($messages);
-        }
+        Language::get($this->language)?->sync($this->messages);
     }
 }
