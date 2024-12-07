@@ -8,8 +8,10 @@ use pocketcloud\cloud\bridge\api\provider\PlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\ServerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\CloudBridge;
+use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\CloudServerStatusChangePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\normal\ConsoleTextPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\normal\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\type\LogType;
 use pocketcloud\cloud\bridge\network\packet\impl\type\VerifyStatus;
@@ -43,8 +45,9 @@ class CloudAPI {
         )->then(function (ServerHandshakeResponsePacket $packet): void {
             if ($packet->getVerifyStatus() === VerifyStatus::VERIFIED()) {
                 CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new ChangeStatusTask(), 20);
-                GlobalLogger::get()->info("§aSuccessfully verified by the cloud.");
+                GlobalLogger::get()->info(Language::current()->translate("inGame.server.verified"));
                 $this->verified = VerifyStatus::VERIFIED();
+                KeepAlivePacket::create()->sendPacket();
             } else {
                 $this->verified = VerifyStatus::DENIED();
                 GlobalLogger::get()->warning("§cVerification was denied, shutting down...");

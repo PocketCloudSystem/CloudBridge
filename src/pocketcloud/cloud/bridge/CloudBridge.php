@@ -5,6 +5,9 @@ namespace pocketcloud\cloud\bridge;
 use GlobalLogger;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\api\CloudAPI;
+use pocketcloud\cloud\bridge\command\CloudCommand;
+use pocketcloud\cloud\bridge\command\CloudNotifyCommand;
+use pocketcloud\cloud\bridge\command\TransferCommand;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\listener\EventListener;
@@ -68,6 +71,11 @@ class CloudBridge extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new NPCListener(), $this);
         $this->getServer()->getPluginManager()->registerEvents(new SignListener(), $this);
+        $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
+            new CloudCommand(),
+            new TransferCommand(),
+            new CloudNotifyCommand()
+        ]);
 
         CloudAPI::get()->processLogin();
     }
