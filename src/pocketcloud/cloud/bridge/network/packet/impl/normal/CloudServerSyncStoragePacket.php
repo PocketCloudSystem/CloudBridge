@@ -5,6 +5,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
+
 //sending to cloud
 class CloudServerSyncStoragePacket extends CloudPacket {
 

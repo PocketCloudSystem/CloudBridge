@@ -3,6 +3,7 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 
 use pocketcloud\cloud\bridge\module\ModuleManager;
+
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketcloud\cloud\bridge\util\ModuleSettings;

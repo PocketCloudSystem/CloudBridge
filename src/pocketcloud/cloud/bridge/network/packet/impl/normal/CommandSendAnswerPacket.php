@@ -6,6 +6,7 @@ use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\type\CommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
+
 class CommandSendAnswerPacket extends CloudPacket {
 
     public function __construct(private ?CommandExecutionResult $result = null) {}

@@ -6,6 +6,7 @@ use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
+
 class PlayerConnectPacket extends CloudPacket {
 
     public function __construct(private ?CloudPlayer $player = null) {}

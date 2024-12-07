@@ -6,6 +6,7 @@ use pocketcloud\cloud\bridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
+
 class CloudServerStatusChangePacket extends CloudPacket {
 
     public function __construct(private ?ServerStatus $newStatus = null) {}

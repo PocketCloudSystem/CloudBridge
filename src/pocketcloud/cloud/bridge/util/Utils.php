@@ -10,11 +10,11 @@ use pocketmine\world\Position;
 class Utils {
 
     public static function containKeys(array $array, ...$keys): bool {
-        $result = true;
         foreach ($keys as $key) {
-            if (!isset($array[$key])) $result = false;
+            if (!isset($array[$key])) return false;
         }
-        return $result;
+
+        return true;
     }
 
     public static function convertToString(Vector3 $vector): string {
