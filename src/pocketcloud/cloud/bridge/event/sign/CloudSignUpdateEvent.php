@@ -7,7 +7,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 use pocketmine\event\Event;
 
-class CloudSignUpdateEvent extends Event implements Cancellable {
+final class CloudSignUpdateEvent extends Event implements Cancellable {
     use CancellableTrait;
 
     public function __construct(

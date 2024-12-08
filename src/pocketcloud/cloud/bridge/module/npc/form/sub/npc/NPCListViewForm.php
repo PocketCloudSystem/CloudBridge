@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\module\npc\CloudNPC;
 use pocketmine\player\Player;
 
-class NPCListViewForm extends MenuForm {
+final class NPCListViewForm extends MenuForm {
 
     public function __construct(private readonly CloudNPC $cloudNPC) {
         if ($this->cloudNPC->hasTemplateGroup()) $text = "§7TemplateGroup: §e" . ($name = $this->cloudNPC->getTemplate()->getDisplayName()) . " §8(§e" . $this->cloudNPC->getTemplate()->getId() . "§8)";

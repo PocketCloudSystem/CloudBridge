@@ -17,7 +17,7 @@ use pocketcloud\cloud\bridge\form\selection\CloudSelectionForm;
 use pocketcloud\cloud\bridge\language\Language;
 use pocketmine\player\Player;
 
-class CloudManageServersSubForm extends MenuForm {
+final class CloudManageServersSubForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

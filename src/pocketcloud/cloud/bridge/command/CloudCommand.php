@@ -20,7 +20,7 @@ use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 use ReflectionClass;
 
-class CloudCommand extends Command {
+final class CloudCommand extends Command {
 
     public function __construct() {
         parent::__construct("cloud", Language::current()->translate("inGame.command.description.cloud"), "/cloud");

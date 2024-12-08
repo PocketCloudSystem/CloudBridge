@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\api\registry\Registry;
 use pocketcloud\cloud\bridge\util\GeneralSettings;
 use RuntimeException;
 
-class TemplateProvider {
+final class TemplateProvider {
 
     public function current(): Template {
         return $this->get(GeneralSettings::getTemplateName()) ?? throw new RuntimeException("Current template shouldn't be null");

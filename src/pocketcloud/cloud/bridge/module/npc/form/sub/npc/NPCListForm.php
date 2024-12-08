@@ -10,7 +10,7 @@ use pocketcloud\cloud\bridge\module\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\player\Player;
 
-class NPCListForm extends MenuForm {
+final class NPCListForm extends MenuForm {
 
     public function __construct() {
         $npcs = array_values(CloudNPCModule::get()->getCloudNPCs());

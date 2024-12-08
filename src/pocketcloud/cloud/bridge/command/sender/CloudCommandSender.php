@@ -7,7 +7,7 @@ use pocketmine\console\ConsoleCommandSender;
 use pocketmine\lang\Translatable;
 use pocketmine\Server;
 
-class CloudCommandSender extends ConsoleCommandSender {
+final class CloudCommandSender extends ConsoleCommandSender {
 
     public function __construct() {
         parent::__construct(Server::getInstance(), Server::getInstance()->getLanguage());

@@ -16,7 +16,7 @@ use pocketmine\thread\Thread;
 use pocketmine\utils\SingletonTrait;
 use Socket;
 
-class Network extends Thread {
+final class Network extends Thread {
     use SingletonTrait;
 
     private Socket $socket;

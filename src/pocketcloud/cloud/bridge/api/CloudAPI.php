@@ -21,7 +21,7 @@ use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeRespons
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
-class CloudAPI {
+final class CloudAPI {
     use SingletonTrait;
 
     private VerifyStatus $verified;

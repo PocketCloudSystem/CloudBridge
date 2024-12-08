@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 
-class TimeoutTask extends Task {
+final class TimeoutTask extends Task {
 
     public function onRun(): void {
         if (!CloudAPI::get()->isVerified()) return;

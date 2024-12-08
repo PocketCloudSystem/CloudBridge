@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketmine\utils\Config;
 use pocketmine\utils\SingletonTrait;
 
-class SignLayoutConfig {
+final class SignLayoutConfig {
     use SingletonTrait;
 
     public const DEFAULT_LAYOUTS = [

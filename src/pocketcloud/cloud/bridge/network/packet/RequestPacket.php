@@ -59,6 +59,6 @@ abstract class RequestPacket extends CloudPacket {
     final public function handle(): void {}
 
     public static function makeRequest(mixed ...$args): static {
-        return RequestManager::getInstance()->sendRequest(new static(...$args));
+        return RequestManager::getInstance()->send(new static(...$args));
     }
 }

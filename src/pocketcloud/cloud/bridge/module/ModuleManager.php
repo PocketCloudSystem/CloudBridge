@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\module\sign\CloudSignModule;
 use pocketcloud\cloud\bridge\util\ModuleSettings;
 use pocketmine\utils\SingletonTrait;
 
-class ModuleManager {
+final class ModuleManager {
     use SingletonTrait;
 
     private array $modules;

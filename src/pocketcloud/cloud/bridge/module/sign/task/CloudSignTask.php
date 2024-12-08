@@ -11,7 +11,7 @@ use pocketcloud\cloud\bridge\module\sign\CloudSignModule;
 use pocketmine\block\BaseSign;
 use pocketmine\scheduler\Task;
 
-class CloudSignTask extends Task {
+final class CloudSignTask extends Task {
 
     public function onRun(): void {
         foreach (CloudSignModule::get()->getCloudSigns() as $sign) {

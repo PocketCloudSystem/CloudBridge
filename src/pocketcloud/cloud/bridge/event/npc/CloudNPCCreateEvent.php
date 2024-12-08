@@ -7,7 +7,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 use pocketmine\event\Event;
 
-class CloudNPCCreateEvent extends Event implements Cancellable {
+final class CloudNPCCreateEvent extends Event implements Cancellable {
     use CancellableTrait;
 
     public function __construct(private readonly CloudNPC $cloudNPC) {}

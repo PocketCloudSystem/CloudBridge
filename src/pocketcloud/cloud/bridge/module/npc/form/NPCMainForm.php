@@ -10,7 +10,7 @@ use pocketcloud\cloud\bridge\module\npc\form\sub\npc\NPCCreateForm;
 use pocketcloud\cloud\bridge\module\npc\form\sub\npc\NPCListForm;
 use pocketmine\player\Player;
 
-class NPCMainForm extends MenuForm {
+final class NPCMainForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

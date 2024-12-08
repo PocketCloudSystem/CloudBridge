@@ -17,7 +17,7 @@ use pocketcloud\cloud\bridge\module\npc\skin\CustomSkinModel;
 use pocketcloud\cloud\bridge\util\SkinSaver;
 use pocketmine\player\Player;
 
-class NPCCreateForm extends CustomForm {
+final class NPCCreateForm extends CustomForm {
 
     public function __construct() {
         parent::__construct(

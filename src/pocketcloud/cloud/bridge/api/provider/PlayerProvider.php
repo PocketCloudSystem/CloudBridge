@@ -13,7 +13,7 @@ use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
 use pocketmine\utils\Internet;
 
-class PlayerProvider {
+final class PlayerProvider {
 
     public function transfer(Player|CloudPlayer $player, CloudServer $server, bool $useCustomMaxPlayerCount = false): bool {
         $player = ($player instanceof Player ? $this->get($player->getName()) : $player);

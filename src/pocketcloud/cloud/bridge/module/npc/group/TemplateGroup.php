@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\module\npc\group;
 
 use pocketcloud\cloud\bridge\util\Utils;
 
-class TemplateGroup {
+final class TemplateGroup {
 
     public function __construct(
         private readonly string $id,

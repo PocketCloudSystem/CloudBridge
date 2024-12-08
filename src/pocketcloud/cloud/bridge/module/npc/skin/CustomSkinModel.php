@@ -7,7 +7,7 @@ use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\entity\Skin;
 use Throwable;
 
-readonly class CustomSkinModel {
+final readonly class CustomSkinModel {
 
     public function __construct(
         private string $id,

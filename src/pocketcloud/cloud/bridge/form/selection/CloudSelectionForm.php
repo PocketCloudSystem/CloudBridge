@@ -8,7 +8,7 @@ use dktapps\pmforms\MenuOption;
 use pocketcloud\cloud\bridge\language\Language;
 use pocketmine\player\Player;
 
-class CloudSelectionForm extends MenuForm {
+final class CloudSelectionForm extends MenuForm {
 
     public function __construct(
         private readonly BaseForm $redirectName,

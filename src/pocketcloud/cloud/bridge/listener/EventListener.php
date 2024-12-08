@@ -17,23 +17,25 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
 
-class EventListener implements Listener {
+final class EventListener implements Listener {
 
     public function onLogin(PlayerLoginEvent $event): void {
         $player = $event->getPlayer();
         Network::getInstance()->sendPacket(new PlayerConnectPacket(CloudPlayer::fromPlayer($player)));
 
         if (CloudAPI::templates()->current()->isMaintenance()) {
-            RequestManager::getInstance()->sendRequest(new CheckPlayerMaintenanceRequestPacket($player->getName()))->then(function(CheckPlayerMaintenanceResponsePacket $packet) use($player): void {
-                if (!$packet->getValue() && !$player->hasPermission("pocketcloud.maintenance.bypass")) {
-                    $player->kick("§cThis server is in maintenance.");
-                }
-            });
+            CheckPlayerMaintenanceRequestPacket::makeRequest($player->getName())
+                ->then(function (CheckPlayerMaintenanceResponsePacket $packet) use($player): void {
+                    if (!$packet->getValue() && !$player->hasPermission("pocketcloud.maintenance.bypass")) {
+                        $player->kick("§cThis server is in maintenance.");
+                    }
+                });
         }
 
-        RequestManager::getInstance()->sendRequest(new CheckPlayerNotifyRequestPacket($player->getName()))->then(function(CheckPlayerNotifyResponsePacket $packet) use($player): void {
-            if ($packet->getValue()) NotifyList::put($player);
-        });
+        CheckPlayerNotifyRequestPacket::makeRequest($player->getName())
+            ->then(function (CheckPlayerNotifyResponsePacket $packet) use($player): void {
+                if ($packet->getValue()) NotifyList::put($player);
+            });
     }
 
     public function onQuit(PlayerQuitEvent $event): void {

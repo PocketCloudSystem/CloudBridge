@@ -13,7 +13,7 @@ use pocketmine\event\Listener;
 use pocketmine\event\player\PlayerInteractEvent;
 use pocketmine\Server;
 
-class SignListener implements Listener {
+final class SignListener implements Listener {
 
     public function onChange(SignChangeEvent $event): void {
         if ($event->getNewText()->getLine(0) == "[PocketCloud]") {

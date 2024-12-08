@@ -7,7 +7,7 @@ use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 use pocketmine\event\Event;
 
-class CloudSignAddEvent extends Event implements Cancellable {
+final class CloudSignAddEvent extends Event implements Cancellable {
     use CancellableTrait;
 
     public function __construct(private readonly CloudSign $cloudSign) {}

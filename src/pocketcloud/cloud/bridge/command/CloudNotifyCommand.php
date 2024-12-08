@@ -10,7 +10,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
-class CloudNotifyCommand extends Command {
+final class CloudNotifyCommand extends Command {
 
     public function __construct() {
         parent::__construct("cloudnotify", Language::current()->translate("inGame.command.description.cloud_notify"), "/cloudnotify");

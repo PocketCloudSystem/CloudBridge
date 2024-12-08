@@ -15,7 +15,7 @@ use pocketcloud\cloud\bridge\network\request\RequestManager;
 use pocketcloud\cloud\bridge\util\GeneralSettings;
 use RuntimeException;
 
-class ServerProvider {
+final class ServerProvider {
 
     public function current(): CloudServer {
         return $this->get(GeneralSettings::getServerName()) ?? throw new RuntimeException("Current server shouldn't be null");
@@ -23,7 +23,7 @@ class ServerProvider {
 
     public function start(Template|string $template, int $count = 1): RequestPacket {
         $template = $template instanceof Template ? $template->getName() : $template;
-        return RequestManager::getInstance()->sendRequest(new CloudServerStartRequestPacket($template, $count));
+        return RequestManager::getInstance()->send(new CloudServerStartRequestPacket($template, $count));
     }
 
     public function stop(CloudServer|Template|string $object): RequestPacket {
@@ -31,7 +31,7 @@ class ServerProvider {
             $object
         ) : $object->getName();
 
-        return RequestManager::getInstance()->sendRequest(new CloudServerStopRequestPacket($object));
+        return RequestManager::getInstance()->send(new CloudServerStopRequestPacket($object));
     }
 
     public function save(): void {

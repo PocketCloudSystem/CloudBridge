@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\api\object\template;
 
 use pocketcloud\cloud\bridge\util\Utils;
 
-class Template {
+final class Template {
 
     public function __construct(
         private string $name,

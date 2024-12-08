@@ -11,7 +11,7 @@ use pocketcloud\cloud\bridge\module\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\module\npc\skin\CustomSkinModel;
 use pocketmine\player\Player;
 
-class SkinModelEditForm extends CustomForm {
+final class SkinModelEditForm extends CustomForm {
 
     public function __construct(CustomSkinModel $model) {
         parent::__construct(

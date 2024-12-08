@@ -7,7 +7,7 @@ use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
-class Utils {
+final class Utils {
 
     public static function containKeys(array $array, ...$keys): bool {
         foreach ($keys as $key) {

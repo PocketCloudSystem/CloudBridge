@@ -11,7 +11,7 @@ use pocketcloud\cloud\bridge\module\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\module\npc\group\TemplateGroup;
 use pocketmine\player\Player;
 
-class TemplateGroupCreateForm extends CustomForm {
+final class TemplateGroupCreateForm extends CustomForm {
 
     public function __construct() {
         parent::__construct(

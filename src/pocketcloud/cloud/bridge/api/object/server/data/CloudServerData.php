@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\api\object\server\data;
 
-class CloudServerData {
+final class CloudServerData {
 
     public function __construct(
         private readonly int $port,

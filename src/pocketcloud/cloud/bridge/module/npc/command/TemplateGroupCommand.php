@@ -8,7 +8,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
-class TemplateGroupCommand extends Command {
+final class TemplateGroupCommand extends Command {
 
     public function __construct() {
         parent::__construct("templategroup", Language::current()->translate("inGame.command.description.template_group"), "/templategroup");

@@ -10,7 +10,7 @@ use pocketcloud\cloud\bridge\api\object\server\storage\CloudServerStorage;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\util\Utils;
 
-class CloudServer {
+final class CloudServer {
 
     private CloudServerStorage $storage;
 

@@ -24,7 +24,7 @@ use pocketmine\player\Player;
 use pocketmine\Server;
 use pocketmine\world\Position;
 
-class NPCListener implements Listener {
+final class NPCListener implements Listener {
 
     public function onMove(PlayerMoveEvent $event): void {
         $player = $event->getPlayer();

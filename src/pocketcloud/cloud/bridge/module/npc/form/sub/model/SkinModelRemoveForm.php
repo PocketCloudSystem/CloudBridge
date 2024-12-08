@@ -10,7 +10,7 @@ use pocketcloud\cloud\bridge\module\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\module\npc\skin\CustomSkinModel;
 use pocketmine\player\Player;
 
-class SkinModelRemoveForm extends MenuForm {
+final class SkinModelRemoveForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

@@ -15,7 +15,7 @@ use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\network\packet\impl\type\TextType;
 use pocketmine\player\Player;
 
-class CloudManagePlayersSubForm extends MenuForm {
+final class CloudManagePlayersSubForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

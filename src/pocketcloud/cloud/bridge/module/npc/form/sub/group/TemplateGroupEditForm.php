@@ -15,7 +15,7 @@ use pocketcloud\cloud\bridge\module\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\module\npc\group\TemplateGroup;
 use pocketmine\player\Player;
 
-class TemplateGroupEditForm extends MenuForm {
+final class TemplateGroupEditForm extends MenuForm {
 
     public function __construct(TemplateGroup $group) {
         parent::__construct(

@@ -13,7 +13,7 @@ use pocketcloud\cloud\bridge\module\npc\form\sub\group\TemplateGroupRemoveForm;
 use pocketcloud\cloud\bridge\module\npc\group\TemplateGroup;
 use pocketmine\player\Player;
 
-class TemplateGroupMainForm extends MenuForm {
+final class TemplateGroupMainForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

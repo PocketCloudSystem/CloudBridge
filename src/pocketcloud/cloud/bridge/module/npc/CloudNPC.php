@@ -19,7 +19,7 @@ use pocketmine\entity\Human;
 use pocketmine\entity\Location;
 use pocketmine\world\Position;
 
-class CloudNPC {
+final class CloudNPC {
 
     private ?Human $entity = null;
     private ?CloudNPCTickTask $tickTask = null;

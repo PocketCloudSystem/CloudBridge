@@ -12,7 +12,7 @@ use pocketmine\block\BaseSign;
 use pocketmine\block\utils\SignText;
 use pocketmine\world\Position;
 
-class CloudSign {
+final class CloudSign {
 
     private ?string $usingServer = null;
     private int $layerIndex = 0;

@@ -11,7 +11,7 @@ use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
-class CloudPlayer {
+final class CloudPlayer {
 
     public function __construct(
         private readonly string $name,

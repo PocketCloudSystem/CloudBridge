@@ -15,7 +15,7 @@ use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\module\sign\CloudSignModule;
 use pocketmine\player\Player;
 
-class CloudManageModulesSubForm extends MenuForm {
+final class CloudManageModulesSubForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(

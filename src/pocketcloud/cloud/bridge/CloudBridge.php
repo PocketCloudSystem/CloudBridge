@@ -28,7 +28,7 @@ use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
 use pocketmine\utils\SingletonTrait;
 
-class CloudBridge extends PluginBase {
+final class CloudBridge extends PluginBase {
     use SingletonTrait;
 
     public static function getPrefix(): string {
@@ -53,8 +53,8 @@ class CloudBridge extends PluginBase {
                     $packet->handle();
 
                     if ($packet instanceof ResponsePacket) {
-                        RequestManager::getInstance()->callThen($packet);
-                        RequestManager::getInstance()->removeRequest($packet->getRequestId());
+                        RequestManager::getInstance()->resolve($packet);
+                        RequestManager::getInstance()->remove($packet->getRequestId());
                     }
                 } else {
                     GlobalLogger::get()->warning("§cReceived an unknown packet from the cloud!");

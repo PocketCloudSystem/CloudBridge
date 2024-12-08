@@ -10,7 +10,7 @@ use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
 
-class TransferCommand extends Command {
+final class TransferCommand extends Command {
 
     public function __construct() {
         parent::__construct("transfer", Language::current()->translate("inGame.command.description.transfer"), "/transfer");

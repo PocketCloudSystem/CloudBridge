@@ -7,7 +7,7 @@ use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\object\server\status\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 
-class Registry {
+final class Registry {
 
     /** @var array<CloudServer> */
     private static array $servers = [];

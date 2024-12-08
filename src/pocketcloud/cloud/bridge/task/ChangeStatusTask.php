@@ -7,7 +7,7 @@ use pocketcloud\cloud\bridge\api\object\server\status\ServerStatus;
 use pocketmine\scheduler\Task;
 use pocketmine\Server;
 
-class ChangeStatusTask extends Task {
+final class ChangeStatusTask extends Task {
 
     public function onRun(): void {
         if (CloudAPI::servers()->current()->getServerStatus() === ServerStatus::IN_GAME() || CloudAPI::servers()->current()?->getServerStatus() === ServerStatus::STOPPING()) return;

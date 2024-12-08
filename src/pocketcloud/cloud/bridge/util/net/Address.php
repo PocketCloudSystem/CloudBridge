@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\util\net;
 
 use pmmp\thread\ThreadSafe;
 
-class Address extends ThreadSafe {
+final class Address extends ThreadSafe {
 
     public function __construct(
         private readonly string $address,
