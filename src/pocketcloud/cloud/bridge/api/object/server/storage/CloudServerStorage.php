@@ -23,11 +23,9 @@ final class CloudServerStorage {
         if ($this->server->getName() == GeneralSettings::getServerName()) Network::getInstance()->sendPacket(new CloudServerSyncStoragePacket($this->storage));
     }
 
-    public function put(string $k, mixed $v): self {
-        if (!isset($this->storage[$k])) {
-            $this->storage[$k] = $v;
-            $this->sendSyncPacket();
-        }
+    public function set(string $k, mixed $v): self {
+        $this->storage[$k] = $v;
+        $this->sendSyncPacket();
         return $this;
     }
 
@@ -45,14 +43,6 @@ final class CloudServerStorage {
 
     public function get(string $k, mixed $default = null): mixed {
         return $this->storage[$k] ?? $default;
-    }
-
-    public function replace(string $k, mixed $v): self {
-        if (isset($this->storage[$k])) {
-            $this->storage[$k] = $v;
-            $this->sendSyncPacket();
-        }
-        return $this;
     }
 
     public function clear(): self {
