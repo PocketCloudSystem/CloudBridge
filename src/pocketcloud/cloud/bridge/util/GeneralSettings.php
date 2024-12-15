@@ -11,7 +11,7 @@ final class GeneralSettings {
         "encryption" => true,
         "server_name" => "unknown",
         "template_name" => "unknown",
-        "cloud-path" => "unknown",
+        "cloud_path" => "unknown",
         "language" => "en_US"
     ];
 
@@ -20,7 +20,7 @@ final class GeneralSettings {
         self::$data["encryption"] = Server::getInstance()->getConfigGroup()->getConfigBool("encryption", true);
         self::$data["server_name"] = Server::getInstance()->getConfigGroup()->getConfigString("server-name", "unknown");
         self::$data["template_name"] = Server::getInstance()->getConfigGroup()->getConfigString("template", "unknown");
-        self::$data["cloud-path"] = Server::getInstance()->getConfigGroup()->getConfigString("cloud-path", "unknown");
+        self::$data["cloud_path"] = Server::getInstance()->getConfigGroup()->getConfigString("cloud-path", "unknown");
         self::$data["language"] = Server::getInstance()->getConfigGroup()->getConfigString("cloud-language", "unknown");
     }
 
@@ -37,7 +37,7 @@ final class GeneralSettings {
     }
 
     public static function getCloudPath(): string {
-        return self::$data["cloud-path"];
+        return self::$data["cloud_path"];
     }
 
     public static function getLanguage(): string {
