@@ -9,6 +9,7 @@ use pocketmine\utils\RegistryTrait;
  * @method static LogType DEBUG()
  * @method static LogType WARN()
  * @method static LogType ERROR()
+ * @method static LogType SUCCESS()
  */
 final class LogType {
     use RegistryTrait;
@@ -18,6 +19,7 @@ final class LogType {
         self::_registryRegister("debug", new LogType("DEBUG"));
         self::_registryRegister("warn", new LogType("WARN"));
         self::_registryRegister("error", new LogType("ERROR"));
+        self::_registryRegister("success", new LogType("SUCCESS"));
     }
 
     public static function get(string $name): ?LogType {
