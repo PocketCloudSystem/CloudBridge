@@ -2,10 +2,14 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl\normal;
 
+use pocketcloud\cloud\bridge\command\CloudCommand;
+use pocketcloud\cloud\bridge\command\CloudNotifyCommand;
+use pocketcloud\cloud\bridge\command\TransferCommand;
 use pocketcloud\cloud\bridge\language\Language;
 
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\PacketData;
+use pocketmine\Server;
 
 final class LanguageSyncPacket extends CloudPacket {
 
@@ -34,5 +38,10 @@ final class LanguageSyncPacket extends CloudPacket {
 
     public function handle(): void {
         Language::get($this->language)?->sync($this->messages);
+        Server::getInstance()->getCommandMap()->registerAll("cloudBridge", [
+            new CloudCommand(),
+            new TransferCommand(),
+            new CloudNotifyCommand()
+        ]);
     }
 }
