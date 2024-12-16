@@ -39,7 +39,6 @@ final class CloudManagePlayersSubForm extends MenuForm {
                             ],
                             function(Player $player, CustomFormResponse $response): void {
                                 $player->chat("/cloud text " . $response->getString("name") . " " . array_values(TextType::getAll())[$response->getInt("type")]->getName() . " " . $response->getString("message"));
-
                             }
                         ),
                         new CustomForm(
