@@ -17,8 +17,8 @@ use RuntimeException;
 
 final class ServerProvider {
 
-    public function current(): CloudServer {
-        return $this->get(GeneralSettings::getServerName()) ?? throw new RuntimeException("Current server shouldn't be null");
+    public function current(): ?CloudServer {
+        return $this->get(GeneralSettings::getServerName());
     }
 
     public function start(Template|string $template, int $count = 1): RequestPacket {
