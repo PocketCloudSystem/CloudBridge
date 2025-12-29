@@ -3,6 +3,7 @@
 namespace pocketcloud\cloud\bridge;
 
 use pocketcloud\cloud\bridge\network\Network;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\net\Address;
@@ -28,6 +29,16 @@ final class CloudBridge extends PluginBase {
         $this->network->init();
         $this->network->start();
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
+
+        ServerHandshakeRequestPacket::makeRequest(CloudEnvironmentConfig::getServerName(), getmypid(), $this->getServer()->getMaxPlayers())
+            ->failure(fn() => $this->getLogger()->warning("WHAT THE FUCK?!"));
+
+        ServerHandshakeRequestPacket::makeRequest(CloudEnvironmentConfig::getServerName(), getmypid(), $this->getServer()->getMaxPlayers())
+            ->failure(fn() => $this->getLogger()->warning("WHAT THE FUCK?!"));
+    }
+
+    protected function onDisable(): void {
+
     }
 
     public function registerPermission(string... $permissions): void {

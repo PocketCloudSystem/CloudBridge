@@ -10,7 +10,6 @@ final class TrafficMonitorManager {
     use SingletonTrait;
 
     public const string TRAFFIC_NETWORK = "network";
-    public const string TRAFFIC_HTTP = "http";
 
     /** @var array<string> */
     private array $trafficMonitorTypes = [];

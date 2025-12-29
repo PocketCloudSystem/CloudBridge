@@ -18,9 +18,9 @@ final class RequestManager {
      * @internal
      * @see RequestPacket
      */
-    public function send(RequestPacket $packet): RequestPacket {
+    public function send(RequestPacket $packet): ?RequestPacket {
         $packet->prepare();
-        Network::getInstance()->sendPacket($packet);
+        if (!Network::getInstance()->sendPacket($packet)) return null;
         $this->requests[$packet->getRequestId()] = $packet;
         return $packet;
     }

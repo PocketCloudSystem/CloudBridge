@@ -42,7 +42,7 @@ final class CloudEnvironmentConfig {
         return self::$data[$variable];
     }
 
-    public static function getNetworkAddress(): int {
+    public static function getNetworkAddress(): string {
         return self::fetchVariable("cloud-address") ?? throw new RuntimeException("Variable 'cloud-address' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
     }
     

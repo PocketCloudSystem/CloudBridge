@@ -5,12 +5,14 @@ namespace pocketcloud\cloud\bridge\network;
 use LogicException;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\CloudBridge;
-use pocketcloud\cloud\bridge\event\impl\network\NetworkCloseEvent;
-use pocketcloud\cloud\bridge\event\impl\network\NetworkPacketPreSendEvent;
-use pocketcloud\cloud\bridge\event\impl\network\NetworkPacketReceiveEvent;
-use pocketcloud\cloud\bridge\event\impl\network\NetworkPacketReceivePreProcessEvent;
-use pocketcloud\cloud\bridge\event\impl\network\NetworkPacketSendEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkCloseEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketPreSendEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketReceivePreProcessEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketSendEvent;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
+use pocketcloud\cloud\bridge\network\packet\PacketPool;
+use pocketcloud\cloud\bridge\network\packet\RequestPacket;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\UnhandledPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketSerializer;
@@ -38,6 +40,8 @@ final class Network extends Thread {
     public function __construct(private readonly Address $address) {
         self::setInstance($this);
         $this->buffer = new ThreadSafeArray();
+
+        PacketPool::init();
 
         $this->handlerEntry = Server::getInstance()->getTickSleeper()->addNotifier(function (): void {
             /** @var UnhandledPacket $unhandledPacket */
@@ -80,7 +84,7 @@ final class Network extends Thread {
         $socket = @socket_create(AF_INET, SOCK_DGRAM, SOL_UDP);
         if (!$socket) throw new SocketException(socket_strerror(socket_last_error()));
         $this->socket = $socket;
-        if (@socket_connect($socket, $this->address->getAddress(), $this->address->getPort())) {
+        if (socket_connect($socket, $this->address->getAddress(), $this->address->getPort())) {
             $this->connected = true;
             socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 1024 * 1024 * 8);
             socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 1024 * 1024 * 8);
@@ -92,13 +96,14 @@ final class Network extends Thread {
     }
 
     protected function onRun(): void {
-        while ($this->connected && $this->isRunning()) {
+        while ($this->connected && !$this->isKilled) {
             $read = [$this->socket];
             $write = $except = [];
 
             if (socket_select($read, $write, $except, 0, 50 * 1000) > 0) {
                 if ($this->read($bytes, $buffer, $address, $port)) {
                     $this->buffer[] = new UnhandledPacket($buffer, Address::create($address, $port), $bytes);
+                    $this->handlerEntry->createNotifier()->wakeupSleeper();
                 }
             }
         }
@@ -106,9 +111,11 @@ final class Network extends Thread {
 
     public function sendPacket(CloudboundPacket $packet): bool {
         if (!$this->connected) return false;
+        if ($packet instanceof RequestPacket && !$packet->isPrepared()) throw new LogicException("RequestPackets cannot be directly sent over Network->sendPacket, please use " . $packet::class . "::makeRequest or the RequestManager");
         ($ev = new NetworkPacketPreSendEvent($packet, $this->address))->call();
         if ($ev->isCancelled()) return false;
         $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled());
+        if ($buffer === null) return false;
         $success = $this->write($buffer);
         TrafficMonitorManager::getInstance()->callHandlers(
             TrafficMonitorManager::TRAFFIC_NETWORK,
@@ -122,8 +129,8 @@ final class Network extends Thread {
 
     public function write(string $buffer): bool {
         if (!$this->connected) return false;
-        $sent = @socket_send($this->socket, $buffer, $bytes = strlen($buffer), 0);
-        if ($sent === false || $sent <= 0) return false;
+        $sent = socket_send($this->socket, $buffer, $bytes = strlen($buffer), 0);
+        if ($sent === false) return false;
 
         TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, $sent, TrafficMonitor::REGULAR_MODE_OUT);
         TrafficMonitorManager::getInstance()->callHandlers(
@@ -139,8 +146,8 @@ final class Network extends Thread {
 
     public function read(?int &$bytes, ?string &$buffer, ?string &$address, ?int &$port): bool {
         if (!$this->connected) return false;
-        $result = @socket_recvfrom($this->socket, $buffer, 65535, 0, $address, $port);
-        if (!$result === false || $result === 0) {
+        $result = socket_recvfrom($this->socket, $buffer, 65535, 0, $address, $port);
+        if ($result === false) {
             $bytes = 0;
             return false;
         }

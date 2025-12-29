@@ -3,6 +3,7 @@
 namespace pocketcloud\cloud\bridge\network\packet;
 
 use pocketcloud\cloud\bridge\CloudBridge;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketmine\utils\SingletonTrait;
 
 final class PacketPool {
@@ -12,7 +13,8 @@ final class PacketPool {
     private array $packets = [];
 
     public static function init(): void {
-        self::setInstance(new self());
+        self::setInstance($pool = new self());
+        $pool->register(ServerHandshakeRequestPacket::class);
     }
 
     public function __construct() {

@@ -9,13 +9,14 @@ use Throwable;
 
 abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
 
-    private string $requestId;
+    private ?string $requestId = null;
     /** @var array<Closure> */
     private array $thenClosures = [];
     private ?Closure $failure = null;
 
     /** @internal */
     public function prepare(): void {
+        if ($this->requestId !== null) return;
         $this->requestId = uniqid();
     }
 
@@ -60,7 +61,11 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
         return $this;
     }
 
-    public function getRequestId(): string {
+    public function isPrepared(): bool {
+        return $this->requestId !== null;
+    }
+
+    public function getRequestId(): ?string {
         return $this->requestId;
     }
 

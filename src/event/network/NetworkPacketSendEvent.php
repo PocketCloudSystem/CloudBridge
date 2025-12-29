@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\event\impl\network;
+namespace pocketcloud\cloud\bridge\event\network;
 
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\util\net\Address;

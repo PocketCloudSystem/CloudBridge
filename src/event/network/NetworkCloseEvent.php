@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\event\impl\network;
+namespace pocketcloud\cloud\bridge\event\network;
 
 use pocketmine\event\Event;
 
