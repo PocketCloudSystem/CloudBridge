@@ -2,6 +2,8 @@
 
 namespace pocketcloud\cloud\bridge\api\object\player;
 
+use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
+use pocketcloud\cloud\bridge\server\CloudServer;
 use pocketcloud\cloud\bridge\util\Utils;
 
 final class CloudPlayer {
@@ -15,12 +17,10 @@ final class CloudPlayer {
         private ?string $currentProxy
     ) {}
 
-    public function setCurrentServer(?string $currentServer): void {
-        $this->currentServer = $currentServer;
-    }
-
-    public function setCurrentProxy(?string $currentProxy): void {
-        $this->currentProxy = $currentProxy;
+    /** @internal */
+    public function sync(array $data): void {
+        $this->currentServer = array_key_exists("currentServer", $data) ? $data["currentServer"] : $this->currentServer;
+        $this->currentProxy = array_key_exists("currentProxy", $data) ? $data["currentProxy"] : $this->currentProxy;
     }
 
     public function getName(): string {
@@ -39,12 +39,12 @@ final class CloudPlayer {
         return $this->uniqueId;
     }
 
-    public function getCurrentServer(): ?string {
-        return $this->currentServer;
+    public function getCurrentServer(): ?CloudServer {
+        return CloudServerProvider::provider()->get($this->currentServer);
     }
 
-    public function getCurrentProxy(): ?string {
-        return $this->currentProxy;
+    public function getCurrentProxy(): ?CloudServer {
+        return CloudServerProvider::provider()->get($this->currentProxy);
     }
 
     public function getCurrentServerName(): ?string {
@@ -66,15 +66,15 @@ final class CloudPlayer {
         ];
     }
 
-    public static function read(array $player): ?self {
-        if (!Utils::containKeys($player, "name", "address", "xboxUserId", "uniqueId")) return null;
+    public static function read(array $data): ?self {
+        if (!Utils::containKeys($data, "name", "address", "xboxUserId", "uniqueId")) return null;
         return new CloudPlayer(
-            $player["name"],
-            $player["address"],
-            $player["xboxUserId"],
-            $player["uniqueId"],
-            (!isset($player["currentServer"]) ? null : $player["currentServer"]),
-            (!isset($player["currentProxy"]) ? null : $player["currentProxy"])
+            $data["name"],
+            $data["address"],
+            $data["xboxUserId"],
+            $data["uniqueId"],
+            $data["currentServer"] ?? null,
+            $data["currentProxy"] ?? null
         );
     }
 }

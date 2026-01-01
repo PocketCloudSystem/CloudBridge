@@ -3,7 +3,12 @@
 namespace pocketcloud\cloud\bridge\api;
 
 use pocketcloud\cloud\bridge\api\provider\CloudAPIProvider;
+use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
+use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
+use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
+use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\CloudBridge;
+use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
@@ -12,6 +17,9 @@ use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
+/**
+ * @template T of CloudAPIProvider
+ */
 final class CloudAPI {
     use SingletonTrait {
         getInstance as private;
@@ -20,10 +28,17 @@ final class CloudAPI {
 
     private VerifyStatus $verifyStatus = VerifyStatus::NOT_APPLIED;
 
+    /**
+     * @var array<class-string<T>, T>
+     */
     private array $providers = [];
 
     public function __construct() {
         self::setInstance($this);
+        $this->registerProvider(new TemplateProvider());
+        $this->registerProvider(new CloudServerProvider());
+        $this->registerProvider(new ServerGroupProvider());
+        $this->registerProvider(new CloudPlayerProvider());
     }
 
     public function requestLogin(): void {
@@ -31,8 +46,7 @@ final class CloudAPI {
             $status = $packet->getVerifyStatus();
             $this->verifyStatus = $status;
             if ($status === VerifyStatus::VERIFIED) {
-#                CloudBridge::getInstance()->getLogger()->info(Language::current()->translate("inGame.server.verified"));
-                CloudBridge::getInstance()->getLogger()->info("inGame.server.verified");
+                CloudBridge::getInstance()->getLogger()->info(Language::current()->translate("inGame.server.verified"));
                 KeepAlivePacket::create()->sendPacket(); # Start keep-alive cycle
             } else {
                 CloudBridge::getInstance()->getLogger()->emergency("Cloud responded with verification status '" . $status->getName() . "', shutting down this instance...");
@@ -48,6 +62,11 @@ final class CloudAPI {
         $this->providers[$provider::class] = $provider;
     }
 
+    /**
+     * @template TProvider of CloudAPIProvider
+     * @param class-string<TProvider> $providerClass
+     * @return TProvider|null
+     */
     public function getProvider(string $providerClass): ?CloudAPIProvider {
         return $this->providers[$providerClass] ?? null;
     }

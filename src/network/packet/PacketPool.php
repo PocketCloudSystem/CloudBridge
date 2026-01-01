@@ -8,6 +8,7 @@ use pocketcloud\cloud\bridge\network\packet\impl\CommandAnswerPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CommandExecutePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\LanguageSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeResponsePacket;
 use pocketmine\utils\SingletonTrait;
@@ -32,6 +33,7 @@ final class PacketPool {
         $this->register(KeepAlivePacket::class);
         $this->register(CommandExecutePacket::class);
         $this->register(CommandAnswerPacket::class);
+        $this->register(LanguageSyncPacket::class);
     }
 
     public function register(string $packetClass): void {

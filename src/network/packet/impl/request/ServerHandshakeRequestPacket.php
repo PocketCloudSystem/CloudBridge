@@ -35,4 +35,8 @@ final class ServerHandshakeRequestPacket extends RequestPacket {
     public static function makeRequest(string $serverName, int $pid, int $maxPlayers): RequestPacket {
         return RequestManager::getInstance()->send(new self($serverName, $pid, $maxPlayers));
     }
+
+    public static function create(string $serverName, int $processId, int $maxPlayers): self {
+        return new self($serverName, $processId, $maxPlayers);
+    }
 }
