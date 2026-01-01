@@ -20,5 +20,5 @@ interface Packet {
 
     public function isEncoded(): bool;
 
-    public function getSentTimestamp(): ?int;
+    public function getSentTimestamp(): ?float;
 }

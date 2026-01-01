@@ -4,6 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\request;
 
 use pocketcloud\cloud\bridge\network\packet\RequestPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\request\RequestManager;
 
 final class ServerHandshakeRequestPacket extends RequestPacket {
 
@@ -14,9 +15,7 @@ final class ServerHandshakeRequestPacket extends RequestPacket {
     ) {}
 
     public function encodePayload(PacketData $packetData): void {
-        $packetData->write($this->serverName)
-            ->write($this->processId)
-            ->write($this->maxPlayers);
+        $packetData->writeAll($this->serverName, $this->processId, $this->maxPlayers);
     }
 
     public function decodePayload(PacketData $packetData): void {}
@@ -31,5 +30,9 @@ final class ServerHandshakeRequestPacket extends RequestPacket {
 
     public function getMaxPlayers(): ?int {
         return $this->maxPlayers;
+    }
+
+    public static function makeRequest(string $serverName, int $pid, int $maxPlayers): RequestPacket {
+        return RequestManager::getInstance()->send(new self($serverName, $pid, $maxPlayers));
     }
 }

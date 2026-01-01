@@ -3,12 +3,16 @@
 namespace pocketcloud\cloud\bridge\exception;
 
 use Closure;
+use ErrorException;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketmine\errorhandler\ErrorToExceptionHandler;
 use Throwable;
 
 final class ExceptionHandler {
 
+    /**
+     * @throws ErrorException
+     */
     public static function tryCatch(Closure $processClosure, ?string $message = null, ?Closure $onExceptionClosure = null, mixed ...$params): mixed {
         return ErrorToExceptionHandler::trap(function () use($processClosure, $message, $onExceptionClosure, $params): mixed {
             try {

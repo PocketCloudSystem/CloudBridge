@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
+use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use ReflectionClass;
 use RuntimeException;
@@ -13,7 +14,7 @@ use RuntimeException;
 abstract class CloudPacket implements Packet {
 
     private bool $encoded = false;
-    private ?int $sentTimestamp = null;
+    private ?float $sentTimestamp = null;
 
     public function encode(PacketData $packetData): void {
         if ($this->encoded) throw new RuntimeException("Packet " . $this->getName() . " has already been encoded");
@@ -31,6 +32,11 @@ abstract class CloudPacket implements Packet {
         $this->decodePayload($packetData);
     }
 
+    public function sendPacket(): bool {
+        if (!$this instanceof CloudboundPacket) return false;
+        return Network::getInstance()->sendPacket($this);
+    }
+
     abstract public function handle(): void;
 
     final public function getName(): string {
@@ -41,7 +47,7 @@ abstract class CloudPacket implements Packet {
         return $this->encoded;
     }
 
-    public function getSentTimestamp(): ?int {
+    public function getSentTimestamp(): ?float {
         return $this->sentTimestamp;
     }
 }

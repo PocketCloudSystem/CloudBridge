@@ -51,11 +51,19 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
         }
     }
 
+    /**
+     * @param Closure $closure (function (ResponsePacket $packet, mixed $initialValue): mixed {})
+     * @return $this
+     */
     public function then(Closure $closure): self {
         $this->thenClosures[] = $closure;
         return $this;
     }
 
+    /**
+     * @param Closure $closure (function (RequestPacket $packet, ?Throwable $exception, ): mixed {})
+     * @return $this
+     */
     public function failure(Closure $closure): self {
         $this->failure = $closure;
         return $this;
@@ -71,7 +79,7 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
 
     final public function handle(): void {}
 
-    public static function makeRequest(mixed ...$args): static {
+    public static function dynamicRequest(mixed ...$args): static {
         return RequestManager::getInstance()->send(new static(...$args));
     }
 }

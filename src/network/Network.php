@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network;
 
+use JsonException;
 use LogicException;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\CloudBridge;
@@ -10,6 +11,7 @@ use pocketcloud\cloud\bridge\event\network\NetworkPacketPreSendEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceivePreProcessEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketSendEvent;
+use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\PacketPool;
 use pocketcloud\cloud\bridge\network\packet\RequestPacket;
@@ -56,23 +58,28 @@ final class Network extends Thread {
                 ($ev = new NetworkPacketReceivePreProcessEvent($unhandledPacket->getBuffer(), $encryption = CloudEnvironmentConfig::isNetworkEncryptionEnabled(), $unhandledPacket->getAddress()))->call();
                 if ($ev->isCancelled()) return;
 
-                if (($packet = $unhandledPacket->buildCloudPacket($encryption)) !== null) {
-                    TrafficMonitorManager::getInstance()->callHandlers(
-                        TrafficMonitorManager::TRAFFIC_NETWORK,
-                        NetworkTrafficMonitor::parsePacketMode(NetworkTrafficMonitor::NETWORK_MODE_PACKET_IN, $packet::class),
-                        $packet, $unhandledPacket->getAddress()
-                    );
+                try {
+                    if (($packet = $unhandledPacket->buildCloudPacket($encryption, CloudEnvironmentConfig::getNetworkAuthKey())) !== null) {
+                        TrafficMonitorManager::getInstance()->callHandlers(
+                            TrafficMonitorManager::TRAFFIC_NETWORK,
+                            NetworkTrafficMonitor::parsePacketMode(NetworkTrafficMonitor::NETWORK_MODE_PACKET_IN, $packet::class),
+                            $packet, $unhandledPacket->getAddress()
+                        );
 
-                    ($ev = new NetworkPacketReceiveEvent($packet, $unhandledPacket->getAddress()))->call();
-                    if ($ev->isCancelled()) return;
-                    $packet->handle();
+                        ($ev = new NetworkPacketReceiveEvent($packet, $unhandledPacket->getAddress()))->call();
+                        if ($ev->isCancelled()) return;
+                        $packet->handle();
 
-                    if ($packet instanceof ResponsePacket) {
-                        RequestManager::getInstance()->resolve($packet);
-                        RequestManager::getInstance()->remove($packet->getRequestId());
+                        if ($packet instanceof ResponsePacket) {
+                            RequestManager::getInstance()->resolve($packet);
+                            RequestManager::getInstance()->remove($packet->getRequestId());
+                        }
+                    } else {
+                        CloudBridge::getInstance()->getLogger()->warning("§cReceived an unknown packet from the cloud!");
+                        CloudBridge::getInstance()->getLogger()->debug($unhandledPacket->getBuffer());
                     }
-                } else {
-                    CloudBridge::getInstance()->getLogger()->warning("§cReceived an unknown packet from the cloud!");
+                } catch (PacketException|JsonException $e) {
+                    CloudBridge::getInstance()->getLogger()->warning("§cFailed to decode packet from §b" . $unhandledPacket->getAddress() . "§8: §e" . $e->getMessage());
                     CloudBridge::getInstance()->getLogger()->debug($unhandledPacket->getBuffer());
                 }
             }
@@ -111,10 +118,10 @@ final class Network extends Thread {
 
     public function sendPacket(CloudboundPacket $packet): bool {
         if (!$this->connected) return false;
-        if ($packet instanceof RequestPacket && !$packet->isPrepared()) throw new LogicException("RequestPackets cannot be directly sent over Network->sendPacket, please use " . $packet::class . "::makeRequest or the RequestManager");
+        if ($packet instanceof RequestPacket && !$packet->isPrepared()) throw new LogicException("RequestPackets cannot be directly sent over Network->sendPacket, please use " . $packet::class . "::dynamicRequest or the RequestManager");
         ($ev = new NetworkPacketPreSendEvent($packet, $this->address))->call();
         if ($ev->isCancelled()) return false;
-        $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled());
+        $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled(), CloudEnvironmentConfig::getNetworkAuthKey());
         if ($buffer === null) return false;
         $success = $this->write($buffer);
         TrafficMonitorManager::getInstance()->callHandlers(

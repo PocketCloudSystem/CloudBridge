@@ -17,7 +17,9 @@ final class CloudEnvironmentConfig {
         "server-uuid" => null,
         "template" => null,
         "cloud-path" => null,
-        "cloud-language" => null
+        "cloud-language" => null,
+        "server-timeout" => null,
+        "auth-key" => null,
     ];
 
     private static function serverProperties(): Config {
@@ -37,40 +39,48 @@ final class CloudEnvironmentConfig {
         return self::$data[$variable] = $config->get($variable);
     }
 
-    public static function fetchVariable(string $variable): mixed {
-        if (!isset(self::$data[$variable])) throw new RuntimeException("Variable '" . $variable . "' not found");
-        return self::$data[$variable];
+    public static function fetchVariable(string $variable, bool $canReturnNull = true): mixed {
+        if (!isset(self::$data[$variable])) throw new RuntimeException("Variable '" . $variable . "' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::$data[$variable] ?? ($canReturnNull ? null : throw new RuntimeException());
     }
 
     public static function getNetworkAddress(): string {
-        return self::fetchVariable("cloud-address") ?? throw new RuntimeException("Variable 'cloud-address' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("cloud-address", false);
     }
     
     public static function getNetworkPort(): int {
-        return self::fetchVariable("cloud-port") ?? throw new RuntimeException("Variable 'cloud-port' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("cloud-port", false);
     }
 
     public static function getServerName(): string {
-        return self::fetchVariable("server-name") ?? throw new RuntimeException("Variable 'server-name' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("server-name", false);
     }
 
     public static function getServerUuid(): string {
-        return self::fetchVariable("server-uuid") ?? throw new RuntimeException("Variable 'server-uuid' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("server-uuid", false);
     }
 
     public static function getTemplateName(): string {
-        return self::fetchVariable("template") ?? throw new RuntimeException("Variable 'template' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("template", false);
     }
 
     public static function getCloudPath(): string {
-        return self::fetchVariable("cloud-path") ?? throw new RuntimeException("Variable 'cloud-path' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("cloud-path", false);
     }
 
     public static function getLanguage(): string {
-        return self::fetchVariable("cloud-language") ?? throw new RuntimeException("Variable 'cloud-language' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("cloud-language", false);
     }
 
     public static function isNetworkEncryptionEnabled(): bool {
-        return self::fetchVariable("network-encryption") ?? throw new RuntimeException("Variable 'network-encryption' should not be null, therefore CloudEnvironmentConfig didn't sync yet");
+        return self::fetchVariable("network-encryption", false);
+    }
+
+    public static function getServerTimeout(): int {
+        return self::fetchVariable("server-timeout", false);
+    }
+
+    public static function getNetworkAuthKey(): string {
+        return self::fetchVariable("auth-key", false);
     }
 }

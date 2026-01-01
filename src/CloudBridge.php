@@ -2,8 +2,10 @@
 
 namespace pocketcloud\cloud\bridge;
 
+use pocketcloud\cloud\bridge\api\CloudAPI;
 use pocketcloud\cloud\bridge\network\Network;
-use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\net\Address;
@@ -16,6 +18,7 @@ use pocketmine\utils\SingletonTrait;
 final class CloudBridge extends PluginBase {
     use SingletonTrait;
 
+    private int $lastAliveCheck = 0;
     private Network $network;
 
     protected function onLoad(): void {
@@ -30,15 +33,12 @@ final class CloudBridge extends PluginBase {
         $this->network->start();
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
 
-        ServerHandshakeRequestPacket::makeRequest(CloudEnvironmentConfig::getServerName(), getmypid(), $this->getServer()->getMaxPlayers())
-            ->failure(fn() => $this->getLogger()->warning("WHAT THE FUCK?!"));
-
-        ServerHandshakeRequestPacket::makeRequest(CloudEnvironmentConfig::getServerName(), getmypid(), $this->getServer()->getMaxPlayers())
-            ->failure(fn() => $this->getLogger()->warning("WHAT THE FUCK?!"));
+        CloudAPI::get()->requestLogin();
     }
 
     protected function onDisable(): void {
-
+        $this->network->sendPacket(DisconnectPacket::create(ServerDisconnectReason::SERVER_SHUTDOWN));
+        $this->network->close();
     }
 
     public function registerPermission(string... $permissions): void {
@@ -48,6 +48,18 @@ final class CloudBridge extends PluginBase {
                 DefaultPermissions::registerPermission(new Permission($permission), [$operator]);
             }
         }
+    }
+
+    public function setLastAliveCheck(int $lastAliveCheck): void {
+        $this->lastAliveCheck = $lastAliveCheck;
+    }
+
+    public function getLastAliveCheck(): int {
+        return $this->lastAliveCheck;
+    }
+
+    public function getNetwork(): Network {
+        return $this->network;
     }
 
     public static function getInstance(): self {
