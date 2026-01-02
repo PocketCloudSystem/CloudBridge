@@ -48,6 +48,7 @@ final class Network extends Thread {
         $this->handlerEntry = Server::getInstance()->getTickSleeper()->addNotifier(function (): void {
             /** @var UnhandledPacket $unhandledPacket */
             while (($unhandledPacket = $this->buffer->shift()) !== null) {
+                if (!$this->connected) return;
                 TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, $bytes = $unhandledPacket->getBytes(), TrafficMonitor::REGULAR_MODE_IN);
                 TrafficMonitorManager::getInstance()->callHandlers(
                     TrafficMonitorManager::TRAFFIC_NETWORK,

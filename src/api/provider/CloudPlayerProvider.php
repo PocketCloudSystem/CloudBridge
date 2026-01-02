@@ -3,7 +3,6 @@
 namespace pocketcloud\cloud\bridge\api\provider;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
-use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 
 final class CloudPlayerProvider implements CloudAPIProvider {
     use CloudAPIGetProviderTrait;
@@ -12,7 +11,8 @@ final class CloudPlayerProvider implements CloudAPIProvider {
     private array $players = [];
 
     public function add(CloudPlayer $player): void {
-        $this->players[$player->getName()] = $player;
+        if ($this->isset($player)) $this->players[$player->getName()]->sync($player->write());
+        else $this->players[$player->getName()] = $player;
     }
 
     public function remove(CloudPlayer $player): void {
@@ -26,10 +26,6 @@ final class CloudPlayerProvider implements CloudAPIProvider {
 
     public function get(string $name): ?CloudPlayer {
         return $this->players[$name] ?? null;
-    }
-
-    public function current(): CloudPlayer {
-        return $this->get(CloudEnvironmentConfig::getServerName());
     }
 
     public function getAll(): array {

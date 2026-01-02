@@ -1,13 +1,14 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\server;
+namespace pocketcloud\cloud\bridge\api\object\server;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
+use pocketcloud\cloud\bridge\api\object\server\util\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
-use pocketcloud\cloud\bridge\server\data\CloudServerData;
-use pocketcloud\cloud\bridge\server\data\CloudServerStorage;
+use pocketcloud\cloud\bridge\api\object\server\data\CloudServerData;
+use pocketcloud\cloud\bridge\api\object\server\data\CloudServerStorage;
 use pocketcloud\cloud\bridge\util\Utils;
 
 final class CloudServer {

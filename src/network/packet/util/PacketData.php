@@ -4,12 +4,17 @@ namespace pocketcloud\cloud\bridge\network\packet\util;
 
 use JsonSerializable;
 use OutOfBoundsException;
+use pocketcloud\cloud\bridge\api\object\group\ServerGroup;
+use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
+use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\network\packet\data\LogType;
 use pocketcloud\cloud\bridge\network\packet\data\ServerCommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\data\ServerErrorReason;
 use pocketcloud\cloud\bridge\network\packet\data\TextType;
 use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
+use pocketcloud\cloud\bridge\api\object\server\util\ServerStatus;
 
 final class PacketData implements JsonSerializable {
 
@@ -133,6 +138,22 @@ final class PacketData implements JsonSerializable {
         $read = $this->read();
         if (is_array($read)) return $read;
         return null;
+    }
+
+    public function readTemplate(): ?Template {
+        return Template::read($this->readArray());
+    }
+
+    public function readServer(): ?CloudServer {
+        return CloudServer::read($this->readArray());
+    }
+
+    public function readServerGroup(): ?CloudServer {
+        return CloudServer::read($this->readArray());
+    }
+
+    public function readPlayer(): ?CloudPlayer {
+        return CloudPlayer::read($this->readArray());
     }
 
     public function readServerCommandExecutionResult(): ?ServerCommandExecutionResult {

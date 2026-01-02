@@ -13,7 +13,8 @@ final class ServerGroupProvider implements CloudAPIProvider {
     private array $serverGroups = [];
 
     public function add(ServerGroup $serverGroup): void {
-        $this->serverGroups[$serverGroup->getName()] = $serverGroup;
+        if ($this->isset($serverGroup)) $this->serverGroups[$serverGroup->getName()]->sync($serverGroup->write());
+        else $this->serverGroups[$serverGroup->getName()] = $serverGroup;
     }
 
     public function remove(ServerGroup $serverGroup): void {
@@ -31,7 +32,7 @@ final class ServerGroupProvider implements CloudAPIProvider {
         return array_find($this->serverGroups, fn(ServerGroup $group) => $group->is($name));
     }
 
-    public function current(): ServerGroup {
+    public function current(): ?ServerGroup {
         return $this->get(CloudEnvironmentConfig::getTemplateName());
     }
 

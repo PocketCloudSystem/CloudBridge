@@ -2,8 +2,9 @@
 
 namespace pocketcloud\cloud\bridge\api\provider;
 
-use pocketcloud\cloud\bridge\server\CloudServer;
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
+use RuntimeException;
 
 final class CloudServerProvider implements CloudAPIProvider {
     use CloudAPIGetProviderTrait;
@@ -12,7 +13,8 @@ final class CloudServerProvider implements CloudAPIProvider {
     private array $servers = [];
 
     public function add(CloudServer $server): void {
-        $this->servers[$server->getName()] = $server;
+        if ($this->isset($server)) $this->servers[$server->getName()]->sync($server->write());
+        else $this->servers[$server->getName()] = $server;
     }
 
     public function remove(CloudServer $server): void {
@@ -29,7 +31,7 @@ final class CloudServerProvider implements CloudAPIProvider {
     }
 
     public function current(): CloudServer {
-        return $this->get(CloudEnvironmentConfig::getServerName());
+        return $this->get(CloudEnvironmentConfig::getServerName()) ?? throw new RuntimeException("The return value of current() should not be null, wait for CloudAPI to index");
     }
 
     public function getAll(): array {

@@ -3,7 +3,7 @@
 namespace pocketcloud\cloud\bridge\api\object\player;
 
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
-use pocketcloud\cloud\bridge\server\CloudServer;
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\util\Utils;
 
 final class CloudPlayer {

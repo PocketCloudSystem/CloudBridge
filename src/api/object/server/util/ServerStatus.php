@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\server;
+namespace pocketcloud\cloud\bridge\api\object\server\util;
 
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;
 

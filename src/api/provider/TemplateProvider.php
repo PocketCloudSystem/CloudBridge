@@ -4,6 +4,7 @@ namespace pocketcloud\cloud\bridge\api\provider;
 
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
+use RuntimeException;
 
 final class TemplateProvider implements CloudAPIProvider {
     use CloudAPIGetProviderTrait;
@@ -12,7 +13,8 @@ final class TemplateProvider implements CloudAPIProvider {
     private array $templates = [];
 
     public function add(Template $template): void {
-        $this->templates[$template->getName()] = $template;
+        if ($this->isset($template)) $this->templates[$template->getName()]->sync($template->write());
+        else $this->templates[$template->getName()] = $template;
     }
 
     public function remove(Template $template): void {
@@ -29,7 +31,7 @@ final class TemplateProvider implements CloudAPIProvider {
     }
 
     public function current(): Template {
-        return $this->get(CloudEnvironmentConfig::getTemplateName());
+        return $this->get(CloudEnvironmentConfig::getTemplateName()) ?? throw new RuntimeException("The return value of current() should not be null, wait for CloudAPI to index");
     }
 
     public function getAll(): array {

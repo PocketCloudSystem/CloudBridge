@@ -1,9 +1,9 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\server\data;
+namespace pocketcloud\cloud\bridge\api\object\server\data;
 
 use LogicException;
-use pocketcloud\cloud\bridge\server\CloudServer;
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 
 final class CloudServerStorage {

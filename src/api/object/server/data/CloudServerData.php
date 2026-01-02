@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\server\data;
+namespace pocketcloud\cloud\bridge\api\object\server\data;
 
 final readonly class CloudServerData {
 
