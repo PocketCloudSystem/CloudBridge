@@ -3,28 +3,39 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl;
 
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
+use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
+use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
-final class CloudNotificationPacket extends CloudPacket implements ClientboundPacket {
+final class CloudNotificationPacket extends CloudPacket implements ClientboundPacket, CloudboundPacket {
 
-    public function __construct(private string $message = "") {}
+    public function __construct(
+        private ?NotificationType $notificationType = null,
+        private array $args = []
+    ) {}
 
     public function handle(): void {
-
+        $message = $this->notificationType->getLangKey()->translate($this->args);
     }
 
-    public function encodePayload(PacketData $packetData): void {}
+    public function encodePayload(PacketData $packetData): void {
+        $packetData->writeAll($this->notificationType, $this->args);
+    }
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAll($this->message);
+        $packetData->readAllTypeSafe([&$this->notificationType, &$this->args], [fn() => $packetData->readNotificationType(), fn() => $packetData->readArray()]);
     }
 
-    public function getMessage(): string {
-        return $this->message;
+    public function getNotificationType(): ?NotificationType {
+        return $this->notificationType;
     }
 
-    public static function create(string $message): self {
-        return new self($message);
+    public function getArgs(): array {
+        return $this->args;
+    }
+
+    public static function create(NotificationType $notificationType, array $args): self {
+        return new self($notificationType, $args);
     }
 }

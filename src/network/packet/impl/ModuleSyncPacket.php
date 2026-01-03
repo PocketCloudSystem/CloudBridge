@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl;
 
+use pocketcloud\cloud\bridge\api\cache\InGameModuleCache;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
@@ -10,7 +11,11 @@ final class ModuleSyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function __construct(private array $data = []) {}
 
-    public function handle(): void {}
+    public function handle(): void {
+        foreach ($this->data as $module => $enabled) {
+            InGameModuleCache::setModuleState($module, $enabled);
+        }
+    }
 
     public function encodePayload(PacketData $packetData): void {}
 

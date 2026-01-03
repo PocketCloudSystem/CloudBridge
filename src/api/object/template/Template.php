@@ -4,9 +4,10 @@ namespace pocketcloud\cloud\bridge\api\object\template;
 
 use pocketcloud\cloud\bridge\api\object\group\ServerGroup;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
+use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
 
-final class Template {
+final class Template implements Writeable {
 
     public function __construct(
         private readonly string $name,

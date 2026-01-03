@@ -46,6 +46,8 @@ final class CloudAPI {
             $status = $packet->getVerifyStatus();
             $this->verifyStatus = $status;
             if ($status === VerifyStatus::VERIFIED) {
+                CloudBridge::getInstance()->setLastAliveCheck(time());
+                CloudBridge::getInstance()->startTasks();
                 CloudBridge::getInstance()->getLogger()->info(Language::current()->translate("inGame.server.verified"));
                 KeepAlivePacket::create()->sendPacket(); # Start keep-alive cycle
             } else {
@@ -60,6 +62,10 @@ final class CloudAPI {
 
     public function registerProvider(CloudAPIProvider $provider): void {
         $this->providers[$provider::class] = $provider;
+    }
+
+    public function getVerifyStatus(): VerifyStatus {
+        return $this->verifyStatus;
     }
 
     /**

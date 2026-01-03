@@ -23,11 +23,11 @@ final class Language {
         private readonly array $messages = []
     ) {}
 
-    public function translate(string $key, mixed ...$params): string {
+    public function translate(string $key, array $args = []): string {
         $message = str_replace("{PREFIX}", $this->messages["inGame.prefix"] ?? "", $this->messages[$key] ?? $key);
-        foreach ($params as $i => $param) {
+        foreach ($args as $i => $arg) {
             try {
-                $message = str_replace("%" . $i . "%", $param, $message);
+                $message = str_replace("%" . $i . "%", $arg, $message);
             } catch (Throwable $exception) {
                 CloudBridge::getInstance()->getLogger()->logException($exception);
             }

@@ -3,10 +3,13 @@
 namespace pocketcloud\cloud\bridge;
 
 use pocketcloud\cloud\bridge\api\CloudAPI;
+use pocketcloud\cloud\bridge\listener\EventListener;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;
+use pocketcloud\cloud\bridge\task\ServerTimeoutTask;
+use pocketcloud\cloud\bridge\task\StatusChangeTask;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\net\Address;
 use pocketmine\permission\DefaultPermissions;
@@ -34,9 +37,16 @@ final class CloudBridge extends PluginBase {
     protected function onEnable(): void {
         $this->network->init();
         $this->network->start();
+
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
+        $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 
         $this->cloudAPI->requestLogin();
+    }
+
+    public function startTasks(): void {
+        $this->getScheduler()->scheduleRepeatingTask(new ServerTimeoutTask(), 20);
+        $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
     }
 
     protected function onDisable(): void {

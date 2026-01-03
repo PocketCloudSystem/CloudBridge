@@ -2,9 +2,10 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\data;
 
+use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
 
-readonly final class ServerCommandExecutionResult {
+readonly final class ServerCommandExecutionResult implements Writeable {
 
     public function __construct(
         private string $id,

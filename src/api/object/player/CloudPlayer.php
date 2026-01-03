@@ -4,9 +4,11 @@ namespace pocketcloud\cloud\bridge\api\object\player;
 
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
+use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
+use pocketmine\player\Player;
 
-final class CloudPlayer {
+final class CloudPlayer implements Writeable {
 
     public function __construct(
         private readonly string $name,
@@ -37,6 +39,16 @@ final class CloudPlayer {
 
     public function getUniqueId(): string {
         return $this->uniqueId;
+    }
+
+    public function setCurrentServer(CloudServer|string|null $currentServer): void {
+        $currentServer = ($currentServer instanceof CloudServer ? $currentServer->getName() : (is_string($currentServer) ? $currentServer : null));
+        $this->currentServer = $currentServer;
+    }
+
+    public function setCurrentProxy(CloudServer|string|null $currentProxy): void {
+        $currentProxy = ($currentProxy instanceof CloudServer ? $currentProxy->getName() : (is_string($currentProxy) ? $currentProxy : null));
+        $this->currentProxy = $currentProxy;
     }
 
     public function getCurrentServer(): ?CloudServer {
@@ -75,6 +87,16 @@ final class CloudPlayer {
             $data["uniqueId"],
             $data["currentServer"] ?? null,
             $data["currentProxy"] ?? null
+        );
+    }
+
+    public static function fromPlayer(Player $player): self {
+        return new self(
+            $player->getName(),
+            $player->getNetworkSession()->getIp(),
+            $player->getXuid(),
+            $player->getUniqueId()->toString(),
+            null, null
         );
     }
 }

@@ -19,8 +19,7 @@ abstract class CloudPacket implements Packet {
     public function encode(PacketData $packetData): void {
         if ($this->encoded) throw new RuntimeException("Packet " . $this->getName() . " has already been encoded");
         $this->encoded = true;
-        $packetData->write($this->getName())
-            ->write($this->sentTimestamp = microtime(true));
+        $packetData->writeAll($this->getName(), $this->sentTimestamp = microtime(true));
         $this->encodePayload($packetData);
     }
 

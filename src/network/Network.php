@@ -110,6 +110,7 @@ final class Network extends Thread {
 
             if (socket_select($read, $write, $except, 0, 50 * 1000) > 0) {
                 if ($this->read($bytes, $buffer, $address, $port)) {
+                    if ($this->isKilled || !$this->connected) break;
                     $this->buffer[] = new UnhandledPacket($buffer, Address::create($address, $port), $bytes);
                     $this->handlerEntry->createNotifier()->wakeupSleeper();
                 }
@@ -164,8 +165,15 @@ final class Network extends Thread {
         return true;
     }
 
+    public function quit(): void {
+        parent::quit();
+        $this->buffer = new ThreadSafeArray();
+    }
+
     public function close(): void {
         if (!$this->connected) return;
+        $this->buffer = new ThreadSafeArray();
+        Server::getInstance()->getTickSleeper()->removeNotifier($this->handlerEntry->getNotifierId());
         @socket_close($this->socket);
         $this->connected = false;
         new NetworkCloseEvent()->call();

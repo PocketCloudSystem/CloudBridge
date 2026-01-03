@@ -9,9 +9,10 @@ use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\api\object\server\data\CloudServerData;
 use pocketcloud\cloud\bridge\api\object\server\data\CloudServerStorage;
+use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
 
-final class CloudServer {
+final class CloudServer implements Writeable {
 
     private CloudServerStorage $serverStorage;
 
