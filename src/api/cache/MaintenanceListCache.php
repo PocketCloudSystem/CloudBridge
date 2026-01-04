@@ -8,11 +8,11 @@ final class MaintenanceListCache {
 
     /** @internal  */
     public static function sync(array $maintenanceList): void {
-        foreach ($maintenanceList as $player) self::$maintenanceList[$player] = true;
+        foreach ($maintenanceList as $player) self::$maintenanceList[$player] = $player;
     }
 
     public static function add(string $player): void {
-        self::$maintenanceList[$player] = true;
+        self::$maintenanceList[$player] = $player;
     }
 
     public static function remove(string $player): void {
@@ -20,10 +20,10 @@ final class MaintenanceListCache {
     }
 
     public static function is(string $player): bool {
-        return self::$maintenanceList[$player] ?? false;
+        return isset(self::$maintenanceList[$player]);
     }
 
     public static function getAll(): array {
-        return array_keys(self::$maintenanceList);
+        return array_values(self::$maintenanceList);
     }
 }
