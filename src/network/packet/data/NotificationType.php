@@ -20,6 +20,7 @@ enum NotificationType implements Writeable {
     case PLAYER_LEFT;
     case PLAYER_JOIN_FAILED;
     case PLAYER_KICKED;
+    case PLAYER_SWITCHED_SERVER;
 
     public function notify(array $args): bool {
         return CloudNotificationPacket::create($this, $args)->sendPacket();
@@ -41,6 +42,7 @@ enum NotificationType implements Writeable {
             self::PLAYER_LEFT => LanguageKey::INGAME_NOTIFY_MESSAGE_PLAYER_LEFT(),
             self::PLAYER_JOIN_FAILED => LanguageKey::INGAME_NOTIFY_MESSAGE_PLAYER_JOIN_FAILED(),
             self::PLAYER_KICKED => LanguageKey::INGAME_NOTIFY_MESSAGE_PLAYER_KICKED(),
+            self::PLAYER_SWITCHED_SERVER => LanguageKey::INGAME_NOTIFY_MESSAGE_PLAYER_SWITCHED_SERVER()
         };
     }
 

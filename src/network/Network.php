@@ -46,10 +46,10 @@ final class Network extends Thread {
         PacketPool::init();
 
         $this->handlerEntry = Server::getInstance()->getTickSleeper()->addNotifier(function (): void {
-            /** @var UnhandledPacket $unhandledPacket */
             while (($unhandledPacketData = $this->buffer->shift()) !== null) {
                 if (!$this->connected) return;
-                [, , , $unhandledPacket] = $unhandledPacketData;
+                [$address, $port, $buffer, $bytes] = $unhandledPacketData;
+                $unhandledPacket = new UnhandledPacket($buffer, Address::create($address, $port), $bytes);
                 TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, $bytes = $unhandledPacket->getBytes(), TrafficMonitor::REGULAR_MODE_IN);
                 TrafficMonitorManager::getInstance()->callHandlers(
                     TrafficMonitorManager::TRAFFIC_NETWORK,
@@ -112,8 +112,7 @@ final class Network extends Thread {
             if (socket_select($read, $write, $except, 0, 50 * 1000) > 0) {
                 if ($this->read($bytes, $buffer, $address, $port)) {
                     if ($this->isKilled || !$this->connected) break;
-                    $address = Address::create($address, $port);
-                    $this->buffer[] = ThreadSafeArray::fromArray([$address, $buffer, $bytes, new UnhandledPacket($buffer, $address, $bytes)]);
+                    $this->buffer[] = ThreadSafeArray::fromArray([$address, $port, $buffer, $bytes]);
                     $this->handlerEntry->createNotifier()->wakeupSleeper();
                 }
             }

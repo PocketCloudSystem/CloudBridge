@@ -12,10 +12,12 @@ use pocketcloud\cloud\bridge\task\ServerTimeoutTask;
 use pocketcloud\cloud\bridge\task\StatusChangeTask;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\net\Address;
+use pocketcloud\cloud\bridge\util\ProcessUtils;
 use pocketmine\permission\DefaultPermissions;
 use pocketmine\permission\Permission;
 use pocketmine\permission\PermissionManager;
 use pocketmine\plugin\PluginBase;
+use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
 
@@ -41,12 +43,16 @@ final class CloudBridge extends PluginBase {
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
 
+        ProcessUtils::getCpuUsage();
         $this->cloudAPI->requestLogin();
     }
 
     public function startTasks(): void {
         $this->getScheduler()->scheduleRepeatingTask(new ServerTimeoutTask(), 20);
         $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
+        $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
+            ProcessUtils::getCpuUsage();
+        }), 40, 40);
     }
 
     protected function onDisable(): void {

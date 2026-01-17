@@ -29,6 +29,7 @@ final class DefaultMessageKeys {
         "inGame.notify.message.player_left",
         "inGame.notify.message.player_join_failed",
         "inGame.notify.message.player_kicked",
+        "inGame.notify.message.player_switched_server",
         "inGame.server.verified",
         "inGame.server.verify.denied",
         "inGame.server.verify.failed",

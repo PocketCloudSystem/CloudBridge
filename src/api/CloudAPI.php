@@ -49,7 +49,7 @@ final class CloudAPI {
                 CloudBridge::getInstance()->setLastAliveCheck(time());
                 CloudBridge::getInstance()->startTasks();
                 CloudBridge::getInstance()->getLogger()->info(Language::current()->translate("inGame.server.verified"));
-                KeepAlivePacket::create()->sendPacket(); # Start keep-alive cycle
+                CloudBridge::getInstance()->getLogger()->info(KeepAlivePacket::create()->sendPacket() ? "sent first alive packet" : "didn't send first alive packet"); # Start keep-alive cycle
             } else {
                 CloudBridge::getInstance()->getLogger()->emergency("Cloud responded with verification status '" . $status->getName() . "', shutting down this instance...");
                 Server::getInstance()->shutdown();
