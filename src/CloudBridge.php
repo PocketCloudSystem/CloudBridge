@@ -3,6 +3,7 @@
 namespace pocketcloud\cloud\bridge;
 
 use pocketcloud\cloud\bridge\api\CloudAPI;
+use pocketcloud\cloud\bridge\command\CloudNotifyCommand;
 use pocketcloud\cloud\bridge\listener\EventListener;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
@@ -42,9 +43,16 @@ final class CloudBridge extends PluginBase {
 
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
+        $this->registerPermission("pocketcloud.command.notify");
 
         ProcessUtils::getCpuUsage();
         $this->cloudAPI->requestLogin();
+    }
+
+    public function registerCommands(): void {
+        $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
+            new CloudNotifyCommand()
+        ]);
     }
 
     public function startTasks(): void {
@@ -53,6 +61,11 @@ final class CloudBridge extends PluginBase {
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
             ProcessUtils::getCpuUsage();
         }), 40, 40);
+
+        $start = microtime(true);
+        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($start): void {
+            var_dump(round(microtime(true) - $start, 3));
+        }), 1);
     }
 
     protected function onDisable(): void {

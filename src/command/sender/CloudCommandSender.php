@@ -26,7 +26,7 @@ final class CloudCommandSender extends ConsoleCommandSender {
     }
 
     public function getName(): string {
-        return "Cloud-" . $this->id;
+        return "Cloud";
     }
 
     public function getCachedMessages(): array {
