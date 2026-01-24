@@ -45,7 +45,11 @@ final class CloudBridge extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->registerPermission("pocketcloud.command.notify");
 
-        ProcessUtils::getCpuUsage();
+        ProcessUtils::startCpuRetrieveCycle();
+        $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
+            ProcessUtils::restartCpuRetrieveCycle();
+        }), 40, 40);
+
         $this->cloudAPI->requestLogin();
     }
 
@@ -58,14 +62,6 @@ final class CloudBridge extends PluginBase {
     public function startTasks(): void {
         $this->getScheduler()->scheduleRepeatingTask(new ServerTimeoutTask(), 20);
         $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
-        $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
-            ProcessUtils::getCpuUsage();
-        }), 40, 40);
-
-        $start = microtime(true);
-        $this->getScheduler()->scheduleDelayedTask(new ClosureTask(function () use($start): void {
-            var_dump(round(microtime(true) - $start, 3));
-        }), 1);
     }
 
     protected function onDisable(): void {
