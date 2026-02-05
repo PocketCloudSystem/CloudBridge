@@ -88,6 +88,7 @@ final class EventListener implements Listener {
         if ($event->getPlayer()->spawned) {
             NotificationType::PLAYER_KICKED->notify([
                 "player" => $event->getPlayer()->getName(),
+                "server" => CloudEnvironmentConfig::getServerName(),
                 "reason" => $finalReason
             ]);
         } else {
