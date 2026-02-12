@@ -9,8 +9,10 @@ use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerDisconnectPacket;
+use pocketcloud\cloud\bridge\player\PlayerSessionManager;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketmine\event\Listener;
+use pocketmine\event\player\PlayerJoinEvent;
 use pocketmine\event\player\PlayerKickEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerPreLoginEvent;
@@ -65,6 +67,15 @@ final class EventListener implements Listener {
         }
 
         PlayerConnectPacket::create(CloudPlayer::fromPlayer($event->getPlayer()))->sendPacket();
+    }
+
+    /**
+     * @priority HIGHEST
+     * @param PlayerJoinEvent $event
+     * @return void
+     */
+    public function onJoin(PlayerJoinEvent $event): void {
+        PlayerSessionManager::getInstance()->create($event->getPlayer());
     }
 
     /**

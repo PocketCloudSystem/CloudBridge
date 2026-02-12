@@ -3,15 +3,19 @@
 namespace pocketcloud\cloud\bridge;
 
 use pocketcloud\cloud\bridge\api\CloudAPI;
+use pocketcloud\cloud\bridge\command\CloudCommand;
 use pocketcloud\cloud\bridge\command\CloudNotifyCommand;
 use pocketcloud\cloud\bridge\listener\EventListener;
+use pocketcloud\cloud\bridge\module\ModuleManager;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
+use pocketcloud\cloud\bridge\player\PlayerSessionManager;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;
 use pocketcloud\cloud\bridge\task\ServerTimeoutTask;
 use pocketcloud\cloud\bridge\task\StatusChangeTask;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
+use pocketcloud\cloud\bridge\util\loader\LibraryClassLoader;
 use pocketcloud\cloud\bridge\util\net\Address;
 use pocketcloud\cloud\bridge\util\ProcessUtils;
 use pocketmine\permission\DefaultPermissions;
@@ -26,11 +30,14 @@ final class CloudBridge extends PluginBase {
     use SingletonTrait;
 
     private int $lastAliveCheck = 0;
+
+    private LibraryClassLoader $libraryClassLoader;
     private CloudAPI $cloudAPI;
     private Network $network;
 
     protected function onLoad(): void {
         self::setInstance($this);
+        $this->libraryClassLoader = new LibraryClassLoader();
         CloudEnvironmentConfig::sync();
 
         $this->cloudAPI = new CloudAPI();
@@ -38,24 +45,31 @@ final class CloudBridge extends PluginBase {
     }
 
     protected function onEnable(): void {
+        $this->libraryClassLoader->init();
         $this->network->init();
         $this->network->start();
 
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
-        $this->registerPermission("pocketcloud.command.notify");
+        $this->registerPermission("pocketcloud.command.notify", "pocketcloud.command.cloud");
 
         ProcessUtils::startCpuRetrieveCycle();
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
             ProcessUtils::restartCpuRetrieveCycle();
         }), 40, 40);
 
+        $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (): void {
+            PlayerSessionManager::getInstance()->tick();
+            ModuleManager::getInstance()->tick();
+        }), 1);
+
         $this->cloudAPI->requestLogin();
     }
 
     public function registerCommands(): void {
         $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
-            new CloudNotifyCommand()
+            new CloudNotifyCommand(),
+            new CloudCommand()
         ]);
     }
 
@@ -86,6 +100,10 @@ final class CloudBridge extends PluginBase {
 
     public function getLastAliveCheck(): int {
         return $this->lastAliveCheck;
+    }
+
+    public function getLibraryClassLoader(): LibraryClassLoader {
+        return $this->libraryClassLoader;
     }
 
     public function getNetwork(): Network {

@@ -52,7 +52,7 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     }
 
     /**
-     * @param Closure $closure (function (ResponsePacket $packet, mixed $initialValue): mixed {})
+     * @param Closure(ResponsePacket $packet, mixed $initialValue): mixed $closure
      * @return $this
      */
     public function then(Closure $closure): self {
@@ -61,7 +61,7 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     }
 
     /**
-     * @param Closure $closure (function (RequestPacket $packet, ?Throwable $exception, ): mixed {})
+     * @param Closure(RequestPacket $packet, ?Throwable $exception, ?RequestPacketFailureReason $failureReason): mixed $closure
      * @return $this
      */
     public function failure(Closure $closure): self {

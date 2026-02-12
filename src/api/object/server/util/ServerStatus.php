@@ -21,4 +21,28 @@ enum ServerStatus: string {
     public function getDisplay(): string {
         return $this->value;
     }
+
+    public function isStarting(): bool {
+        return $this === self::STARTING;
+    }
+
+    public function isOnline(bool $literal = false): bool {
+        return $this === self::ONLINE || (!$literal && ($this === self::FULL || $this === self::IN_GAME));
+    }
+
+    public function isFull(): bool {
+        return $this === self::FULL;
+    }
+
+    public function isInGame(): bool {
+        return $this === self::IN_GAME;
+    }
+
+    public function isStopping(): bool {
+        return $this === self::STOPPING;
+    }
+
+    public function isOffline(): bool {
+        return $this === self::OFFLINE;
+    }
 }

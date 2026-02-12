@@ -4,6 +4,7 @@ namespace pocketcloud\cloud\bridge\api\object\server\data;
 
 use LogicException;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
+use pocketcloud\cloud\bridge\network\packet\impl\CloudSyncServerStoragePacket;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 
 final class CloudServerStorage {
@@ -20,7 +21,7 @@ final class CloudServerStorage {
 
     private function outgoingSync(): void {
         if ($this->server->getName() !== CloudEnvironmentConfig::getServerName()) throw new LogicException("You are not allowed to edit other servers server storage");
-        //TODO: CloudSyncStoragesPacket::create()->broadcastPacket();
+        CloudSyncServerStoragePacket::create($this->storage)->sendPacket();
     }
 
     public function set(string $k, mixed $v): self {

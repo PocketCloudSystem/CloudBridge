@@ -4,6 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet;
 
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudNotificationPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\CloudSyncServerStoragePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CommandAnswerPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CommandExecutePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
@@ -15,6 +16,7 @@ use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerDisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerKickPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerUpdateNotificationStatePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\ProxyPlayerTransferPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\PlayerNotificationCheckRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\PlayerWhitelistCheckRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
@@ -24,6 +26,7 @@ use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeRespons
 use pocketcloud\cloud\bridge\network\packet\impl\LibrarySyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ModuleSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerSyncPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\ServerChangeStatusPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerGroupSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\TemplateSyncPacket;
@@ -67,6 +70,9 @@ final class PacketPool {
         $this->register(PlayerUpdateNotificationStatePacket::class);
         $this->register(MaintenanceListSyncPacket::class);
         $this->register(NotificationListSyncPacket::class);
+        $this->register(ServerChangeStatusPacket::class);
+        $this->register(CloudSyncServerStoragePacket::class);
+        $this->register(ProxyPlayerTransferPacket::class);
     }
 
     public function register(string $packetClass): void {

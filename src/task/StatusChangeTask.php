@@ -13,10 +13,10 @@ final class StatusChangeTask extends Task {
     public function onRun(): void {
         if (CloudServerProvider::provider()->current()->getServerStatus() === ServerStatus::IN_GAME || CloudServerProvider::provider()->current()?->getServerStatus() === ServerStatus::STOPPING) return;
         if (count(Server::getInstance()->getOnlinePlayers()) >= (TemplateProvider::provider()->current()->getMaxPlayerCount() ?? Server::getInstance()->getMaxPlayers())) {
-            //TODO: CloudAPI::get()->changeStatus(ServerStatus::FULL);
+            CloudServerProvider::provider()->current()->setServerStatus(ServerStatus::FULL);
         } else {
             if (CloudServerProvider::provider()->current()->getServerStatus() === ServerStatus::FULL) {
-                //TODO: CloudAPI::get()->changeStatus(ServerStatus::ONLINE);
+                CloudServerProvider::provider()->current()->setServerStatus(ServerStatus::ONLINE);
             }
         }
     }

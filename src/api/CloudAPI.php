@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\api;
 
+use Closure;
 use pocketcloud\cloud\bridge\api\provider\CloudAPIProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
@@ -13,9 +14,12 @@ use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeResponsePacket;
+use pocketcloud\cloud\bridge\network\packet\RequestPacket;
+use pocketcloud\cloud\bridge\network\packet\RequestPacketFailureReason;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use Throwable;
 
 /**
  * @template T of CloudAPIProvider
@@ -58,8 +62,14 @@ final class CloudAPI {
                 CloudBridge::getInstance()->getLogger()->emergency("Cloud responded with verification status '" . $status->getName() . "', shutting down this instance...");
                 Server::getInstance()->shutdown();
             }
-        })->failure(function (): void {
-            CloudBridge::getInstance()->getLogger()->emergency("Cloud did not respond on ServerHandshakeRequestPacket, shutting down this instance...");
+        })->failure(function (RequestPacket $packet, ?Throwable $exception, ?RequestPacketFailureReason $failureReason): void {
+            if ($exception !== null) {
+                CloudBridge::getInstance()->getLogger()->error("An error occurred while handling the ServerHandshakeResponsePacket (" . ($failureReason?->name ?? "Unknown failure reason") . "), shutting down this instance...");
+                CloudBridge::getInstance()->getLogger()->logException($exception);
+            } else {
+                CloudBridge::getInstance()->getLogger()->emergency("Cloud did not respond on ServerHandshakeRequestPacket, shutting down this instance...");
+            }
+
             Server::getInstance()->shutdown();
         });
     }

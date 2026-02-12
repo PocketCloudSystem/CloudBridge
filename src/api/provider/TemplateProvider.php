@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\api\provider;
 
+use Closure;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use RuntimeException;
@@ -32,6 +33,10 @@ final class TemplateProvider implements CloudAPIProvider {
 
     public function current(): Template {
         return $this->get(CloudEnvironmentConfig::getTemplateName()) ?? throw new RuntimeException("The return value of current() should not be null, wait for CloudAPI to index");
+    }
+
+    public function pick(Closure $filter): array {
+        return array_filter($this->templates, $filter);
     }
 
     public function getAll(): array {

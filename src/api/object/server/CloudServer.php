@@ -9,6 +9,7 @@ use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\api\object\server\data\CloudServerData;
 use pocketcloud\cloud\bridge\api\object\server\data\CloudServerStorage;
+use pocketcloud\cloud\bridge\network\packet\impl\ServerChangeStatusPacket;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
 
@@ -33,8 +34,9 @@ final class CloudServer implements Writeable {
         if (isset($data["internalStorage"])) $this->serverStorage->sync($data["internalStorage"]);
     }
 
-    public function setServerStatus(ServerStatus $serverStatus): void {
+    public function setServerStatus(ServerStatus $serverStatus): bool {
         $this->serverStatus = $serverStatus;
+        return ServerChangeStatusPacket::create($this->serverUuid, $serverStatus)->sendPacket();
     }
 
     public function getPlayer(string $name): ?CloudPlayer {
@@ -49,7 +51,7 @@ final class CloudServer implements Writeable {
         return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxyName() == $this->getName() || $player->getCurrentServerName() == $this->getName());
     }
 
-    public function getCloudPlayerCount(): int {
+    public function getPlayerCount(): int {
         return count($this->getPlayers());
     }
 
