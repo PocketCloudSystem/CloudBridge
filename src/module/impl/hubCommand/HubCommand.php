@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\module\imp\hubCommand;
+namespace pocketcloud\cloud\bridge\module\impl\hubCommand;
 
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;

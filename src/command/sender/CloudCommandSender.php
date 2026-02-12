@@ -18,7 +18,11 @@ final class CloudCommandSender extends ConsoleCommandSender {
     public function sendMessage(Translatable|string $message): void {
         parent::sendMessage($message);
         if ($message instanceof Translatable) $message = $this->getLanguage()->translate($message);
-        $this->cachedMessages[] = $message;
+
+        foreach (explode("\n", trim($message)) as $line) {
+            $this->cachedMessages[] = $line;
+            Server::getInstance()->getLogger()->info($line);
+        }
     }
 
     public function getId(): string {

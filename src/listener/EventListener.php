@@ -45,7 +45,7 @@ final class EventListener implements Listener {
      * @return void
      */
     public function onLogin(PlayerLoginEvent $event): void {
-        if (TemplateProvider::provider()->current()->isMaintenance() && !MaintenanceListCache::is($event->getPlayer()->getName())) {
+        if (TemplateProvider::provider()->current()->isMaintenance() && !MaintenanceListCache::is($event->getPlayer()->getName()) && !$event->getPlayer()->hasPermission("pocketcloud.maintenance.bypass")) {
             $event->setKickMessage(LanguageKey::INGAME_TEMPLATE_KICK_MAINTENANCE()->translate());
             $event->cancel();
             NotificationType::PLAYER_JOIN_FAILED->notify([

@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\module\imp\hubCommand;
+namespace pocketcloud\cloud\bridge\module\impl\hubCommand;
 
 use pocketcloud\cloud\bridge\api\cache\InGameModuleCache;
 use pocketcloud\cloud\bridge\CloudBridge;
