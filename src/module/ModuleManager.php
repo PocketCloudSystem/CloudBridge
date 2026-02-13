@@ -30,7 +30,7 @@ final class ModuleManager {
     }
 
     public function enable(Module $module): void {
-        if ($module->getModuleState() === ModuleState::NONE || $module->getModuleState() === ModuleState::DISABLED) {
+        if ($module->getModuleState() === ModuleState::DISABLED) {
             $module->onLoad();
             $module->setModuleState(ModuleState::ENABLED);
         }

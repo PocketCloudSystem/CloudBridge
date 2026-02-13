@@ -12,7 +12,7 @@ abstract class Module {
         private readonly string $name,
         private readonly string $description
     ) {
-        $this->moduleState = ModuleState::NONE;
+        $this->moduleState = ModuleState::DISABLED;
     }
 
     public function onLoad(): void {}

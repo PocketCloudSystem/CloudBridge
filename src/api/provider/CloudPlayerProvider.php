@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\api\provider;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
-use pocketcloud\cloud\bridge\network\packet\impl\ProxyPlayerTransferPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\PlayerTransferPacket;
 use pocketmine\network\mcpe\protocol\TransferPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
@@ -28,7 +28,7 @@ final class CloudPlayerProvider implements CloudAPIProvider {
             }
 
             if ($serverPlayer === null) {
-                return ProxyPlayerTransferPacket::create($cloudPlayer->getName(), $server->getName())->sendPacket();
+                return PlayerTransferPacket::create($cloudPlayer->getName(), $server->getName())->sendPacket();
             }
 
             return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getServerData()->getPort(), false));
