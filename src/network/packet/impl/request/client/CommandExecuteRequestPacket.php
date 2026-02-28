@@ -1,15 +1,15 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\impl;
+namespace pocketcloud\cloud\bridge\network\packet\impl\request\client;
 
 use pocketcloud\cloud\bridge\command\sender\CloudCommandSender;
-use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
-use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\data\ServerCommandExecutionResult;
+use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
+use pocketcloud\cloud\bridge\network\packet\RequestClientPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketmine\Server;
 
-final class CommandExecutePacket extends CloudPacket implements ClientboundPacket {
+final class CommandExecuteRequestPacket extends RequestClientPacket {
 
     public function __construct(
         private string $commandLine = "",
@@ -19,7 +19,7 @@ final class CommandExecutePacket extends CloudPacket implements ClientboundPacke
     public function handle(): void {
         $commandSender = new CloudCommandSender($this->id, Server::getInstance(), Server::getInstance()->getLanguage());
         Server::getInstance()->dispatchCommand($commandSender, $this->commandLine);
-        CommandAnswerPacket::create(new ServerCommandExecutionResult($this->id, $this->commandLine, $commandSender->getCachedMessages()))->sendPacket();
+        $this->sendResponse(CommandExecuteResponsePacket::create(new ServerCommandExecutionResult($this->id, $this->commandLine, $commandSender->getCachedMessages())));
     }
 
     public function encodePayload(PacketData $packetData): void {}

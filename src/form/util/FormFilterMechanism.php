@@ -13,6 +13,7 @@ use pocketcloud\cloud\bridge\util\trait\RegistryTrait;
 use pocketmine\player\Player;
 use pocketmine\promise\Promise;
 use pocketmine\promise\PromiseResolver;
+use pocketmine\utils\TextFormat;
 use r3pt1s\forms\builder\MenuFormBuilder;
 use r3pt1s\forms\element\menu\MenuOption;
 
@@ -46,10 +47,10 @@ final class FormFilterMechanism {
     public static function awaitMechanismOption(Player $player): Promise {
         self::check();
         $resolver = new PromiseResolver();
-        $originElements = [new MenuOption("Remove filter")];
+        $originElements = [new MenuOption("§cRemove filter")];
 
-        $player->sendForm(MenuFormBuilder::create("Choose a filter", "")
-            ->elements(array_merge($originElements, array_map(fn(string $key) => new MenuOption(implode(" ", array_map(fn(string $s) => ucfirst(strtolower($s)), explode("_", $key))), extraData: [$key]), array_keys(self::$members))))
+        $player->sendForm(MenuFormBuilder::create("§6Choose a filter", "")
+            ->elements(array_merge($originElements, array_map(fn(string $key) => new MenuOption("§6" . implode(" ", array_map(fn(string $s) => ucfirst(strtolower($s)), explode("_", $key))), extraData: [$key]), array_keys(self::$members))))
             ->onSubmit(function (Player $player, int $index, MenuOption $option) use($resolver): void {
                 if ($index == 0) {
                     $resolver->resolve(null);
@@ -77,18 +78,18 @@ final class FormFilterMechanism {
     ) {}
 
     public function awaitDataOption(Player $player): Promise {
-        $originElements = [new MenuOption("Remove filter")];
+        $originElements = [new MenuOption("§cRemove filter")];
         $resolver = new PromiseResolver();
         switch ($this->name) {
             case "template": {
-                $player->sendForm(MenuFormBuilder::create("Choose a template")
-                    ->elements(array_merge($originElements, array_map(fn(Template $template) => new MenuOption($template->getName()), TemplateProvider::provider()->getAll())))
+                $player->sendForm(MenuFormBuilder::create("§6Choose a template")
+                    ->elements(array_merge($originElements, array_map(fn(Template $template) => new MenuOption("§b" . $template->getName()), TemplateProvider::provider()->getAll())))
                     ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
                         } else {
-                            $this->data = [$option->getText()];
+                            $this->data = [TextFormat::clean($option->getText())];
                             $resolver->resolve($this);
                         }
                     })
@@ -97,14 +98,14 @@ final class FormFilterMechanism {
                 break;
             }
             case "server_group": {
-                $player->sendForm(MenuFormBuilder::create("Choose a server group")
-                    ->elements(array_merge($originElements, array_map(fn(ServerGroup $serverGroup) => new MenuOption($serverGroup->getName()), ServerGroupProvider::provider()->getAll())))
+                $player->sendForm(MenuFormBuilder::create("§6Choose a server group")
+                    ->elements(array_merge($originElements, array_map(fn(ServerGroup $serverGroup) => new MenuOption("§b" . $serverGroup->getName()), ServerGroupProvider::provider()->getAll())))
                     ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
                         } else {
-                            $this->data = [$option->getText()];
+                            $this->data = [TextFormat::clean($option->getText())];
                             $resolver->resolve($this);
                         }
                     })
@@ -113,14 +114,14 @@ final class FormFilterMechanism {
                 break;
             }
             case "server": {
-                $player->sendForm(MenuFormBuilder::create("Choose a server")
-                    ->elements(array_merge($originElements, array_map(fn(CloudServer $server) => new MenuOption($server->getName()), CloudServerProvider::provider()->getAll())))
+                $player->sendForm(MenuFormBuilder::create("§6Choose a server")
+                    ->elements(array_merge($originElements, array_map(fn(CloudServer $server) => new MenuOption("§b" . $server->getName()), CloudServerProvider::provider()->getAll())))
                     ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
                         } else {
-                            $this->data = [$option->getText()];
+                            $this->data = [TextFormat::clean($option->getText())];
                             $resolver->resolve($this);
                         }
                     })
@@ -129,8 +130,8 @@ final class FormFilterMechanism {
                 break;
             }
             case "player_count": {
-                $player->sendForm(MenuFormBuilder::create("Choose an option")
-                    ->elements(array_merge($originElements, [new MenuOption("High -> Low"), new MenuOption("Low -> High")]))
+                $player->sendForm(MenuFormBuilder::create("§6Choose an option")
+                    ->elements(array_merge($originElements, [new MenuOption("§aHigh §8-> §cLow"), new MenuOption("§cLow §8-> §aHigh")]))
                     ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver, $originElements): void {
                         if ($index == 0) {
                             $this->data = null;

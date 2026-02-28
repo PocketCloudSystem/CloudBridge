@@ -5,8 +5,13 @@ namespace pocketcloud\cloud\bridge\network\packet;
 use Closure;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketcloud\cloud\bridge\network\request\RequestManager;
+use RuntimeException;
 use Throwable;
 
+/**
+ * The normal request packet sent from sub-servers to the cloud, which will answer through regular ResponsePacket
+ * @see ResponsePacket
+ */
 abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
 
     private ?string $requestId = null;
@@ -20,14 +25,27 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
         $this->requestId = uniqid();
     }
 
-    public function encode(PacketData $packetData): void {
+    final public function encode(PacketData $packetData): void {
         parent::encode($packetData);
         $packetData->write($this->requestId);
     }
 
-    public function decode(PacketData $packetData): void {
+    final public function decode(PacketData $packetData): void {
         parent::decode($packetData);
         $this->requestId = $packetData->readString();
+    }
+
+    /**
+     * Should not be used for RequestPackets, use @see RequestPacket::sendRequest() instead
+     * @deprecated
+     * @return bool
+     */
+    public function sendPacket(): bool {
+        throw new RuntimeException("Use sendRequest() instead of sendPacket()");
+    }
+
+    public function sendRequest(): RequestPacket|false {
+        return RequestManager::getInstance()->send($this);
     }
 
     final public function invokeClosures(bool $failed, ?ResponsePacket $responsePacket, ?RequestPacketFailureReason $reason = null): void {
@@ -79,7 +97,7 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
 
     final public function handle(): void {}
 
-    public static function dynamicRequest(mixed ...$args): static {
-        return RequestManager::getInstance()->send(new static(...$args));
+    public static function dynamic(mixed ...$args): static|false {
+        return new static(...$args)->sendRequest();
     }
 }

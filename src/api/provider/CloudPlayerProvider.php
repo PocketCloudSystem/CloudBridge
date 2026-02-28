@@ -21,9 +21,12 @@ final class CloudPlayerProvider implements CloudAPIProvider {
         $serverPlayer = $player instanceof Player ? $player : ($cloudPlayer !== null ? Server::getInstance()->getPlayerExact($cloudPlayer->getName()) : null);
         if ($cloudPlayer !== null) {
             if (($useCustomMaxPlayerCount ? count($server->getPlayers()) >= $server->getServerData()->getMaxPlayers() : !$server->getServerStatus()->isOnline()) || $server->getServerStatus()->isStopping()) return false;
-            if ($server->getTemplate()->isMaintenance() && !$player?->hasPermission("pocketcloud.maintenance.bypass")) return false;
+            if ($server->getTemplate()->isMaintenance()) {
+                if ($serverPlayer !== null && !$serverPlayer->hasPermission("pocketcloud.bypass.maintenance")) return false;
+                else if ($serverPlayer === null) return false;
+            }
 
-            if ($player->getCurrentProxy() === null && $serverPlayer !== null) {
+            if ($cloudPlayer->getCurrentProxy() === null && $serverPlayer !== null) {
                 return $serverPlayer->transfer(Internet::getInternalIP(), $server->getServerData()->getPort());
             }
 

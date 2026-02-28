@@ -78,7 +78,7 @@ final class Network extends Thread {
                         }
                     } else {
                         CloudBridge::getInstance()->getLogger()->warning("§cReceived an unknown packet from the cloud!");
-                        CloudBridge::getInstance()->getLogger()->debug($unhandledPacket->getBuffer());
+                        CloudBridge::getInstance()->getLogger()->info($unhandledPacket->getBuffer());
                     }
                 } catch (PacketException|JsonException $e) {
                     CloudBridge::getInstance()->getLogger()->warning("§cFailed to decode packet from §b" . $unhandledPacket->getAddress() . "§8: §e" . $e->getMessage());

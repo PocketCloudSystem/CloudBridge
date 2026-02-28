@@ -5,6 +5,7 @@ namespace pocketcloud\cloud\bridge;
 use pocketcloud\cloud\bridge\api\CloudAPI;
 use pocketcloud\cloud\bridge\command\CloudCommand;
 use pocketcloud\cloud\bridge\command\CloudNotifyCommand;
+use pocketcloud\cloud\bridge\command\TransferCommand;
 use pocketcloud\cloud\bridge\listener\EventListener;
 use pocketcloud\cloud\bridge\module\ModuleManager;
 use pocketcloud\cloud\bridge\network\Network;
@@ -52,7 +53,7 @@ final class CloudBridge extends PluginBase {
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->registerPermission("pocketcloud.command.notify", "pocketcloud.command.cloud", "pocketcloud.bypass.maintenance");
-        $this->registerPermission("pocketcloud.command.hub");
+        $this->registerPermission("pocketcloud.command.hub", "pocketcloud.command.transfer");
 
         ProcessUtils::startCpuRetrieveCycle();
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
@@ -70,7 +71,8 @@ final class CloudBridge extends PluginBase {
     public function registerCommands(): void {
         $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
             new CloudNotifyCommand(),
-            new CloudCommand()
+            new CloudCommand(),
+            new TransferCommand()
         ]);
     }
 

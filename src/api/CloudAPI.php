@@ -46,7 +46,7 @@ final class CloudAPI {
     }
 
     public function requestLogin(): void {
-        ServerHandshakeRequestPacket::makeRequest(CloudEnvironmentConfig::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers())->then(function (ServerHandshakeResponsePacket $packet): void {
+        ServerHandshakeRequestPacket::create(CloudEnvironmentConfig::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers())->sendRequest()->then(function (ServerHandshakeResponsePacket $packet): void {
             $status = $packet->getVerifyStatus();
             $this->verifyStatus = $status;
             if ($status === VerifyStatus::VERIFIED) {

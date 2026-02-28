@@ -31,9 +31,9 @@ final class ManageServersForm extends MenuForm {
         $displayedPage = ($this->requestedPage + 1);
 
         $elements = [
-            new MenuOption("Start a server"),
-            new MenuOption("Stop a server"),
-            new MenuOption("Filter by ..."),
+            new MenuOption("§aStart a server"),
+            new MenuOption("§cStop a server"),
+            new MenuOption("§6Filter by ..."),
             new Divider()
         ];
 
@@ -42,7 +42,7 @@ final class ManageServersForm extends MenuForm {
             array_map(
                 fn(CloudServer $server) => new MenuOption(Utils::multiLine(
                     $server->getName(),
-                    $server->getPlayerCount() . "/" . $server->getServerData()->getMaxPlayers()
+                    "§a" . $server->getPlayerCount() . "§8/§c" . $server->getServerData()->getMaxPlayers()
                 ), extraData: [$server->getName()]), $this->sortServersOverall($displayedServers)
             )
         );
@@ -51,10 +51,10 @@ final class ManageServersForm extends MenuForm {
         if ($this->requestedPage > 0) $elements[] = new MenuOption("Previous Page", extraData: ["action" => FormConstants::ACTION_PREVIOUS_PAGE]);
 
         parent::__construct(
-            "Manage Servers",
+            "§eManage Servers",
             Utils::multiLine(
-                "Running Servers" . ($mechanism !== null ? " (filtered)" : "") . ": " . count($runningServers),
-                "Page: " . $displayedPage . "/" . $maxPages
+                "§7Running Servers" . ($mechanism !== null ? " §8(§cfiltered§8)" : "") . ": §b" . count($runningServers),
+                "§7Page§8: §a" . $displayedPage . "§8/§c" . $maxPages
             ),
             $elements
         );
@@ -79,13 +79,12 @@ final class ManageServersForm extends MenuForm {
             $nameA = $a->getName();
             $nameB = $b->getName();
 
-            preg_match("/^(.*)-(\d+)$/", $nameA, $matchesA);
-            preg_match("/^(.*)-(\d+)$/", $nameB, $matchesB);
-
-            if (!empty($matchesA) && !empty($matchesB)) {
-                $templateCompare = strcmp($matchesA[1], $matchesB[1]);
+            $templateNameA = ($nameAParts = explode("-", $nameA))[0] ?? null;
+            $templateNameB = ($nameBParts = explode("-", $nameB))[0] ?? null;
+            if ($templateNameA !== null && $templateNameB !== null) {
+                $templateCompare = strcmp($templateNameA, $templateNameB);
                 if ($templateCompare !== 0) return $templateCompare;
-                return (int) $matchesA[2] <=> (int) $matchesB[2];
+                if (count($nameAParts) > 1 && count($nameBParts) > 1) return (int) $nameAParts[1] <=> (int) $nameBParts[1];
             }
 
             return strcmp($nameA, $nameB);

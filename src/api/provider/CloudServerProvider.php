@@ -13,6 +13,8 @@ final class CloudServerProvider implements CloudAPIProvider {
     /** @var array<CloudServer> */
     private array $servers = [];
 
+    //TODO: add startServer, stopServer, saveServer, etc.
+
     public function freeServer(Template $template, array $exclusions = [], bool $prioritizeLowServers = false): ?CloudServer {
         $availableServers = array_filter($this->getAll($template), fn(CloudServer $server) => !in_array($server->getName(), $exclusions) && $server->getServerStatus()->isOnline(true));
         if (empty($availableServers)) return null;
