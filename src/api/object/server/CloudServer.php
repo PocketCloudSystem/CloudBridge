@@ -107,7 +107,7 @@ final class CloudServer implements Writeable {
             intval($data["id"]),
             $data["uuid"],
             $data["template"],
-            new CloudServerData($data["name"], intval($data["port"]), intval($data["maxPlayers"]), intval($data["processId"] ?? null)),
+            new CloudServerData($data["name"], intval($data["port"]), intval($data["maxPlayers"]), isset($data["processId"]) ? intval($data["processId"]) : null),
             ServerStatus::fromName($data["serverStatus"]),
             $data["internalStorage"]
         );

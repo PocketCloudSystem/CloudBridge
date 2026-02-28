@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\form;
 
+use pocketcloud\cloud\bridge\form\sub\ManageServersForm;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketmine\player\Player;
 use r3pt1s\forms\element\menu\MenuOption;
@@ -18,7 +19,7 @@ final class CloudMainForm extends MenuForm {
             [
                 new Header("§cGeneral"),
                 new Divider(),
-                new MenuOption("§eManage Servers"),
+                new MenuOption("§eManage Servers", clickClosure: fn(Player $player) => $player->sendForm(new ManageServersForm())),
                 new MenuOption("§gManage Players"),
                 new MenuOption("§6Manage Templates"),
                 new MenuOption("§bManage ServerGroups"),
@@ -35,11 +36,7 @@ final class CloudMainForm extends MenuForm {
         );
     }
 
-    public function onSubmit(Player $player, int $index, MenuOption $option): void {
+    public function onSubmit(Player $player, int $index, MenuOption $option): void {}
 
-    }
-
-    public function onClose(Player $player): void {
-
-    }
+    public function onClose(Player $player): void {}
 }

@@ -2,7 +2,9 @@
 
 namespace pocketcloud\cloud\bridge\api\object\group;
 
+use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\template\Template;
+use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
 
@@ -28,6 +30,15 @@ final class ServerGroup implements Writeable {
             "name" => $this->name,
             "templates" => $this->templates
         ];
+    }
+
+    /** @return array<CloudPlayer> */
+    public function getPlayers(): array {
+        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxy()?->getTemplate()?->getParentServerGroup()?->getName() == $this->getName() || $player->getCurrentServer()?->getTemplate()?->getParentServerGroup()?->getName() == $this->getName());
+    }
+
+    public function getPlayerCount(): int {
+        return count($this->getPlayers());
     }
 
     public function getName(): string {
