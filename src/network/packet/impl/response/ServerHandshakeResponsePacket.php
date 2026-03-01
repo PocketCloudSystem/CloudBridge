@@ -10,8 +10,6 @@ final class ServerHandshakeResponsePacket extends ResponsePacket {
 
     public function __construct(private ?VerifyStatus $verifyStatus = null) {}
 
-    public function encodePayload(PacketData $packetData): void {}
-
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAllTypeSafe([&$this->verifyStatus], [fn() => $packetData->readVerifyStatus()]);
     }

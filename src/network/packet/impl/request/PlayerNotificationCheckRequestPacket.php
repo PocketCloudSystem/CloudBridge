@@ -13,8 +13,6 @@ final class PlayerNotificationCheckRequestPacket extends RequestPacket {
         $packetData->write($this->player);
     }
 
-    public function decodePayload(PacketData $packetData): void {}
-
     public function getPlayer(): string {
         return $this->player;
     }

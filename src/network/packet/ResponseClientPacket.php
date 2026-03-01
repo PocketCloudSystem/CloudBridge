@@ -5,8 +5,10 @@ namespace pocketcloud\cloud\bridge\network\packet;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
 /**
- * The normal response packet sent to sub-servers from the cloud after the sub-servers sent a request via RequestPacket
- * @see RequestPacket
+ * A different version from the regular ResponsePacket
+ * This logic is reversed, means the sub-servers sends this ResponseClientPacket in response to the RequestClientPacket
+ * @see RequestClientPacket
+ * @see ResponseClientPacket
  */
 abstract class ResponseClientPacket extends CloudPacket implements CloudboundPacket {
 
@@ -30,6 +32,8 @@ abstract class ResponseClientPacket extends CloudPacket implements CloudboundPac
         $this->requestId = $requestId;
         return $this;
     }
+
+    final public function decodePayload(PacketData $packetData): void {}
 
     final public function handle(): void {}
 }

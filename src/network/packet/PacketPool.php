@@ -6,6 +6,9 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudNotificationPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudSyncServerStoragePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\client\CommandExecuteRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStartRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStopRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
@@ -27,6 +30,9 @@ use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeRespons
 use pocketcloud\cloud\bridge\network\packet\impl\LibrarySyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ModuleSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerSyncPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\ServerSaveResponsePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStartResponsePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStopResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerChangeStatusPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerGroupSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerSyncPacket;
@@ -75,6 +81,12 @@ final class PacketPool {
         $this->register(CloudSyncServerStoragePacket::class);
         $this->register(PlayerTransferPacket::class);
         $this->register(PlayerTextPacket::class);
+        $this->register(ServerStartRequestPacket::class);
+        $this->register(ServerStartResponsePacket::class);
+        $this->register(ServerStopRequestPacket::class);
+        $this->register(ServerStopResponsePacket::class);
+        $this->register(ServerSaveRequestPacket::class);
+        $this->register(ServerSaveResponsePacket::class);
     }
 
     public function register(string $packetClass): void {

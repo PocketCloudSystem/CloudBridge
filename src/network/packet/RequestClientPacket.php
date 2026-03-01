@@ -25,6 +25,8 @@ abstract class RequestClientPacket extends CloudPacket implements ClientboundPac
         $this->requestId = $packetData->readString();
     }
 
+    final public function encodePayload(PacketData $packetData): void {}
+
     public function sendResponse(ResponseClientPacket $packet): bool {
         return Network::getInstance()->sendPacket($packet->setRequestId($this->requestId));
     }

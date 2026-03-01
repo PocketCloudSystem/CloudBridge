@@ -2,8 +2,13 @@
 
 namespace pocketcloud\cloud\bridge\api\provider;
 
+use pocketcloud\cloud\bridge\api\object\group\ServerGroup;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\object\template\Template;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStartRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStopRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\RequestPacket;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use RuntimeException;
 
@@ -13,7 +18,21 @@ final class CloudServerProvider implements CloudAPIProvider {
     /** @var array<CloudServer> */
     private array $servers = [];
 
-    //TODO: add startServer, stopServer, saveServer, etc.
+    public function start(Template|string $template, int $count = 1): RequestPacket {
+        $template = $template instanceof Template ? $template->getName() : $template;
+        if ($count < 0) $count = 1;
+        return ServerStartRequestPacket::create($template, $count)->sendRequest();
+    }
+
+    public function stop(Template|CloudServer|ServerGroup|string $server, bool $forcefully = false): RequestPacket {
+        $server = is_string($server) ? $server : $server->getName();
+        return ServerStopRequestPacket::create($server, $forcefully)->sendRequest();
+    }
+
+    public function save(CloudServer|string $server): RequestPacket {
+        $server = $server instanceof CloudServer ? $server->getName() : $server;
+        return ServerSaveRequestPacket::create($server)->sendRequest();
+    }
 
     public function freeServer(Template $template, array $exclusions = [], bool $prioritizeLowServers = false): ?CloudServer {
         $availableServers = array_filter($this->getAll($template), fn(CloudServer $server) => !in_array($server->getName(), $exclusions) && $server->getServerStatus()->isOnline(true));

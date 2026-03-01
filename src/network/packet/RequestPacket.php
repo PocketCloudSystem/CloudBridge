@@ -35,6 +35,8 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
         $this->requestId = $packetData->readString();
     }
 
+    final public function decodePayload(PacketData $packetData): void {}
+
     /**
      * Should not be used for RequestPackets, use @see RequestPacket::sendRequest() instead
      * @deprecated

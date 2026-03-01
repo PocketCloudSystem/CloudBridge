@@ -13,8 +13,6 @@ final class PlayerWhitelistCheckRequestPacket extends RequestPacket {
         $packetData->writeAll($this->player);
     }
 
-    public function decodePayload(PacketData $packetData): void {}
-
     public function getPlayer(): string {
         return $this->player;
     }

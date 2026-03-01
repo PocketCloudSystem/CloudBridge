@@ -11,8 +11,6 @@ final class PlayerNotificationCheckResponsePacket extends ResponsePacket {
 
     public function handle(): void {}
 
-    public function encodePayload(PacketData $packetData): void {}
-
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAll($this->enabled);
     }

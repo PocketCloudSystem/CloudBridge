@@ -22,6 +22,8 @@ abstract class ResponsePacket extends CloudPacket implements ClientboundPacket {
         $this->requestId = $packetData->readString();
     }
 
+    final public function encodePayload(PacketData $packetData): void {}
+
     public function getRequestId(): string {
         return $this->requestId;
     }

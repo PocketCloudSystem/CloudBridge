@@ -22,8 +22,6 @@ final class CommandExecuteRequestPacket extends RequestClientPacket {
         $this->sendResponse(CommandExecuteResponsePacket::create(new ServerCommandExecutionResult($this->id, $this->commandLine, $commandSender->getCachedMessages())));
     }
 
-    public function encodePayload(PacketData $packetData): void {}
-
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAll($this->commandLine, $this->id);
     }

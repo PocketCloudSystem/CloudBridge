@@ -14,8 +14,6 @@ final class CommandExecuteResponsePacket extends ResponseClientPacket {
         $packetData->writeAll($this->commandExecutionResult);
     }
 
-    public function decodePayload(PacketData $packetData): void {}
-
     public function getCommandExecutionResult(): ?ServerCommandExecutionResult {
         return $this->commandExecutionResult;
     }
