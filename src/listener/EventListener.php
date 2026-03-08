@@ -5,6 +5,7 @@ namespace pocketcloud\cloud\bridge\listener;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\api\cache\MaintenanceListCache;
+use pocketcloud\cloud\bridge\command\CloudCommand;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
@@ -17,10 +18,37 @@ use pocketmine\event\player\PlayerKickEvent;
 use pocketmine\event\player\PlayerLoginEvent;
 use pocketmine\event\player\PlayerPreLoginEvent;
 use pocketmine\event\player\PlayerQuitEvent;
+use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\lang\Translatable;
+use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\player\Player;
 use pocketmine\Server;
 
 final class EventListener implements Listener {
+
+    private bool $intercepting = false;
+
+    /**
+     * @priority HIGHEST
+     * @param DataPacketSendEvent $event
+     * @return void
+     */
+    public function onDataPacketSend(DataPacketSendEvent $event): void {
+        foreach ($event->getTargets() as $target) {
+            $player = $target->getPlayer();
+            foreach ($event->getPackets() as $packet) {
+                if ($packet instanceof AvailableCommandsPacket) {
+                    if (!$player instanceof Player) continue;
+                    if ($this->intercepting) continue;
+
+                    $this->intercepting = true;
+                    $event->cancel();
+                    $target->sendDataPacket(CloudCommand::createCommandsPacket($player));
+                    $this->intercepting = false;
+                }
+            }
+        }
+    }
 
     /**
      * @priority MONITOR
