@@ -17,23 +17,23 @@ final class ServerGroupProvider implements CloudAPIProvider {
         else $this->serverGroups[$serverGroup->getName()] = $serverGroup;
     }
 
+    public function isset(ServerGroup|string $name): bool {
+        $name = $name instanceof ServerGroup ? $name->getName() : $name;
+        return isset($this->serverGroups[$name]);
+    }
+
     public function remove(ServerGroup $serverGroup): void {
         if ($this->isset($serverGroup)) unset($this->serverGroups[$serverGroup->getName()]);
     }
 
-    public function isset(ServerGroup|string $name): bool {
-        $name = $name instanceof ServerGroup ? $name->getName() : $name;
-        return isset($this->serverGroups[$name]);
+    public function current(): ?ServerGroup {
+        return $this->get(CloudEnvironmentConfig::getTemplateName());
     }
 
     public function get(Template|string $name): ?ServerGroup {
         $name = $name instanceof Template ? $name->getName() : $name;
         if (isset($this->serverGroups[$name])) return $this->serverGroups[$name];
         return array_find($this->serverGroups, fn(ServerGroup $group) => $group->is($name));
-    }
-
-    public function current(): ?ServerGroup {
-        return $this->get(CloudEnvironmentConfig::getTemplateName());
     }
 
     public function getAll(): array {

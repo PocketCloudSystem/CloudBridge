@@ -32,12 +32,16 @@ final class PacketSerializer {
         $packetName = $data[0] ?? null;
         if ($packetName === null) throw new PacketException("Received buffer does not contain a valid packet name");
         if (($packet = PacketPool::getInstance()->get($packetName)) !== null) {
-            if (!$packet instanceof ClientboundPacket) throw new PacketException("Received packet is not a ClientboundPacket");
+            if (!$packet
+                instanceof
+                ClientboundPacket) throw new PacketException("Received packet is not a ClientboundPacket");
             $packet->decode(new PacketData($data));
             $packet->decode($buffer = new PacketData($data));
             if ($buffer->isEmpty()) throw new PacketException("Received packet does not contain an authentication key");
-            if (($givenKey = $buffer->readString()) === null) throw new PacketException("Received packet does not contain an authentication key");
-            if ($givenKey !== $authenticationKey) throw new PacketException("Received packet does not contain a valid authentication key");
+            if (($givenKey = $buffer->readString()) ===
+                null) throw new PacketException("Received packet does not contain an authentication key");
+            if ($givenKey !==
+                $authenticationKey) throw new PacketException("Received packet does not contain a valid authentication key");
             return $packet;
         }
 

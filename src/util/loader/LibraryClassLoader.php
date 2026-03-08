@@ -31,6 +31,19 @@ final class LibraryClassLoader extends ThreadSafe {
         }, $namespace, $path);
     }
 
+    public function loadClass(string $class): bool {
+        if (($path = $this->findClass($class)) !== null) {
+            include_once $path;
+            if (!class_exists($class, false) && !trait_exists($class, false) && !interface_exists($class, false)) {
+                return false;
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+
     public function findClass(string $class): ?string {
         return $this->synchronized(function (string $class): ?string {
             $class = ltrim($class, "\\");
@@ -50,18 +63,5 @@ final class LibraryClassLoader extends ThreadSafe {
 
             return null;
         }, $class);
-    }
-
-    public function loadClass(string $class): bool {
-        if (($path = $this->findClass($class)) !== null) {
-            include_once $path;
-            if (!class_exists($class, false) && !trait_exists($class, false) && !interface_exists($class, false)) {
-                return false;
-            }
-
-            return true;
-        }
-
-        return false;
     }
 }

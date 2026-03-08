@@ -15,6 +15,10 @@ final class PlayerSyncPacket extends CloudPacket implements ClientboundPacket {
         private bool $removal = false
     ) {}
 
+    public static function create(CloudPlayer $player, bool $removal): self {
+        return new self($player, $removal);
+    }
+
     public function handle(): void {
         if ($this->removal) CloudPlayerProvider::provider()->remove($this->player);
         else CloudPlayerProvider::provider()->add($this->player);
@@ -32,9 +36,5 @@ final class PlayerSyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function isRemoval(): bool {
         return $this->removal;
-    }
-
-    public static function create(CloudPlayer $player, bool $removal): self {
-        return new self($player, $removal);
     }
 }

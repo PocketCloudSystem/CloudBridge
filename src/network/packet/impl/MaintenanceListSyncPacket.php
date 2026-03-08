@@ -11,6 +11,10 @@ final class MaintenanceListSyncPacket extends CloudPacket implements Clientbound
 
     public function __construct(private array $list = []) {}
 
+    public static function create(array $list): self {
+        return new self($list);
+    }
+
     public function handle(): void {
         MaintenanceListCache::sync($this->list);
     }
@@ -23,9 +27,5 @@ final class MaintenanceListSyncPacket extends CloudPacket implements Clientbound
 
     public function getList(): array {
         return $this->list;
-    }
-
-    public static function create(array $list): self {
-        return new self($list);
     }
 }

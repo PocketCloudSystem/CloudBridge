@@ -10,6 +10,10 @@ final class ServerHandshakeResponsePacket extends ResponsePacket {
 
     public function __construct(private ?VerifyStatus $verifyStatus = null) {}
 
+    public static function create(VerifyStatus $verifyStatus): self {
+        return new self($verifyStatus);
+    }
+
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAllTypeSafe([&$this->verifyStatus], [fn() => $packetData->readVerifyStatus()]);
     }
@@ -18,9 +22,5 @@ final class ServerHandshakeResponsePacket extends ResponsePacket {
 
     public function getVerifyStatus(): ?VerifyStatus {
         return $this->verifyStatus;
-    }
-
-    public static function create(VerifyStatus $verifyStatus): self {
-        return new self($verifyStatus);
     }
 }

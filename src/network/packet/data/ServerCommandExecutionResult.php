@@ -13,6 +13,12 @@ readonly final class ServerCommandExecutionResult implements Writeable {
         private array $messages
     ) {}
 
+    public static function read(array $data): ?self {
+        if (!Utils::containKeys($data, "id", "command_line", "messages")) return null;
+        if (is_array($data["messages"])) return new self($data["id"], $data["command_line"], $data["messages"]);
+        return null;
+    }
+
     public function getId(): string {
         return $this->id;
     }
@@ -35,11 +41,5 @@ readonly final class ServerCommandExecutionResult implements Writeable {
             "command_line" => $this->commandLine,
             "messages" => $this->messages
         ];
-    }
-
-    public static function read(array $data): ?self {
-        if (!Utils::containKeys($data, "id", "command_line", "messages")) return null;
-        if (is_array($data["messages"])) return new self($data["id"], $data["command_line"], $data["messages"]);
-        return null;
     }
 }

@@ -19,6 +19,14 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     private array $thenClosures = [];
     private ?Closure $failure = null;
 
+    public static function dynamic(mixed ...$args): static|false {
+        return new static(...$args)->sendRequest();
+    }
+
+    public function sendRequest(): RequestPacket|false {
+        return RequestManager::getInstance()->send($this);
+    }
+
     /** @internal */
     public function prepare(): void {
         if ($this->requestId !== null) return;
@@ -38,16 +46,12 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     final public function decodePayload(PacketData $packetData): void {}
 
     /**
-     * Should not be used for RequestPackets, use @see RequestPacket::sendRequest() instead
+     * Should not be used for RequestPackets, use @return bool
      * @deprecated
-     * @return bool
+     * @see RequestPacket::sendRequest() instead
      */
     public function sendPacket(): bool {
         throw new RuntimeException("Use sendRequest() instead of sendPacket()");
-    }
-
-    public function sendRequest(): RequestPacket|false {
-        return RequestManager::getInstance()->send($this);
     }
 
     final public function invokeClosures(bool $failed, ?ResponsePacket $responsePacket, ?RequestPacketFailureReason $reason = null): void {
@@ -98,8 +102,4 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     }
 
     final public function handle(): void {}
-
-    public static function dynamic(mixed ...$args): static|false {
-        return new static(...$args)->sendRequest();
-    }
 }

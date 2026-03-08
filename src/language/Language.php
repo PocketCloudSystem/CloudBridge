@@ -9,6 +9,11 @@ final class Language {
 
     private static ?self $current = null;
 
+    public function __construct(
+        private readonly string $name,
+        private readonly array $messages = []
+    ) {}
+
     public static function sync(string $currentLanguage, array $messages): void {
         self::$current = new self($currentLanguage, $messages);
     }
@@ -17,11 +22,6 @@ final class Language {
         if (self::$current === null) return new self("Unknown", []);
         return self::$current;
     }
-
-    public function __construct(
-        private readonly string $name,
-        private readonly array $messages = []
-    ) {}
 
     public function translate(string $key, array $args = []): string {
         $message = str_replace("{PREFIX}", $this->messages["inGame.prefix"] ?? "", $this->messages[$key] ?? $key);

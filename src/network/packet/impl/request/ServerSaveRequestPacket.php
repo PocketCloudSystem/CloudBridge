@@ -7,7 +7,11 @@ use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
 final class ServerSaveRequestPacket extends RequestPacket {
 
-    public function __construct(private readonly string $server = "",) {}
+    public function __construct(private readonly string $server = "") {}
+
+    public static function create(string $server): self {
+        return new self($server);
+    }
 
     public function encodePayload(PacketData $packetData): void {
         $packetData->writeAll($this->server);
@@ -15,9 +19,5 @@ final class ServerSaveRequestPacket extends RequestPacket {
 
     public function getServer(): string {
         return $this->server;
-    }
-
-    public static function create(string $server): self {
-        return new self($server);
     }
 }

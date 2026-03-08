@@ -12,12 +12,13 @@ final class Address extends ThreadSafe {
         private readonly int $port
     ) {}
 
-    public function getAddress(): string {
-        return $this->address;
+    public static function create(string $address, int $port): self {
+        return new self($address, $port);
     }
 
-    public function getPort(): int {
-        return $this->port;
+    public static function fromArray(array $data): ?self {
+        if (!Utils::containKeys($data, "address", "port")) return null;
+        return new self($data["address"], $data["port"]);
     }
 
     public function __toString(): string {
@@ -32,12 +33,11 @@ final class Address extends ThreadSafe {
         return $this->address === $target->getAddress() && $this->port === $target->getPort();
     }
 
-    public static function create(string $address, int $port): self {
-        return new self($address, $port);
+    public function getAddress(): string {
+        return $this->address;
     }
-    
-    public static function fromArray(array $data): ?self {
-        if (!Utils::containKeys($data, "address", "port")) return null;
-        return new self($data["address"], $data["port"]);
+
+    public function getPort(): int {
+        return $this->port;
     }
 }

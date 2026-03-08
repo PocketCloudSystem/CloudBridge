@@ -15,6 +15,10 @@ final class ServerGroupSyncPacket extends CloudPacket implements ClientboundPack
         private bool $removal = false
     ) {}
 
+    public static function create(ServerGroup $group, bool $removal): self {
+        return new self($group, $removal);
+    }
+
     public function handle(): void {
         if ($this->removal) ServerGroupProvider::provider()->remove($this->group);
         else ServerGroupProvider::provider()->add($this->group);
@@ -32,9 +36,5 @@ final class ServerGroupSyncPacket extends CloudPacket implements ClientboundPack
 
     public function isRemoval(): bool {
         return $this->removal;
-    }
-
-    public static function create(ServerGroup $group, bool $removal): self {
-        return new self($group, $removal);
     }
 }

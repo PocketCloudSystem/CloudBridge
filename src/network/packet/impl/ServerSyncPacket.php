@@ -2,11 +2,11 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl;
 
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
-use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 
 final class ServerSyncPacket extends CloudPacket implements ClientboundPacket {
 
@@ -14,6 +14,10 @@ final class ServerSyncPacket extends CloudPacket implements ClientboundPacket {
         private ?CloudServer $server = null,
         private bool $removal = false
     ) {}
+
+    public static function create(CloudServer $server, bool $removal): self {
+        return new self($server, $removal);
+    }
 
     public function handle(): void {
         if ($this->removal) CloudServerProvider::provider()->remove($this->server);
@@ -32,9 +36,5 @@ final class ServerSyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function isRemoval(): bool {
         return $this->removal;
-    }
-
-    public static function create(CloudServer $server, bool $removal): self {
-        return new self($server, $removal);
     }
 }

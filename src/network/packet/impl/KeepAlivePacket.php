@@ -26,14 +26,6 @@ final class KeepAlivePacket extends CloudPacket implements ClientboundPacket, Cl
         KeepAlivePacket::create()->sendPacket();
     }
 
-    public function encodePayload(PacketData $packetData): void {
-        $packetData->writeAll($this->tps, $this->avgTps, $this->memoryUsage, $this->memoryPeak, $this->memoryLimit, $this->cpuUsage);
-    }
-
-    public function decodePayload(PacketData $packetData): void {
-        $packetData->readAll($this->tps, $this->avgTps, $this->memoryUsage, $this->memoryPeak, $this->memoryLimit, $this->cpuUsage);
-    }
-
     public static function create(): self {
         [$memoryUsage, $peakMemoryUsage] = array_values(ProcessUtils::getProcessStatus());
         return new self(
@@ -44,5 +36,13 @@ final class KeepAlivePacket extends CloudPacket implements ClientboundPacket, Cl
             ProcessUtils::getMemoryLimit(),
             ProcessUtils::getCpuUsage()
         );
+    }
+
+    public function encodePayload(PacketData $packetData): void {
+        $packetData->writeAll($this->tps, $this->avgTps, $this->memoryUsage, $this->memoryPeak, $this->memoryLimit, $this->cpuUsage);
+    }
+
+    public function decodePayload(PacketData $packetData): void {
+        $packetData->readAll($this->tps, $this->avgTps, $this->memoryUsage, $this->memoryPeak, $this->memoryLimit, $this->cpuUsage);
     }
 }

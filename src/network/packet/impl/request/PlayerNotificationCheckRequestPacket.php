@@ -9,15 +9,15 @@ final class PlayerNotificationCheckRequestPacket extends RequestPacket {
 
     public function __construct(private readonly string $player = "") {}
 
+    public static function create(string $player): self {
+        return new self($player);
+    }
+
     public function encodePayload(PacketData $packetData): void {
         $packetData->write($this->player);
     }
 
     public function getPlayer(): string {
         return $this->player;
-    }
-
-    public static function create(string $player): self {
-        return new self($player);
     }
 }

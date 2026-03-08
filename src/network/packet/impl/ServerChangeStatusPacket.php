@@ -14,6 +14,10 @@ final class ServerChangeStatusPacket extends CloudPacket implements CloudboundPa
         private readonly ?ServerStatus $status = null
     ) {}
 
+    public static function create(string $serverUuid, ServerStatus $status): self {
+        return new self($serverUuid, $status);
+    }
+
     public function handle(): void {}
 
     public function encodePayload(PacketData $packetData): void {
@@ -28,9 +32,5 @@ final class ServerChangeStatusPacket extends CloudPacket implements CloudboundPa
 
     public function getStatus(): ?ServerStatus {
         return $this->status;
-    }
-
-    public static function create(string $serverUuid, ServerStatus $status): self {
-        return new self($serverUuid, $status);
     }
 }

@@ -15,6 +15,10 @@ final class TemplateSyncPacket extends CloudPacket implements ClientboundPacket 
         private bool $removal = false
     ) {}
 
+    public static function create(Template $template, bool $removal): self {
+        return new self($template, $removal);
+    }
+
     public function handle(): void {
         if ($this->removal) TemplateProvider::provider()->remove($this->template);
         else TemplateProvider::provider()->add($this->template);
@@ -32,9 +36,5 @@ final class TemplateSyncPacket extends CloudPacket implements ClientboundPacket 
 
     public function isRemoval(): bool {
         return $this->removal;
-    }
-
-    public static function create(Template $template, bool $removal): self {
-        return new self($template, $removal);
     }
 }

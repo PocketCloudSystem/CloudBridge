@@ -18,21 +18,23 @@ final class TemplateProvider implements CloudAPIProvider {
         else $this->templates[$template->getName()] = $template;
     }
 
-    public function remove(Template $template): void {
-        if ($this->isset($template)) unset($this->templates[$template->getName()]);
-    }
-
     public function isset(Template|string $name): bool {
         $name = $name instanceof Template ? $name->getName() : $name;
         return isset($this->templates[$name]);
     }
 
-    public function get(string $name): ?Template {
-        return $this->templates[$name] ?? null;
+    public function remove(Template $template): void {
+        if ($this->isset($template)) unset($this->templates[$template->getName()]);
     }
 
     public function current(): Template {
-        return $this->get(CloudEnvironmentConfig::getTemplateName()) ?? throw new RuntimeException("The return value of current() should not be null, wait for CloudAPI to index");
+        return $this->get(CloudEnvironmentConfig::getTemplateName())
+            ??
+            throw new RuntimeException("The return value of current() should not be null, wait for CloudAPI to index");
+    }
+
+    public function get(string $name): ?Template {
+        return $this->templates[$name] ?? null;
     }
 
     public function pick(Closure $filter): array {

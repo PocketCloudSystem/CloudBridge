@@ -23,11 +23,17 @@ abstract class CloudPacket implements Packet {
         $this->encodePayload($packetData);
     }
 
+    final public function getName(): string {
+        return new ReflectionClass($this)->getShortName();
+    }
+
     public function decode(PacketData $packetData): void {
         $packetName = $packetData->readString();
-        if ($packetName !== $this->getName()) throw new RuntimeException("Packet name does not equal the actual class name? What have you done?");
+        if ($packetName !==
+            $this->getName()) throw new RuntimeException("Packet name does not equal the actual class name? What have you done?");
         $this->sentTimestamp = $packetData->readFloat();
-        if ($this->sentTimestamp === null) throw new RuntimeException("Packet data does not contain the actual sent timestamp? What have you done?");
+        if ($this->sentTimestamp ===
+            null) throw new RuntimeException("Packet data does not contain the actual sent timestamp? What have you done?");
         $this->decodePayload($packetData);
     }
 
@@ -37,10 +43,6 @@ abstract class CloudPacket implements Packet {
     }
 
     abstract public function handle(): void;
-
-    final public function getName(): string {
-        return new ReflectionClass($this)->getShortName();
-    }
 
     public function isEncoded(): bool {
         return $this->encoded;

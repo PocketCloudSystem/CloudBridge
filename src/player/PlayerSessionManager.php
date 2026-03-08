@@ -21,13 +21,13 @@ final class PlayerSessionManager {
         foreach ($this->sessions as $session) $session->tick();
     }
 
-    public function create(Player $player): void {
-        $this->sessions[$player] = new PlayerSession($player);
-    }
-
     public function get(Player $player): PlayerSession {
         if (!isset($this->sessions[$player])) $this->create($player);
         return $this->sessions[$player];
+    }
+
+    public function create(Player $player): void {
+        $this->sessions[$player] = new PlayerSession($player);
     }
 
     public function getAll(): WeakMap {

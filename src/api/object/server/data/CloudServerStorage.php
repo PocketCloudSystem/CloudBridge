@@ -14,20 +14,21 @@ final class CloudServerStorage {
         private array $storage = []
     ) {}
 
-    /** @internal  */
+    /** @internal */
     public function sync(array $data): void {
         $this->storage = $data;
-    }
-
-    private function outgoingSync(): void {
-        if ($this->server->getName() !== CloudEnvironmentConfig::getServerName()) throw new LogicException("You are not allowed to edit other servers server storage");
-        CloudSyncServerStoragePacket::create($this->storage)->sendPacket();
     }
 
     public function set(string $k, mixed $v): self {
         $this->storage[$k] = $v;
         $this->outgoingSync();
         return $this;
+    }
+
+    private function outgoingSync(): void {
+        if ($this->server->getName() !==
+            CloudEnvironmentConfig::getServerName()) throw new LogicException("You are not allowed to edit other servers server storage");
+        CloudSyncServerStoragePacket::create($this->storage)->sendPacket();
     }
 
     public function remove(string $k): self {

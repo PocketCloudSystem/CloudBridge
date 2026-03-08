@@ -22,10 +22,6 @@ final class CloudEnvironmentConfig {
         "auth-key" => null
     ];
 
-    private static function serverProperties(): Config {
-        return new Config(Path::join(Server::getInstance()->getDataPath(), "server.properties"), Config::PROPERTIES);
-    }
-
     public static function sync(): void {
         $properties = self::serverProperties();
         foreach (array_keys(self::$data) as $property) {
@@ -33,21 +29,34 @@ final class CloudEnvironmentConfig {
         }
     }
 
-    public static function syncVariable(string $variable, ?Config $config = null): mixed {
-        $config = $config ?? self::serverProperties();
-        if (!$config->exists($variable)) throw new RuntimeException("Variable '" . $variable . "' not found inside " . $config->getPath());
-        return self::$data[$variable] = $config->get($variable);
+    private static function serverProperties(): Config {
+        return new Config(Path::join(Server::getInstance()->getDataPath(), "server.properties"), Config::PROPERTIES);
     }
 
-    public static function fetchVariable(string $variable, bool $canReturnNull = true): mixed {
-        if (!array_key_exists($variable, self::$data)) throw new RuntimeException("Variable '" . $variable . "' does not exist");
-        return self::$data[$variable] ?? ($canReturnNull ? null : throw new RuntimeException("Variable '" . $variable . "' should not return null, therefore CloudEnvironmentConfig didn't sync yet"));
+    public static function syncVariable(string $variable, ?Config $config = null): mixed {
+        $config = $config ?? self::serverProperties();
+        if (!$config->exists($variable)) throw new RuntimeException("Variable '" .
+            $variable .
+            "' not found inside " .
+            $config->getPath());
+        return self::$data[$variable] = $config->get($variable);
     }
 
     public static function getNetworkAddress(): string {
         return self::fetchVariable("cloud-address", false);
     }
-    
+
+    public static function fetchVariable(string $variable, bool $canReturnNull = true): mixed {
+        if (!array_key_exists($variable, self::$data)) throw new RuntimeException("Variable '" .
+            $variable .
+            "' does not exist");
+        return self::$data[$variable]
+            ??
+            ($canReturnNull ? null : throw new RuntimeException("Variable '" .
+                $variable .
+                "' should not return null, therefore CloudEnvironmentConfig didn't sync yet"));
+    }
+
     public static function getNetworkPort(): int {
         return self::fetchVariable("cloud-port", false);
     }

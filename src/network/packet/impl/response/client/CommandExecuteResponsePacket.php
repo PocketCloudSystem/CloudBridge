@@ -10,15 +10,15 @@ final class CommandExecuteResponsePacket extends ResponseClientPacket {
 
     public function __construct(private readonly ?ServerCommandExecutionResult $commandExecutionResult = null) {}
 
+    public static function create(ServerCommandExecutionResult $commandExecutionResult): self {
+        return new self($commandExecutionResult);
+    }
+
     public function encodePayload(PacketData $packetData): void {
         $packetData->writeAll($this->commandExecutionResult);
     }
 
     public function getCommandExecutionResult(): ?ServerCommandExecutionResult {
         return $this->commandExecutionResult;
-    }
-
-    public static function create(ServerCommandExecutionResult $commandExecutionResult): self {
-        return new self($commandExecutionResult);
     }
 }

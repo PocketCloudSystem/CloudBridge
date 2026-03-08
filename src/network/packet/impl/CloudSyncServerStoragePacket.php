@@ -10,6 +10,10 @@ final class CloudSyncServerStoragePacket extends CloudPacket implements Cloudbou
 
     public function __construct(private readonly array $data = []) {}
 
+    public static function create(array $data): self {
+        return new self($data);
+    }
+
     public function handle(): void {}
 
     public function encodePayload(PacketData $packetData): void {
@@ -20,9 +24,5 @@ final class CloudSyncServerStoragePacket extends CloudPacket implements Cloudbou
 
     public function getData(): array {
         return $this->data;
-    }
-
-    public static function create(array $data): self {
-        return new self($data);
     }
 }

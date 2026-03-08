@@ -12,6 +12,10 @@ final class ServerStartRequestPacket extends RequestPacket {
         private readonly int $count = 0
     ) {}
 
+    public static function create(string $template, int $count): self {
+        return new self($template, $count);
+    }
+
     public function encodePayload(PacketData $packetData): void {
         $packetData->writeAll($this->template, $this->count);
     }
@@ -22,9 +26,5 @@ final class ServerStartRequestPacket extends RequestPacket {
 
     public function getCount(): int {
         return $this->count;
-    }
-
-    public static function create(string $template, int $count): self {
-        return new self($template, $count);
     }
 }

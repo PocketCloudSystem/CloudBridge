@@ -3,34 +3,30 @@
 namespace pocketcloud\cloud\bridge\command;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
+use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
-use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
-use pocketcloud\cloud\bridge\CloudBridge;
+use pocketcloud\cloud\bridge\command\util\ParameterType;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\plugin\PluginOwned;
-use pocketmine\Server;
 
-final class TransferCommand extends Command implements PluginOwned {
+final class TransferCommand extends BaseCloudCommand {
 
     public function __construct() {
-        parent::__construct("transfer", LanguageKey::INGAME_COMMAND_DESCRIPTION_TRANSFER(), "/transfer <server> [player]");
+        parent::__construct("transfer", LanguageKey::INGAME_COMMAND_DESCRIPTION_TRANSFER());
         $this->setPermission("pocketcloud.command.transfer");
+
+        $this->registerParameter(ParameterType::SERVER->with("server", false));
+        $this->registerParameter(ParameterType::CLOUD_PLAYER->with("target"));
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args): bool {
+    public function run(CommandSender $sender, string $commandLabel, array $args): bool {
         if ($this->testPermissionSilent($sender)) {
-            if (count($args) == 0) return false;
-            $server = CloudServerProvider::provider()->get(array_shift($args));
-            $target = isset($args[0]) ? Server::getInstance()->getPlayerByPrefix(implode(" ", $args)) : $sender;
-            if ($server === null) {
-                $sender->sendMessage(LanguageKey::INGAME_SERVER_NOT_FOUND());
-                return true;
-            }
+            /** @var CloudServer $server */
+            $server = $args["server"];
+            /** @var CloudPlayer|Player $target */
+            $target = $args["target"] ?? $sender;
 
-            if ($target === null) $target = CloudPlayerProvider::provider()->get(implode(" ", $args));
             if ($target instanceof Player || $target instanceof CloudPlayer) {
                 if ($sender === $target) {
                     $sender->sendMessage(LanguageKey::INGAME_SERVER_CONNECT()->translate([$server->getName()]));
@@ -50,9 +46,5 @@ final class TransferCommand extends Command implements PluginOwned {
             } else $sender->sendMessage(LanguageKey::INGAME_PLAYER_NOT_FOUND());
         } else $sender->sendMessage(LanguageKey::INGAME_NO_PERMISSION());
         return true;
-    }
-
-    public function getOwningPlugin(): CloudBridge {
-        return CloudBridge::getInstance();
     }
 }

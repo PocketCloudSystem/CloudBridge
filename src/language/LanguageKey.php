@@ -207,17 +207,13 @@ use pocketmine\utils\RegistryTrait;
 final class LanguageKey {
     use RegistryTrait;
 
+    public function __construct(private readonly string $langKey) {}
+
     protected static function setup(): void {
         foreach (DefaultMessageKeys::KEYS as $key) {
             $methodName = strtoupper(str_replace([".", "-"], "_", $key));
             self::_registryRegister($methodName, new self($key));
         }
-    }
-
-    public function __construct(private readonly string $langKey) {}
-
-    public function translate(array $args = []): string {
-        return Language::current()->translate($this->langKey, $args);
     }
 
     public function getLangKey(): string {
@@ -226,5 +222,9 @@ final class LanguageKey {
 
     public function __toString(): string {
         return $this->translate();
+    }
+
+    public function translate(array $args = []): string {
+        return Language::current()->translate($this->langKey, $args);
     }
 }

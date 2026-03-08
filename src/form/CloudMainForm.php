@@ -2,6 +2,8 @@
 
 namespace pocketcloud\cloud\bridge\form;
 
+use pocketcloud\cloud\bridge\form\sub\ManageModulesForm;
+use pocketcloud\cloud\bridge\form\sub\ManagePlayersForm;
 use pocketcloud\cloud\bridge\form\sub\ManageServersForm;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketmine\player\Player;
@@ -14,29 +16,26 @@ final class CloudMainForm extends MenuForm {
 
     public function __construct() {
         parent::__construct(
-            LanguageKey::INGAME_UI_CLOUD_MAIN_TITLE()->translate(),
-            "",
+            LanguageKey::INGAME_UI_CLOUD_MAIN_TITLE(),
+            LanguageKey::INGAME_UI_CLOUD_MAIN_TEXT(),
             [
                 new Header("§cGeneral"),
                 new Divider(),
-                new MenuOption("§eManage Servers", clickClosure: fn(Player $player) => $player->sendForm(new ManageServersForm())),
-                new MenuOption("§gManage Players"),
-                new MenuOption("§6Manage Templates"),
-                new MenuOption("§bManage ServerGroups"),
-                new MenuOption("§dManage Modules"),
+                new MenuOption(LanguageKey::INGAME_UI_CLOUD_MAIN_BUTTON_MANAGE_SERVER(), extraData: ["action" => "manage_servers"]),
+                new MenuOption(LanguageKey::INGAME_UI_CLOUD_MAIN_BUTTON_MANAGE_PLAYER(), extraData: ["action" => "manage_players"]),
+                new MenuOption(LanguageKey::INGAME_UI_CLOUD_MAIN_BUTTON_MANAGE_MODULE(), extraData: ["action" => "manage_modules"]),
                 new Divider(),
-                new Header("§cMonitoring"),
-                new Divider(),
-                new MenuOption("§eMonitor Traffic"),
-                new Divider(),
-                new Header("§cMisc"),
-                new Divider(),
-                new MenuOption("§6Message to §bCloud §6console")
             ]
         );
     }
 
-    public function onSubmit(Player $player, int $index, MenuOption $option): void {}
-
-    public function onClose(Player $player): void {}
+    public function onSubmit(Player $player, int $index, MenuOption $option): void {
+        $action = $option->get("action");
+        match ($action) {
+            "manage_servers" => $player->sendForm(new ManageServersForm()),
+            "manage_players" => $player->sendForm(new ManagePlayersForm()),
+            "manage_modules" => $player->sendForm(new ManageModulesForm()),
+            default => null,
+        };
+    }
 }

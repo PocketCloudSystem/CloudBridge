@@ -16,6 +16,10 @@ final class PlayerTransferPacket extends CloudPacket implements CloudboundPacket
         private string $server = ""
     ) {}
 
+    public static function create(string $player, string $server): self {
+        return new self($player, $server);
+    }
+
     public function handle(): void {
         $player = CloudPlayerProvider::provider()->get($this->player);
         $server = CloudServerProvider::provider()->get($this->server);
@@ -38,9 +42,5 @@ final class PlayerTransferPacket extends CloudPacket implements CloudboundPacket
 
     public function getServer(): string {
         return $this->server;
-    }
-
-    public static function create(string $player, string $server): self {
-        return new self($player, $server);
     }
 }

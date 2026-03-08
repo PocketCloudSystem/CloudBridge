@@ -24,6 +24,20 @@ final class TrafficMonitorManager {
         $this->registerTrafficMonitor(self::TRAFFIC_NETWORK, NetworkTrafficMonitor::class);
     }
 
+    public function registerTrafficMonitor(string $type, string $monitorClass, bool $override = false): void {
+        if (isset($this->trafficMonitorTypes[$type]) && !$override) return;
+        $this->trafficMonitorTypes[$type] = $monitorClass;
+        $this->allTimeTraffic[$type] = [
+            TrafficMonitor::REGULAR_MODE_IN => 0,
+            TrafficMonitor::REGULAR_MODE_OUT => 0,
+            TrafficMonitor::REGULAR_MODE_IN . TrafficMonitor::SUFFIX_AVG => 0,
+            TrafficMonitor::REGULAR_MODE_OUT . TrafficMonitor::SUFFIX_AVG => 0
+        ];
+
+        $this->byteHistory[$type . "_" . TrafficMonitor::REGULAR_MODE_IN] = [];
+        $this->byteHistory[$type . "_" . TrafficMonitor::REGULAR_MODE_OUT] = [];
+    }
+
     public function tick(int $currentTick): void {
         if ($currentTick % 20 === 0) {
             $this->cleanupHistory();
@@ -48,23 +62,13 @@ final class TrafficMonitorManager {
         }
     }
 
-    public function registerTrafficMonitor(string $type, string $monitorClass, bool $override = false): void {
-        if (isset($this->trafficMonitorTypes[$type]) && !$override) return;
-        $this->trafficMonitorTypes[$type] = $monitorClass;
-        $this->allTimeTraffic[$type] = [
-            TrafficMonitor::REGULAR_MODE_IN => 0,
-            TrafficMonitor::REGULAR_MODE_OUT => 0,
-            TrafficMonitor::REGULAR_MODE_IN . TrafficMonitor::SUFFIX_AVG => 0,
-            TrafficMonitor::REGULAR_MODE_OUT . TrafficMonitor::SUFFIX_AVG => 0
-        ];
-
-        $this->byteHistory[$type . "_" . TrafficMonitor::REGULAR_MODE_IN] = [];
-        $this->byteHistory[$type . "_" . TrafficMonitor::REGULAR_MODE_OUT] = [];
-    }
-
     public function createNetworkMonitor(): NetworkTrafficMonitor {
         $monitor = $this->createTrafficMonitor(self::TRAFFIC_NETWORK);
-        if (!$monitor instanceof NetworkTrafficMonitor) throw new LogicException("Registered monitor class for traffic type " . self::TRAFFIC_NETWORK . " is not a 'NetworkTrafficMonitor'");
+        if (!$monitor
+            instanceof
+            NetworkTrafficMonitor) throw new LogicException("Registered monitor class for traffic type " .
+            self::TRAFFIC_NETWORK .
+            " is not a 'NetworkTrafficMonitor'");
         return $monitor;
     }
 
@@ -77,7 +81,8 @@ final class TrafficMonitorManager {
     }
 
     public function removeTrafficMonitor(TrafficMonitor $monitor): void {
-        if (!isset($this->trafficMonitors[$monitor->getMonitorType()]) || !isset($this->trafficMonitors[$monitor->getMonitorType()][spl_object_id($monitor)])) return;
+        if (!isset($this->trafficMonitors[$monitor->getMonitorType()]) ||
+            !isset($this->trafficMonitors[$monitor->getMonitorType()][spl_object_id($monitor)])) return;
         unset($this->trafficMonitors[$monitor->getMonitorType()][spl_object_id($monitor)]);
     }
 

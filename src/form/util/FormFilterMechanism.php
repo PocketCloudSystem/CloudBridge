@@ -26,32 +26,20 @@ use r3pt1s\forms\element\menu\MenuOption;
 final class FormFilterMechanism {
     use RegistryTrait;
 
-    protected static function init(): void {
-        self::register($name = "template", function (?string $template) use($name): FormFilterMechanism {
-            return new FormFilterMechanism($name, is_null($template) ? null : [$template]);
-        });
-
-        self::register($name = "server_group", function (?string $serverGroup) use($name): FormFilterMechanism {
-            return new FormFilterMechanism($name, is_null($serverGroup) ? null : [$serverGroup]);
-        });
-
-        self::register($name = "server", function (?string $server) use($name): FormFilterMechanism {
-            return new FormFilterMechanism($name, is_null($server) ? null : [$server]);
-        });
-
-        self::register($name = "player_count", function (?bool $inverted) use($name): FormFilterMechanism {
-            return new FormFilterMechanism($name, is_null($inverted) ? null : [$inverted]);
-        });
-    }
+    public function __construct(
+        private readonly string $name,
+        private ?array $data
+    ) {}
 
     public static function awaitMechanismOption(Player $player): Promise {
         self::check();
         $resolver = new PromiseResolver();
         $originElements = [new MenuOption("§cRemove filter")];
 
-        $player->sendForm(MenuFormBuilder::create("§6Choose a filter", "")
-            ->elements(array_merge($originElements, array_map(fn(string $key) => new MenuOption("§6" . implode(" ", array_map(fn(string $s) => ucfirst(strtolower($s)), explode("_", $key))), extraData: [$key]), array_keys(self::$members))))
-            ->onSubmit(function (Player $player, int $index, MenuOption $option) use($resolver): void {
+        $player->sendForm(MenuFormBuilder::create("§6Choose a filter")
+            ->elements(array_merge($originElements, array_map(fn(string $key) => new MenuOption("§6" .
+                implode(" ", array_map(fn(string $s) => ucfirst(strtolower($s)), explode("_", $key))), extraData: [$key]), array_keys(self::$members))))
+            ->onSubmit(function (Player $player, int $index, MenuOption $option) use ($resolver): void {
                 if ($index == 0) {
                     $resolver->resolve(null);
                     return;
@@ -72,19 +60,16 @@ final class FormFilterMechanism {
         return $resolver->getPromise();
     }
 
-    public function __construct(
-        private readonly string $name,
-        private ?array $data
-    ) {}
-
     public function awaitDataOption(Player $player): Promise {
         $originElements = [new MenuOption("§cRemove filter")];
         $resolver = new PromiseResolver();
         switch ($this->name) {
-            case "template": {
+            case "template":
+            {
                 $player->sendForm(MenuFormBuilder::create("§6Choose a template")
-                    ->elements(array_merge($originElements, array_map(fn(Template $template) => new MenuOption("§b" . $template->getName()), TemplateProvider::provider()->getAll())))
-                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
+                    ->elements(array_merge($originElements, array_map(fn(Template $template) => new MenuOption("§b" .
+                        $template->getName()), TemplateProvider::provider()->getAll())))
+                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use ($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
@@ -97,10 +82,12 @@ final class FormFilterMechanism {
                     ->build());
                 break;
             }
-            case "server_group": {
+            case "server_group":
+            {
                 $player->sendForm(MenuFormBuilder::create("§6Choose a server group")
-                    ->elements(array_merge($originElements, array_map(fn(ServerGroup $serverGroup) => new MenuOption("§b" . $serverGroup->getName()), ServerGroupProvider::provider()->getAll())))
-                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
+                    ->elements(array_merge($originElements, array_map(fn(ServerGroup $serverGroup) => new MenuOption("§b" .
+                        $serverGroup->getName()), ServerGroupProvider::provider()->getAll())))
+                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use ($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
@@ -113,10 +100,12 @@ final class FormFilterMechanism {
                     ->build());
                 break;
             }
-            case "server": {
+            case "server":
+            {
                 $player->sendForm(MenuFormBuilder::create("§6Choose a server")
-                    ->elements(array_merge($originElements, array_map(fn(CloudServer $server) => new MenuOption("§b" . $server->getName()), CloudServerProvider::provider()->getAll())))
-                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver): void {
+                    ->elements(array_merge($originElements, array_map(fn(CloudServer $server) => new MenuOption("§b" .
+                        $server->getName()), CloudServerProvider::provider()->getAll())))
+                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use ($resolver): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
@@ -129,10 +118,11 @@ final class FormFilterMechanism {
                     ->build());
                 break;
             }
-            case "player_count": {
+            case "player_count":
+            {
                 $player->sendForm(MenuFormBuilder::create("§6Choose an option")
                     ->elements(array_merge($originElements, [new MenuOption("§aHigh §8-> §cLow"), new MenuOption("§cLow §8-> §aHigh")]))
-                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use($resolver, $originElements): void {
+                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use ($resolver, $originElements): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);
@@ -145,7 +135,8 @@ final class FormFilterMechanism {
                     ->build());
                 break;
             }
-            default: {
+            default:
+            {
                 $resolver->reject();
                 break;
             }
@@ -154,11 +145,34 @@ final class FormFilterMechanism {
         return $resolver->getPromise();
     }
 
+    public function getName(): string {
+        return $this->name;
+    }
+
+    protected static function init(): void {
+        self::register($name = "template", function (?string $template) use ($name): FormFilterMechanism {
+            return new FormFilterMechanism($name, is_null($template) ? null : [$template]);
+        });
+
+        self::register($name = "server_group", function (?string $serverGroup) use ($name): FormFilterMechanism {
+            return new FormFilterMechanism($name, is_null($serverGroup) ? null : [$serverGroup]);
+        });
+
+        self::register($name = "server", function (?string $server) use ($name): FormFilterMechanism {
+            return new FormFilterMechanism($name, is_null($server) ? null : [$server]);
+        });
+
+        self::register($name = "player_count", function (?bool $inverted) use ($name): FormFilterMechanism {
+            return new FormFilterMechanism($name, is_null($inverted) ? null : [$inverted]);
+        });
+    }
+
     public function filter(array $array): array {
         if ($this->data === null) return [];
         $filteredArray = [];
         switch ($this->name) {
-            case "template": {
+            case "template":
+            {
                 $template = TemplateProvider::provider()->get($templateName = $this->data[0]);
                 if ($template === null) break;
                 foreach ($array as $item) {
@@ -167,7 +181,8 @@ final class FormFilterMechanism {
                             $filteredArray[] = $item;
                         }
                     } else if ($item instanceof CloudPlayer) {
-                        if (str_starts_with($item->getCurrentServerName(), $templateName) || str_starts_with($item->getCurrentProxyName(), $templateName)) {
+                        if (str_starts_with($item->getCurrentServerName(), $templateName) ||
+                            str_starts_with($item->getCurrentProxyName(), $templateName)) {
                             $filteredArray[] = $item;
                         }
                     }
@@ -175,7 +190,8 @@ final class FormFilterMechanism {
 
                 break;
             }
-            case "server_group": {
+            case "server_group":
+            {
                 $serverGroup = ServerGroupProvider::provider()->get($serverGroupName = $this->data[0]);
                 if ($serverGroup === null) break;
                 foreach ($array as $item) {
@@ -188,7 +204,10 @@ final class FormFilterMechanism {
                             $filteredArray[] = $item;
                         }
                     } else if ($item instanceof CloudPlayer) {
-                        if ($item->getCurrentServer()?->getTemplate()?->getParentServerGroup()?->getName() == $serverGroupName || $item->getCurrentProxy()?->getTemplate()?->getParentServerGroup()?->getName() == $serverGroupName) {
+                        if ($item->getCurrentServer()?->getTemplate()?->getParentServerGroup()?->getName() ==
+                            $serverGroupName ||
+                            $item->getCurrentProxy()?->getTemplate()?->getParentServerGroup()?->getName() ==
+                            $serverGroupName) {
                             $filteredArray[] = $item;
                         }
                     }
@@ -196,7 +215,8 @@ final class FormFilterMechanism {
 
                 break;
             }
-            case "server": {
+            case "server":
+            {
                 $server = CloudServerProvider::provider()->get($serverName = $this->data[0]);
                 if ($server === null) break;
                 foreach ($array as $item) {
@@ -213,16 +233,20 @@ final class FormFilterMechanism {
 
                 break;
             }
-            case "player_count": {
+            case "player_count":
+            {
                 $inverted = $this->data[0] ?? false;
                 $preFilteredArray = [];
                 foreach ($array as $item) {
                     if ($item instanceof CloudServer) {
-                        if ($item->getPlayerCount() !== 0) $preFilteredArray["server:" . $item->getName()] = $item->getPlayerCount();
+                        if ($item->getPlayerCount() !== 0) $preFilteredArray["server:" .
+                        $item->getName()] = $item->getPlayerCount();
                     } else if ($item instanceof Template) {
-                        if ($item->getPlayerCount() !== 0) $preFilteredArray["template:" . $item->getName()] = $item->getPlayerCount();
+                        if ($item->getPlayerCount() !== 0) $preFilteredArray["template:" .
+                        $item->getName()] = $item->getPlayerCount();
                     } else if ($item instanceof ServerGroup) {
-                        if ($item->getPlayerCount() !== 0) $preFilteredArray["server_group:" . $item->getName()] = $item->getPlayerCount();
+                        if ($item->getPlayerCount() !== 0) $preFilteredArray["server_group:" .
+                        $item->getName()] = $item->getPlayerCount();
                     }
                 }
 
@@ -236,15 +260,18 @@ final class FormFilterMechanism {
                     $rest = implode(":", $parts);
                     if ($partId === null) continue;
                     switch ($partId) {
-                        case "server": {
+                        case "server":
+                        {
                             $actualItem = CloudServerProvider::provider()->get($rest);
                             break;
                         }
-                        case "template": {
+                        case "template":
+                        {
                             $actualItem = TemplateProvider::provider()->get($rest);
                             break;
                         }
-                        case "server_group": {
+                        case "server_group":
+                        {
                             $actualItem = ServerGroupProvider::provider()->get($rest);
                             break;
                         }
@@ -254,14 +281,12 @@ final class FormFilterMechanism {
                     $filteredArray[] = $actualItem;
                 }
             }
-            default: {}
+            default:
+            {
+            }
         }
 
         return $filteredArray;
-    }
-
-    public function getName(): string {
-        return $this->name;
     }
 
     public function getData(): ?array {

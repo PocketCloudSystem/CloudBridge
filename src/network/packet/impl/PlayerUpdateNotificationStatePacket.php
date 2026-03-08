@@ -13,6 +13,10 @@ final class PlayerUpdateNotificationStatePacket extends CloudPacket implements C
         private readonly bool $value = false
     ) {}
 
+    public static function create(string $player, bool $value): self {
+        return new self($player, $value);
+    }
+
     public function handle(): void {}
 
     public function encodePayload(PacketData $packetData): void {
@@ -27,9 +31,5 @@ final class PlayerUpdateNotificationStatePacket extends CloudPacket implements C
 
     public function isValue(): bool {
         return $this->value;
-    }
-
-    public static function create(string $player, bool $value): self {
-        return new self($player, $value);
     }
 }

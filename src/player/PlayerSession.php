@@ -9,6 +9,10 @@ final readonly class PlayerSession {
 
     public function __construct(private string $name) {}
 
+    public static function get(Player $player): PlayerSession {
+        return PlayerSessionManager::getInstance()->get($player);
+    }
+
     public function tick(): void {}
 
     public function getPlayer(): ?Player {
@@ -17,9 +21,5 @@ final readonly class PlayerSession {
 
     public function getPlayerName(): string {
         return $this->name;
-    }
-
-    public static function get(Player $player): PlayerSession {
-        return PlayerSessionManager::getInstance()->get($player);
     }
 }

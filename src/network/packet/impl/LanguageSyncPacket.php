@@ -14,6 +14,10 @@ final class LanguageSyncPacket extends CloudPacket implements ClientboundPacket 
         private array $messages = []
     ) {}
 
+    public static function create(string $language, array $messages): self {
+        return new self($language, $messages);
+    }
+
     public function handle(): void {
         Language::sync($this->language, $this->messages);
     }
@@ -25,9 +29,5 @@ final class LanguageSyncPacket extends CloudPacket implements ClientboundPacket 
             fn() => $packetData->readString(),
             fn() => json_decode(gzdecode(base64_decode($packetData->readString())), true, 512, JSON_THROW_ON_ERROR),
         ]);
-    }
-
-    public static function create(string $language, array $messages): self {
-        return new self($language, $messages);
     }
 }

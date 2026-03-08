@@ -2,10 +2,10 @@
 
 namespace pocketcloud\cloud\bridge\listener;
 
+use pocketcloud\cloud\bridge\api\cache\MaintenanceListCache;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
-use pocketcloud\cloud\bridge\api\cache\MaintenanceListCache;
-use pocketcloud\cloud\bridge\command\CloudCommand;
+use pocketcloud\cloud\bridge\command\BaseCloudCommand;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
@@ -43,7 +43,7 @@ final class EventListener implements Listener {
 
                     $this->intercepting = true;
                     $event->cancel();
-                    $target->sendDataPacket(CloudCommand::createCommandsPacket($player));
+                    $target->sendDataPacket(BaseCloudCommand::createCommandsPacket($player));
                     $this->intercepting = false;
                 }
             }
@@ -57,7 +57,9 @@ final class EventListener implements Listener {
      */
     public function onPreLoginEvent(PlayerPreLoginEvent $event): void {
         if (!$event->isAllowed()) {
-            $finalReason = ($event->getFinalDisconnectReason() instanceof Translatable ? Server::getInstance()->getLanguage()->translate($event->getFinalDisconnectReason()) : $event->getFinalDisconnectReason());
+            $finalReason = ($event->getFinalDisconnectReason()
+            instanceof
+            Translatable ? Server::getInstance()->getLanguage()->translate($event->getFinalDisconnectReason()) : $event->getFinalDisconnectReason());
             NotificationType::PLAYER_JOIN_FAILED->notify([
                 "player" => $event->getPlayerInfo()->getUsername(),
                 "server" => CloudEnvironmentConfig::getServerName(),
@@ -73,7 +75,9 @@ final class EventListener implements Listener {
      * @return void
      */
     public function onLogin(PlayerLoginEvent $event): void {
-        if (TemplateProvider::provider()->current()->isMaintenance() && !MaintenanceListCache::is($event->getPlayer()->getName()) && !$event->getPlayer()->hasPermission("pocketcloud.maintenance.bypass")) {
+        if (TemplateProvider::provider()->current()->isMaintenance() &&
+            !MaintenanceListCache::is($event->getPlayer()->getName()) &&
+            !$event->getPlayer()->hasPermission("pocketcloud.bypass.maintenance")) {
             $event->setKickMessage(LanguageKey::INGAME_TEMPLATE_KICK_MAINTENANCE()->translate());
             $event->cancel();
             NotificationType::PLAYER_JOIN_FAILED->notify([
@@ -85,7 +89,9 @@ final class EventListener implements Listener {
         }
 
         if ($event->isCancelled()) {
-            $finalReason = ($event->getKickMessage() instanceof Translatable ? Server::getInstance()->getLanguage()->translate($event->getKickMessage()) : $event->getKickMessage());
+            $finalReason = ($event->getKickMessage()
+            instanceof
+            Translatable ? Server::getInstance()->getLanguage()->translate($event->getKickMessage()) : $event->getKickMessage());
             NotificationType::PLAYER_JOIN_FAILED->notify([
                 "player" => $event->getPlayer()->getName(),
                 "server" => CloudEnvironmentConfig::getServerName(),
@@ -123,7 +129,9 @@ final class EventListener implements Listener {
      */
     public function onKick(PlayerKickEvent $event): void {
         if ($event->isCancelled()) return;
-        $finalReason = ($event->getDisconnectReason() instanceof Translatable ? Server::getInstance()->getLanguage()->translate($event->getDisconnectReason()) : $event->getDisconnectReason());
+        $finalReason = ($event->getDisconnectReason()
+        instanceof
+        Translatable ? Server::getInstance()->getLanguage()->translate($event->getDisconnectReason()) : $event->getDisconnectReason());
         if ($event->getPlayer()->spawned) {
             NotificationType::PLAYER_KICKED->notify([
                 "player" => $event->getPlayer()->getName(),

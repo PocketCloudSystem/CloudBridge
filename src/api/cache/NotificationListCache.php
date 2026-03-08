@@ -8,7 +8,7 @@ final class NotificationListCache {
 
     private static array $notificationList = [];
 
-    /** @internal  */
+    /** @internal */
     public static function sync(array $notificationList): void {
         self::$notificationList = [];
         foreach ($notificationList as $player) self::$notificationList[$player] = $player;
@@ -20,14 +20,14 @@ final class NotificationListCache {
         PlayerUpdateNotificationStatePacket::create($player, true)->sendPacket();
     }
 
+    public static function is(string $player): bool {
+        return isset(self::$notificationList[$player]);
+    }
+
     public static function remove(string $player): void {
         if (!self::is($player)) return;
         unset(self::$notificationList[$player]);
         PlayerUpdateNotificationStatePacket::create($player, false)->sendPacket();
-    }
-
-    public static function is(string $player): bool {
-        return isset(self::$notificationList[$player]);
     }
 
     public static function getAll(): array {

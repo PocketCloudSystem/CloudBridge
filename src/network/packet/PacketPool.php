@@ -5,31 +5,31 @@ namespace pocketcloud\cloud\bridge\network\packet;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudNotificationPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudSyncServerStoragePacket;
-use pocketcloud\cloud\bridge\network\packet\impl\request\client\CommandExecuteRequestPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStartRequestPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStopRequestPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\LanguageSyncPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\LibrarySyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\MaintenanceListSyncPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\ModuleSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\NotificationListSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerDisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerKickPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\PlayerSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerTextPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\PlayerUpdateNotificationStatePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerTransferPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\PlayerUpdateNotificationStatePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\client\CommandExecuteRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\PlayerNotificationCheckRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\PlayerWhitelistCheckRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStartRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\request\ServerStopRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\PlayerNotificationCheckResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\PlayerWhitelistCheckResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeResponsePacket;
-use pocketcloud\cloud\bridge\network\packet\impl\LibrarySyncPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\ModuleSyncPacket;
-use pocketcloud\cloud\bridge\network\packet\impl\PlayerSyncPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerSaveResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStartResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStopResponsePacket;
@@ -46,10 +46,6 @@ final class PacketPool {
 
     /** @var array<CloudPacket> */
     private array $packets = [];
-
-    public static function init(): void {
-        self::setInstance(new self());
-    }
 
     public function __construct() {
         self::setInstance($this);
@@ -92,12 +88,20 @@ final class PacketPool {
     public function register(string $packetClass): void {
         if (!is_subclass_of($packetClass, CloudPacket::class)) return;
         try {
-            CloudBridge::getInstance()->getLogger()->info("Registering packet " . ($packetName = new ReflectionClass($packetClass)->getShortName()) . " (" . $packetClass . ")");
+            CloudBridge::getInstance()->getLogger()->info("Registering packet " .
+                ($packetName = new ReflectionClass($packetClass)->getShortName()) .
+                " (" .
+                $packetClass .
+                ")");
             $this->packets[$packetName] = $packetClass;
         } catch (ReflectionException $exception) {
             CloudBridge::getInstance()->getLogger()->warning("Failed to register packet " . $packetClass);
             CloudBridge::getInstance()->getLogger()->logException($exception);
         }
+    }
+
+    public static function init(): void {
+        self::setInstance(new self());
     }
 
     public function get(string $pid): ?CloudPacket {

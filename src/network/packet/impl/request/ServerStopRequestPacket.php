@@ -12,6 +12,10 @@ final class ServerStopRequestPacket extends RequestPacket {
         private readonly bool $forcefully = false
     ) {}
 
+    public static function create(string $server, bool $forcefully): self {
+        return new self($server, $forcefully);
+    }
+
     public function encodePayload(PacketData $packetData): void {
         $packetData->writeAll($this->server, $this->forcefully);
     }
@@ -22,9 +26,5 @@ final class ServerStopRequestPacket extends RequestPacket {
 
     public function isForcefully(): bool {
         return $this->forcefully;
-    }
-
-    public static function create(string $server, bool $forcefully): self {
-        return new self($server, $forcefully);
     }
 }

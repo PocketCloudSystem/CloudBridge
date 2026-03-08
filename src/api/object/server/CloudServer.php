@@ -3,12 +3,12 @@
 namespace pocketcloud\cloud\bridge\api\object\server;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
+use pocketcloud\cloud\bridge\api\object\server\data\CloudServerData;
+use pocketcloud\cloud\bridge\api\object\server\data\CloudServerStorage;
 use pocketcloud\cloud\bridge\api\object\server\util\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
-use pocketcloud\cloud\bridge\api\object\server\data\CloudServerData;
-use pocketcloud\cloud\bridge\api\object\server\data\CloudServerStorage;
 use pocketcloud\cloud\bridge\network\packet\impl\ServerChangeStatusPacket;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
@@ -26,6 +26,18 @@ final class CloudServer implements Writeable {
         array $serverStorage = []
     ) {
         $this->serverStorage = new CloudServerStorage($this, $serverStorage);
+    }
+
+    public static function read(array $data): ?self {
+        if (!Utils::containKeys($data, "name", "uuid", "id", "template", "port", "maxPlayers", "serverStatus")) return null;
+        return new CloudServer(
+            intval($data["id"]),
+            $data["uuid"],
+            $data["template"],
+            new CloudServerData($data["name"], intval($data["port"]), intval($data["maxPlayers"]), isset($data["processId"]) ? intval($data["processId"]) : null),
+            ServerStatus::fromName($data["serverStatus"]),
+            $data["internalStorage"]
+        );
     }
 
     /** @internal */
@@ -48,19 +60,16 @@ final class CloudServer implements Writeable {
 
     /** @return array<CloudPlayer> */
     public function getPlayers(): array {
-        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxyName() == $this->getName() || $player->getCurrentServerName() == $this->getName());
-    }
-
-    public function getPlayerCount(): int {
-        return count($this->getPlayers());
-    }
-
-    public function getServerUuid(): string {
-        return $this->serverUuid;
+        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxyName() ==
+            $this->getName() || $player->getCurrentServerName() == $this->getName());
     }
 
     public function getName(): string {
         return $this->template . "-" . $this->id;
+    }
+
+    public function getPlayerCount(): int {
+        return count($this->getPlayers());
     }
 
     public function getId(): int {
@@ -101,15 +110,7 @@ final class CloudServer implements Writeable {
         ];
     }
 
-    public static function read(array $data): ?self {
-        if (!Utils::containKeys($data, "name", "uuid", "id", "template", "port", "maxPlayers", "serverStatus")) return null;
-        return new CloudServer(
-            intval($data["id"]),
-            $data["uuid"],
-            $data["template"],
-            new CloudServerData($data["name"], intval($data["port"]), intval($data["maxPlayers"]), isset($data["processId"]) ? intval($data["processId"]) : null),
-            ServerStatus::fromName($data["serverStatus"]),
-            $data["internalStorage"]
-        );
+    public function getServerUuid(): string {
+        return $this->serverUuid;
     }
 }

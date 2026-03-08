@@ -22,6 +22,10 @@ final class CommandExecuteRequestPacket extends RequestClientPacket {
         $this->sendResponse(CommandExecuteResponsePacket::create(new ServerCommandExecutionResult($this->id, $this->commandLine, $commandSender->getCachedMessages())));
     }
 
+    public static function create(string $commandLine, string $id): self {
+        return new self($commandLine, $id);
+    }
+
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAll($this->commandLine, $this->id);
     }
@@ -32,9 +36,5 @@ final class CommandExecuteRequestPacket extends RequestClientPacket {
 
     public function getId(): string {
         return $this->id;
-    }
-
-    public static function create(string $commandLine, string $id): self {
-        return new self($commandLine, $id);
     }
 }

@@ -6,20 +6,9 @@ trait RegistryTrait {
 
     protected static ?array $members = null;
 
-    final protected static function register(string $name, mixed $member): void {
-        if (self::$members !== null) {
-            self::$members[strtoupper($name)] = $member;
-        }
-    }
-
     final public static function getAll(): array {
         self::check();
         return self::$members;
-    }
-
-    final public static function get(string $name): mixed {
-        self::check();
-        return self::$members[strtoupper($name)] ?? null;
     }
 
     protected static function check(): void {
@@ -31,6 +20,11 @@ trait RegistryTrait {
 
     protected static function init(): void {}
 
+    final public static function get(string $name): mixed {
+        self::check();
+        return self::$members[strtoupper($name)] ?? null;
+    }
+
     public static function __callStatic(string $name, array $arguments) {
         self::check();
         if (isset(self::$members[strtoupper($name)])) {
@@ -41,5 +35,11 @@ trait RegistryTrait {
             }
         }
         return null;
+    }
+
+    final protected static function register(string $name, mixed $member): void {
+        if (self::$members !== null) {
+            self::$members[strtoupper($name)] = $member;
+        }
     }
 }

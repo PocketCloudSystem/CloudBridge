@@ -2,7 +2,10 @@
 
 namespace pocketcloud\cloud\bridge\module;
 
+use AttachableLogger;
 use LogicException;
+use pocketcloud\cloud\bridge\CloudBridge;
+use pocketmine\Server;
 
 abstract class Module {
 
@@ -17,26 +20,7 @@ abstract class Module {
 
     public function onLoad(): void {}
 
-    public function onEnable(): void {}
-
-    public function onDisable(): void {}
-
     public function onTick(int $currentTick): void {}
-
-    public function setModuleState(ModuleState $moduleState): void {
-        $this->moduleState = $moduleState;
-        switch ($moduleState) {
-            case ModuleState::ENABLED: {
-                $this->onEnable();
-                break;
-            }
-            case ModuleState::DISABLED: {
-                $this->onDisable();
-                break;
-            }
-            default: throw new LogicException("Other module states are not supported and cannot be handled");
-        }
-    }
 
     final public function getName(): string {
         return $this->name;
@@ -50,11 +34,46 @@ abstract class Module {
         return $this->moduleState;
     }
 
+    public function setModuleState(ModuleState $moduleState): void {
+        $this->moduleState = $moduleState;
+        switch ($moduleState) {
+            case ModuleState::ENABLED: {
+                $this->onEnable();
+                break;
+            }
+            case ModuleState::DISABLED: {
+                $this->onDisable();
+                break;
+            }
+            default:throw new LogicException("Other module states are not supported and cannot be handled");
+        }
+    }
+
+    public function onEnable(): void {}
+
+    public function onDisable(): void {}
+
     public function isEnabled(): bool {
         return $this->moduleState === ModuleState::ENABLED;
     }
 
     public function isDisabled(): bool {
         return $this->moduleState === ModuleState::DISABLED;
+    }
+
+    public function getServer(): Server {
+        return Server::getInstance();
+    }
+
+    public function getPlugin(): CloudBridge {
+        return CloudBridge::getInstance();
+    }
+
+    public function getLogger(): AttachableLogger {
+        return $this->getPlugin()->getLogger();
+    }
+
+    public static function get(): static {
+        return ModuleManager::getInstance()->get(static::class);
     }
 }

@@ -11,6 +11,10 @@ final class PlayerConnectPacket extends CloudPacket implements CloudboundPacket 
 
     public function __construct(private readonly ?CloudPlayer $player = null) {}
 
+    public static function create(CloudPlayer $player): self {
+        return new self($player);
+    }
+
     public function handle(): void {}
 
     public function encodePayload(PacketData $packetData): void {
@@ -21,9 +25,5 @@ final class PlayerConnectPacket extends CloudPacket implements CloudboundPacket 
 
     public function getPlayer(): ?CloudPlayer {
         return $this->player;
-    }
-
-    public static function create(CloudPlayer $player): self {
-        return new self($player);
     }
 }

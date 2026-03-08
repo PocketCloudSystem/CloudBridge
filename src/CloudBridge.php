@@ -36,6 +36,16 @@ final class CloudBridge extends PluginBase {
     private CloudAPI $cloudAPI;
     private Network $network;
 
+    public function registerCommands(): void {
+        $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
+            new CloudNotifyCommand(),
+            new CloudCommand(),
+            new TransferCommand()
+        ]);
+
+        ModuleManager::getInstance()->load();
+    }
+
     protected function onLoad(): void {
         self::setInstance($this);
         $this->libraryClassLoader = new LibraryClassLoader();
@@ -50,10 +60,15 @@ final class CloudBridge extends PluginBase {
         $this->network->init();
         $this->network->start();
 
+        new PlayerSessionManager();
+        new ModuleManager();
+
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->registerPermission("pocketcloud.command.notify", "pocketcloud.command.cloud", "pocketcloud.bypass.maintenance");
         $this->registerPermission("pocketcloud.command.hub", "pocketcloud.command.transfer");
+        $this->registerPermission("pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
+
 
         ProcessUtils::startCpuRetrieveCycle();
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
@@ -68,19 +83,6 @@ final class CloudBridge extends PluginBase {
         $this->cloudAPI->requestLogin();
     }
 
-    public function registerCommands(): void {
-        $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
-            new CloudNotifyCommand(),
-            new CloudCommand(),
-            new TransferCommand()
-        ]);
-    }
-
-    public function startTasks(): void {
-        $this->getScheduler()->scheduleRepeatingTask(new ServerTimeoutTask(), 20);
-        $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
-    }
-
     protected function onDisable(): void {
         $this->network->sendPacket(DisconnectPacket::create(ServerDisconnectReason::SERVER_SHUTDOWN));
         $this->network->close();
@@ -88,7 +90,7 @@ final class CloudBridge extends PluginBase {
         Server::getInstance()->shutdown();
     }
 
-    public function registerPermission(string... $permissions): void {
+    public function registerPermission(string...$permissions): void {
         $operator = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_OPERATOR);
         if ($operator !== null) {
             foreach ($permissions as $permission) {
@@ -97,21 +99,17 @@ final class CloudBridge extends PluginBase {
         }
     }
 
-    public function registerDefaultPermission(string... $permissions): void {
-        $user = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_USER);
-        if ($user !== null) {
-            foreach ($permissions as $permission) {
-                DefaultPermissions::registerPermission(new Permission($permission), [$user]);
-            }
-        }
-    }
-
-    public function setLastAliveCheck(int $lastAliveCheck): void {
-        $this->lastAliveCheck = $lastAliveCheck;
+    public function startTasks(): void {
+        $this->getScheduler()->scheduleRepeatingTask(new ServerTimeoutTask(), 20);
+        $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
     }
 
     public function getLastAliveCheck(): int {
         return $this->lastAliveCheck;
+    }
+
+    public function setLastAliveCheck(int $lastAliveCheck): void {
+        $this->lastAliveCheck = $lastAliveCheck;
     }
 
     public function getLibraryClassLoader(): LibraryClassLoader {

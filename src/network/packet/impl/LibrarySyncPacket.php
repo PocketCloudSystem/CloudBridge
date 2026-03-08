@@ -14,11 +14,23 @@ final class LibrarySyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function __construct(private array $data = []) {}
 
+    public static function create(array $data): self {
+        return new self($data);
+    }
+
     public function handle(): void {
         foreach ($this->data as $libData) {
             [$name, $path, $namespacePrefix, $namespaceFolder] = array_values($libData);
             CloudBridge::getInstance()->getLibraryClassLoader()->addPrefix($namespacePrefix, Path::join($path, $namespaceFolder));
-            CloudBridge::getInstance()->getLogger()->info("Loading library " . $name . " with prefix " . ($namespacePrefix == "" ? "NONE" : $namespacePrefix) . " - " . $namespaceFolder . " (" . Path::join($path, $namespaceFolder) . ")");
+            CloudBridge::getInstance()->getLogger()->info("Loading library " .
+                $name .
+                " with prefix " .
+                ($namespacePrefix == "" ? "NONE" : $namespacePrefix) .
+                " - " .
+                $namespaceFolder .
+                " (" .
+                Path::join($path, $namespaceFolder) .
+                ")");
         }
 
         if (!Forms::isRegistered()) try {
@@ -36,9 +48,5 @@ final class LibrarySyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function getData(): array {
         return $this->data;
-    }
-
-    public static function create(array $data): self {
-        return new self($data);
     }
 }

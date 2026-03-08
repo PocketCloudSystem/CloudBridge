@@ -13,6 +13,10 @@ final class ServerHandshakeRequestPacket extends RequestPacket {
         private readonly ?int $maxPlayers = null
     ) {}
 
+    public static function create(string $serverName, int $processId, int $maxPlayers): self {
+        return new self($serverName, $processId, $maxPlayers);
+    }
+
     public function encodePayload(PacketData $packetData): void {
         $packetData->writeAll($this->serverName, $this->processId, $this->maxPlayers);
     }
@@ -27,9 +31,5 @@ final class ServerHandshakeRequestPacket extends RequestPacket {
 
     public function getMaxPlayers(): ?int {
         return $this->maxPlayers;
-    }
-
-    public static function create(string $serverName, int $processId, int $maxPlayers): self {
-        return new self($serverName, $processId, $maxPlayers);
     }
 }

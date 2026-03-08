@@ -6,22 +6,19 @@ use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
-use pocketcloud\cloud\bridge\CloudBridge;
+use pocketcloud\cloud\bridge\command\BaseCloudCommand;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketmine\command\Command;
 use pocketmine\command\CommandSender;
 use pocketmine\player\Player;
-use pocketmine\plugin\Plugin;
-use pocketmine\plugin\PluginOwned;
 
-final class HubCommand extends Command implements PluginOwned {
+final class HubCommand extends BaseCloudCommand {
 
     public function __construct() {
-        parent::__construct("hub", "Connect to a lobby server", "/hub", ["lobby"]);
+        parent::__construct("hub", "Connect to a lobby server", aliases: ["lobby"]);
         $this->setPermission("pocketcloud.command.hub");
     }
 
-    public function execute(CommandSender $sender, string $commandLabel, array $args): bool {
+    public function run(CommandSender $sender, string $commandLabel, array $args): bool {
         if ($sender instanceof Player) {
             if (!TemplateProvider::provider()->current()->isLobby()) {
                 $availableTemplates = TemplateProvider::provider()->pick(fn(Template $template) => $template->isLobby() && !$template->isMaintenance());
@@ -48,9 +45,5 @@ final class HubCommand extends Command implements PluginOwned {
             }
         }
         return true;
-    }
-    
-    public function getOwningPlugin(): Plugin {
-        return CloudBridge::getInstance();
     }
 }

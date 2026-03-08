@@ -18,6 +18,10 @@ final class CloudNotificationPacket extends CloudPacket implements ClientboundPa
         private array $args = []
     ) {}
 
+    public static function create(NotificationType $notificationType, array $args): self {
+        return new self($notificationType, $args);
+    }
+
     public function handle(): void {
         $message = $this->notificationType->getLangKey()->translate($this->args);
         foreach (array_filter(Server::getInstance()->getOnlinePlayers(), fn(Player $player) => NotificationListCache::is($player->getName())) as $player) {
@@ -39,9 +43,5 @@ final class CloudNotificationPacket extends CloudPacket implements ClientboundPa
 
     public function getArgs(): array {
         return $this->args;
-    }
-
-    public static function create(NotificationType $notificationType, array $args): self {
-        return new self($notificationType, $args);
     }
 }

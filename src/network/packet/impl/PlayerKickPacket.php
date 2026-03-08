@@ -16,8 +16,14 @@ final class PlayerKickPacket extends CloudPacket implements ClientboundPacket, C
         private string $disconnectScreenMessage = ""
     ) {}
 
+    public static function create(string $player, string $reason, string $disconnectScreenMessage): self {
+        return new self($player, $reason, $disconnectScreenMessage);
+    }
+
     public function handle(): void {
-        if (($player = Server::getInstance()->getPlayerExact($this->player)) !== null) $player->kick($this->reason, "", $this->disconnectScreenMessage !== "" ? $this->disconnectScreenMessage : $this->reason);
+        if (($player = Server::getInstance()->getPlayerExact($this->player)) !==
+            null) $player->kick($this->reason, "", $this->disconnectScreenMessage !==
+        "" ? $this->disconnectScreenMessage : $this->reason);
     }
 
     public function encodePayload(PacketData $packetData): void {
@@ -26,9 +32,5 @@ final class PlayerKickPacket extends CloudPacket implements ClientboundPacket, C
 
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAll($this->player, $this->reason, $this->disconnectScreenMessage);
-    }
-
-    public static function create(string $player, string $reason, string $disconnectScreenMessage): self {
-        return new self($player, $reason, $disconnectScreenMessage);
     }
 }

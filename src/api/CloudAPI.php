@@ -2,14 +2,13 @@
 
 namespace pocketcloud\cloud\bridge\api;
 
-use Closure;
 use pocketcloud\cloud\bridge\api\provider\CloudAPIProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\CloudBridge;
-use pocketcloud\cloud\bridge\language\Language;
+use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
@@ -45,6 +44,10 @@ final class CloudAPI {
         $this->registerProvider(new CloudPlayerProvider());
     }
 
+    public function registerProvider(CloudAPIProvider $provider): void {
+        $this->providers[$provider::class] = $provider;
+    }
+
     public function requestLogin(): void {
         ServerHandshakeRequestPacket::create(CloudEnvironmentConfig::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers())->sendRequest()->then(function (ServerHandshakeResponsePacket $packet): void {
             $status = $packet->getVerifyStatus();
@@ -53,7 +56,7 @@ final class CloudAPI {
                 CloudBridge::getInstance()->setLastAliveCheck(time());
                 CloudBridge::getInstance()->registerCommands();
                 CloudBridge::getInstance()->startTasks();
-                CloudBridge::getInstance()->getLogger()->info(Language::current()->translate("inGame.server.verified"));
+                CloudBridge::getInstance()->getLogger()->info(LanguageKey::INGAME_SERVER_VERIFIED());
                 if (!KeepAlivePacket::create()->sendPacket()) {
                     CloudBridge::getInstance()->getLogger()->warning("§cFailed to send first KeepAlivePacket, shutting down...");
                     Server::getInstance()->shutdown();
@@ -72,10 +75,6 @@ final class CloudAPI {
 
             Server::getInstance()->shutdown();
         });
-    }
-
-    public function registerProvider(CloudAPIProvider $provider): void {
-        $this->providers[$provider::class] = $provider;
     }
 
     public function getVerifyStatus(): VerifyStatus {

@@ -11,7 +11,7 @@ final class ExceptionHandler {
 
     public static function tryCatch(Closure $processClosure, ?string $message = null, ?Closure $onExceptionClosure = null, mixed ...$params): mixed {
         try {
-            return ErrorToExceptionHandler::trap(function () use($processClosure, $message, $onExceptionClosure, $params): mixed {
+            return ErrorToExceptionHandler::trap(function () use ($processClosure, $message, $onExceptionClosure, $params): mixed {
                 try {
                     return $processClosure(...$params);
                 } catch (Throwable $exception) {

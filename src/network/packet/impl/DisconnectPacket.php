@@ -14,6 +14,10 @@ final class DisconnectPacket extends CloudPacket implements ClientboundPacket, C
 
     public function __construct(private ?ServerDisconnectReason $reason = null) {}
 
+    public static function create(ServerDisconnectReason $reason): self {
+        return new self($reason);
+    }
+
     public function handle(): void {
         if ($this->reason === ServerDisconnectReason::CLOUD_SHUTDOWN) {
             CloudBridge::getInstance()->getLogger()->warning("§4Cloud was stopped, shutdown down this instance...");
@@ -34,9 +38,5 @@ final class DisconnectPacket extends CloudPacket implements ClientboundPacket, C
 
     public function getReason(): ?ServerDisconnectReason {
         return $this->reason;
-    }
-
-    public static function create(ServerDisconnectReason $reason): self {
-        return new self($reason);
     }
 }

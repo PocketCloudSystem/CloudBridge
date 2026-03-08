@@ -27,6 +27,10 @@ final class NetworkTrafficMonitor extends TrafficMonitor {
         return $this;
     }
 
+    public static function parsePacketMode(string $normalMode, string $packetClass): string {
+        return $normalMode . "-" . basename(str_replace("\\", DIRECTORY_SEPARATOR, $packetClass));
+    }
+
     /**
      * @param string $packetClass
      * @param Closure(CloudPacket $packet, Address $destination, bool $success): void $handler
@@ -35,9 +39,5 @@ final class NetworkTrafficMonitor extends TrafficMonitor {
     public function monitorPacketOut(string $packetClass, Closure $handler): self {
         $this->addHandler(self::parsePacketMode(self::NETWORK_MODE_PACKET_OUT, $packetClass), $handler);
         return $this;
-    }
-
-    public static function parsePacketMode(string $normalMode, string $packetClass): string {
-        return $normalMode . "-" . basename(str_replace("\\", DIRECTORY_SEPARATOR, $packetClass));
     }
 }

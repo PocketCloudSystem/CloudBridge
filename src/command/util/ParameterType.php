@@ -2,8 +2,8 @@
 
 namespace pocketcloud\cloud\bridge\command\util;
 
-use Exception;
 use InvalidArgumentException;
+use pocketcloud\cloud\bridge\api\cache\InGameModuleCache;
 use pocketcloud\cloud\bridge\api\object\group\ServerGroup;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
@@ -12,9 +12,13 @@ use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
+use pocketcloud\cloud\bridge\language\LanguageKey;
+use pocketcloud\cloud\bridge\module\ModuleManager;
+use pocketcloud\cloud\bridge\network\packet\data\TextType;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
+use UnitEnum;
 
 enum ParameterType {
 
@@ -42,9 +46,15 @@ enum ParameterType {
      * @see CloudPlayer
      */
     case CLOUD_PLAYER;
+    /**
+     * @see self::with(..., ..., [test1, test2, ...])
+     */
+    case ENUM;
+    case MODULE;
+    case TEXT_TYPE;
 
-    public function with(string $name, bool $optional = true): ParameterData {
-        return ParameterData::create($name, $optional, $this);
+    public function with(string $name, bool $optional = true, array $allowedStrings = []): ParameterData {
+        return ParameterData::create($name, $optional, $this, $allowedStrings);
     }
 
     /**
@@ -53,6 +63,15 @@ enum ParameterType {
      */
     public function parseValue(mixed $value): mixed {
         switch ($this) {
+            case self::MODULE:
+                $module = ModuleManager::getInstance()->get($value);
+                if ($module !== null) return $module;
+                return throw new InvalidArgumentException();
+            case self::TEXT_TYPE:
+                $textType = TextType::fromName($value);
+                if ($textType !== null) return $textType;
+                return throw new InvalidArgumentException();
+            case self::ENUM:
             case self::STRING:
                 return $value;
             case self::INTEGER:
@@ -99,14 +118,17 @@ enum ParameterType {
             self::STRING, self::SERVER, self::CLOUD_PLAYER, self::GROUP, self::TEMPLATE => AvailableCommandsPacket::ARG_TYPE_STRING,
             self::INTEGER => AvailableCommandsPacket::ARG_TYPE_INT,
             self::FLOAT => AvailableCommandsPacket::ARG_TYPE_FLOAT,
-            self::BOOLEAN => AvailableCommandsPacket::ARG_FLAG_ENUM,
+            self::ENUM, self::TEXT_TYPE, self::MODULE, self::BOOLEAN => AvailableCommandsPacket::ARG_FLAG_ENUM,
             self::PLAYER => AvailableCommandsPacket::ARG_TYPE_TARGET,
         };
     }
 
     public function getEnumName(): ?string {
         return match ($this) {
-            self::BOOLEAN => "options",
+            self::ENUM => "options",
+            self::BOOLEAN => "choices",
+            self::TEXT_TYPE => "text_types",
+            self::MODULE => "modules",
             default => null
         };
     }
@@ -114,6 +136,24 @@ enum ParameterType {
     public function getEnumContent(): ?array {
         return match ($this) {
             self::BOOLEAN => ["true", "false"],
+            self::TEXT_TYPE => array_map(fn(UnitEnum $e) => strtolower($e->name), TextType::cases()),
+            self::MODULE => array_map(fn(string $s) => strtolower($s), InGameModuleCache::getAll()),
+            default => null
+        };
+    }
+
+    public function getErrorMessage(): ?string {
+        return match ($this) {
+            self::INTEGER => LanguageKey::INGAME_PREFIX() . "§cThe value must be a valid integer!",
+            self::FLOAT => LanguageKey::INGAME_PREFIX() . "§cThe value must be a valid number!",
+            self::BOOLEAN => LanguageKey::INGAME_PREFIX() . "§cThe value must be true or false!",
+            self::SERVER => LanguageKey::INGAME_SERVER_NOT_FOUND(),
+            self::TEMPLATE => LanguageKey::INGAME_TEMPLATE_NOT_FOUND(),
+            self::GROUP => LanguageKey::INGAME_PREFIX() . "§cServer group not found!",
+            self::PLAYER, self::CLOUD_PLAYER => LanguageKey::INGAME_PLAYER_NOT_FOUND(),
+            self::MODULE => LanguageKey::INGAME_PREFIX() . "§cModule not found!",
+            self::TEXT_TYPE => LanguageKey::INGAME_PREFIX() . "§cInvalid text type!",
+            self::ENUM => LanguageKey::INGAME_PREFIX() . "§cInvalid option!",
             default => null
         };
     }

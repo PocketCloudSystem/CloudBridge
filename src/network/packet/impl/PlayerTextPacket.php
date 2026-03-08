@@ -17,6 +17,10 @@ final class PlayerTextPacket extends CloudPacket implements CloudboundPacket, Cl
         private ?TextType $type = null
     ) {}
 
+    public static function create(string $player, string $text, TextType $type): self {
+        return new self($player, $text, $type);
+    }
+
     public function handle(): void {
         if (($player = Server::getInstance()->getPlayerExact($this->player)) !== null) {
             switch ($this->type) {
@@ -42,7 +46,7 @@ final class PlayerTextPacket extends CloudPacket implements CloudboundPacket, Cl
                     $title = explode("\n", $this->text)[0];
                     $body = explode("\n", $this->text)[1] ?? "";
                     $player->sendToastNotification($title, $body);
-            };
+            }
         }
     }
 
@@ -64,9 +68,5 @@ final class PlayerTextPacket extends CloudPacket implements CloudboundPacket, Cl
 
     public function getType(): ?TextType {
         return $this->type;
-    }
-
-    public static function create(string $player, string $text, TextType $type): self {
-        return new self($player, $text, $type);
     }
 }

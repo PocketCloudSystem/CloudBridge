@@ -15,6 +15,14 @@ final class ServerGroup implements Writeable {
         private array $templates
     ) {}
 
+    public static function read(array $data): ?self {
+        if (!Utils::containKeys($data, "name", "templates")) return null;
+        return new self(
+            $data["name"],
+            $data["templates"]
+        );
+    }
+
     /** @internal */
     public function sync(array $data): void {
         $this->templates = $data["templates"] ?? $this->templates;
@@ -25,6 +33,10 @@ final class ServerGroup implements Writeable {
         return in_array($template, $this->templates);
     }
 
+    public function getName(): string {
+        return $this->name;
+    }
+
     public function write(): array {
         return [
             "name" => $this->name,
@@ -32,28 +44,18 @@ final class ServerGroup implements Writeable {
         ];
     }
 
-    /** @return array<CloudPlayer> */
-    public function getPlayers(): array {
-        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxy()?->getTemplate()?->getParentServerGroup()?->getName() == $this->getName() || $player->getCurrentServer()?->getTemplate()?->getParentServerGroup()?->getName() == $this->getName());
-    }
-
     public function getPlayerCount(): int {
         return count($this->getPlayers());
     }
 
-    public function getName(): string {
-        return $this->name;
+    /** @return array<CloudPlayer> */
+    public function getPlayers(): array {
+        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => $player->getCurrentProxy()?->getTemplate()?->getParentServerGroup()?->getName() ==
+            $this->getName() ||
+            $player->getCurrentServer()?->getTemplate()?->getParentServerGroup()?->getName() == $this->getName());
     }
 
     public function getTemplates(): array {
         return $this->templates;
-    }
-
-    public static function read(array $data): ?self {
-        if (!Utils::containKeys($data, "name", "templates")) return null;
-        return new self(
-            $data["name"],
-            $data["templates"]
-        );
     }
 }

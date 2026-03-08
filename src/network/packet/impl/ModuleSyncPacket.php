@@ -11,6 +11,10 @@ final class ModuleSyncPacket extends CloudPacket implements ClientboundPacket {
 
     public function __construct(private array $data = []) {}
 
+    public static function create(array $data): self {
+        return new self($data);
+    }
+
     public function handle(): void {
         foreach ($this->data as $module => $enabled) {
             InGameModuleCache::setModuleState($module, $enabled);
@@ -22,11 +26,8 @@ final class ModuleSyncPacket extends CloudPacket implements ClientboundPacket {
     public function decodePayload(PacketData $packetData): void {
         $packetData->readAllTypeSafe([&$this->data], [fn() => $packetData->readArray()]);
     }
+
     public function getData(): array {
         return $this->data;
-    }
-
-    public static function create(array $data): self {
-        return new self($data);
     }
 }

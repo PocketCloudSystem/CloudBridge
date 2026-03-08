@@ -8,7 +8,11 @@ use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
 final class ServerSaveResponsePacket extends ResponsePacket {
 
-    public function __construct(private readonly ?ServerErrorReason $errorReason = null) {}
+    public function __construct(private ?ServerErrorReason $errorReason = null) {}
+
+    public static function create(ServerErrorReason $errorReason): self {
+        return new self($errorReason);
+    }
 
     public function handle(): void {}
 
@@ -18,9 +22,5 @@ final class ServerSaveResponsePacket extends ResponsePacket {
 
     public function getErrorReason(): ?ServerErrorReason {
         return $this->errorReason;
-    }
-
-    public static function create(ServerErrorReason $errorReason): self {
-        return new self($errorReason);
     }
 }

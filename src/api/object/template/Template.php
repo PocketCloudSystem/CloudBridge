@@ -25,6 +25,23 @@ final class Template implements Writeable {
         private readonly string $templateType
     ) {}
 
+    public static function read(array $data): ?Template {
+        if (!Utils::containKeys($data, "name", "lobby", "maintenance", "static", "alwaysCopyToStaticServers", "maxPlayerCount", "minServerCount", "maxServerCount", "startNewPercentage", "autoStart", "templateType")) return null;
+        return new Template(
+            $data["name"],
+            boolval($data["lobby"]),
+            boolval($data["maintenance"]),
+            boolval($data["static"]),
+            boolval($data["alwaysCopyToStaticServers"]),
+            intval($data["maxPlayerCount"]),
+            intval($data["minServerCount"]),
+            intval($data["maxServerCount"]),
+            boolval($data["startNewPercentage"]),
+            boolval($data["autoStart"]),
+            $data["templateType"]
+        );
+    }
+
     /** @internal */
     public function sync(array $data): void {
         $this->lobby = $data["lobby"] ?? $this->lobby;
@@ -38,13 +55,14 @@ final class Template implements Writeable {
         $this->autoStart = $data["autoStart"] ?? $this->autoStart;
     }
 
-    /** @return array<CloudPlayer> */
-    public function getPlayers(): array {
-        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => str_starts_with($player->getCurrentProxyName(), $this->getName()) || str_starts_with($player->getCurrentServerName(), $this->getName()));
-    }
-
     public function getPlayerCount(): int {
         return count($this->getPlayers());
+    }
+
+    /** @return array<CloudPlayer> */
+    public function getPlayers(): array {
+        return array_filter(CloudPlayerProvider::provider()->getAll(), fn(CloudPlayer $player) => str_starts_with($player->getCurrentProxyName(), $this->getName()) ||
+            str_starts_with($player->getCurrentServerName(), $this->getName()));
     }
 
     public function getName(): string {
@@ -109,22 +127,5 @@ final class Template implements Writeable {
             "autoStart" => $this->autoStart,
             "templateType" => $this->templateType
         ];
-    }
-
-    public static function read(array $data): ?Template {
-        if (!Utils::containKeys($data, "name", "lobby", "maintenance", "static", "alwaysCopyToStaticServers", "maxPlayerCount", "minServerCount", "maxServerCount", "startNewPercentage", "autoStart", "templateType")) return null;
-        return new Template(
-            $data["name"],
-            boolval($data["lobby"]),
-            boolval($data["maintenance"]),
-            boolval($data["static"]),
-            boolval($data["alwaysCopyToStaticServers"]),
-            intval($data["maxPlayerCount"]),
-            intval($data["minServerCount"]),
-            intval($data["maxServerCount"]),
-            boolval($data["startNewPercentage"]),
-            boolval($data["autoStart"]),
-            $data["templateType"]
-        );
     }
 }

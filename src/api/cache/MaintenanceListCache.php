@@ -6,7 +6,7 @@ final class MaintenanceListCache {
 
     private static array $maintenanceList = [];
 
-    /** @internal  */
+    /** @internal */
     public static function sync(array $maintenanceList): void {
         foreach ($maintenanceList as $player) self::$maintenanceList[$player] = $player;
     }
