@@ -45,7 +45,6 @@ abstract class Module {
                 $this->onDisable();
                 break;
             }
-            default:throw new LogicException("Other module states are not supported and cannot be handled");
         }
     }
 

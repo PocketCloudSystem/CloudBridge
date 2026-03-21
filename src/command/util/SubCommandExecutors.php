@@ -44,7 +44,7 @@ final class SubCommandExecutors {
         $sender->sendMessage("§8[§b" . $requestPacket->getName() . "§8/§c" . $requestPacket->getRequestId() . "§8] §cRequest timed out");
     }
 
-    public static function handleStartSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleStartSub(CommandSender $sender, array $args): bool {
         /** @var Template $template */
         $template = $args["template"];
         $count = $args["count"] ?? 1;
@@ -57,7 +57,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleStopSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleStopSub(CommandSender $sender, array $args): bool {
         $object = $args["object"];
         $forcefully = $args["forcefully"] ?? false;
 
@@ -68,7 +68,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleSaveSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleSaveSub(CommandSender $sender, array $args): bool {
         /** @var CloudServer $template */
         $server = $args["server"];
 
@@ -79,7 +79,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleEnableModuleSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleEnableModuleSub(CommandSender $sender, array $args): bool {
         /** @var Module $module */
         $module = $args["module"];
 
@@ -93,7 +93,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleDisableModuleSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleDisableModuleSub(CommandSender $sender, array $args): bool {
         /** @var Module $module */
         $module = $args["module"];
 
@@ -107,7 +107,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleTextSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleTextSub(array $args): bool {
         /** @var CloudPlayer $player */
         $player = $args["player"];
         /** @var TextType $textType */
@@ -121,7 +121,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleKickSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleKickSub(array $args): bool {
         /** @var CloudPlayer $player */
         $player = $args["player"];
         $reason = $args["reason"] ?? "";
@@ -134,7 +134,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleListSub(CommandSender $sender, string $commandLabel, array $args): bool {
+    public static function handleListSub(CommandSender $sender, array $args): bool {
         $type = $args["type"] ?? "servers";
 
         switch ($type) {

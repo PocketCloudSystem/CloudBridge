@@ -117,7 +117,7 @@ final class FormFilterMechanism {
             case "player_count": {
                 $player->sendForm(MenuFormBuilder::create("Choose an option")
                     ->elements(array_merge($originElements, [new MenuOption("High -> Low"), new MenuOption("Low -> High")]))
-                    ->onSubmit(function (Player $_, int $index, MenuOption $option) use ($resolver, $originElements): void {
+                    ->onSubmit(function (Player $_, int $index) use ($resolver, $originElements): void {
                         if ($index == 0) {
                             $this->data = null;
                             $resolver->resolve(null);

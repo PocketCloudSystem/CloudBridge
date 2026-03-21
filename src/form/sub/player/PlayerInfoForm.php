@@ -3,14 +3,10 @@
 namespace pocketcloud\cloud\bridge\form\sub\player;
 
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
-use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
-use pocketcloud\cloud\bridge\form\sub\ManagePlayersForm;
 use pocketcloud\cloud\bridge\form\sub\server\ServerInfoForm;
-use pocketcloud\cloud\bridge\form\util\FormFilterMechanism;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\TextType;
-use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\player\Player;
 use r3pt1s\forms\builder\CustomFormBuilder;
 use r3pt1s\forms\builder\MenuFormBuilder;
@@ -72,7 +68,7 @@ final class PlayerInfoForm extends CustomForm {
         ];
 
         return MenuFormBuilder::create(
-            "§e" . $target->getName(),
+            $target->getName(),
             implode("\n", $body),
             [
                 new MenuOption("Send Message"),
@@ -80,7 +76,7 @@ final class PlayerInfoForm extends CustomForm {
                 new MenuOption("View Current Server"),
                 new MenuOption("View Current Proxy")
             ],
-            function (Player $player, int $index, MenuOption $option) use($target): void {
+            function (Player $player, int $index) use($target): void {
                 if ($index == 0) {
                     $player->sendForm($this->playerSendForm($target));
                 } else if ($index == 1) {
@@ -94,7 +90,7 @@ final class PlayerInfoForm extends CustomForm {
 
     private function playerSendForm(CloudPlayer $target): CustomForm {
         return CustomFormBuilder::create(
-            "§e" . $target->getName(),
+            $target->getName(),
             [
                 new Dropdown("type", "Text Type", array_map(fn(UnitEnum $e) => strtoupper($e->name), TextType::cases())),
                 new Input("message", "Message", "..."),

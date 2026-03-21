@@ -13,7 +13,6 @@ use pocketcloud\cloud\bridge\module\impl\npc\command\TemplateGroupCommand;
 use pocketcloud\cloud\bridge\module\impl\npc\group\TemplateGroup;
 use pocketcloud\cloud\bridge\module\impl\npc\listener\NPCListener;
 use pocketcloud\cloud\bridge\module\impl\npc\skin\CustomSkinModel;
-use pocketcloud\cloud\bridge\module\impl\npc\task\CloudNPCTickTask;
 use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\event\HandlerListManager;
 use pocketmine\Server;
@@ -42,12 +41,11 @@ final class CloudNPCModule extends Module {
         $this->getServer()->getCommandMap()->register("npcModule", new CloudNPCCommand());
         $this->getServer()->getCommandMap()->register("npcModule", new TemplateGroupCommand());
         foreach (Server::getInstance()->getOnlinePlayers() as $player) $player->getNetworkSession()->syncAvailableCommands();
-        CloudBridge::getInstance()->getScheduler()->scheduleRepeatingTask(new CloudNPCTickTask(), 20);
         Server::getInstance()->getPluginManager()->registerEvents($this->listener = new NPCListener(), $this->getPlugin());
     }
 
     public function onDisable(): void {
-        foreach ($this->npcs as $npc) $npc->despawnEntity();
+        foreach ($this->npcs as $npc) $npc->flagForDespawn();
         if ($this->listener !== null) HandlerListManager::global()->unregisterAll($this->listener);
         $this->listener = null;
         $this->npcDelay = [];
@@ -78,7 +76,7 @@ final class CloudNPCModule extends Module {
             if (($cloudNPC = CloudNPC::read($this->checkForMigration($npcData))) !== null &&
                 $positionString == $npcData["position"]) {
                 $this->npcs[$positionString] = $cloudNPC;
-                $cloudNPC->spawnEntity();
+                $cloudNPC->spawnToAll();
             }
         }
     }
@@ -109,7 +107,7 @@ final class CloudNPCModule extends Module {
             return false;
         } finally {
             $this->npcs[$positionString] = $npc;
-            $npc->spawnEntity();
+            $npc->spawnToAll();
         }
 
         return true;
@@ -148,7 +146,7 @@ final class CloudNPCModule extends Module {
     }
 
     public function spawnAll(): void {
-        foreach ($this->npcs as $npc) $npc->spawnEntity();
+        foreach ($this->npcs as $npc) $npc->spawnToAll();
     }
 
     public function removeTemplateGroup(TemplateGroup $templateGroup): bool {
@@ -185,7 +183,7 @@ final class CloudNPCModule extends Module {
             CloudNPCModule::get()->getLogger()->logException($exception);
             return false;
         } finally {
-            $npc->despawnEntity();
+            $npc->flagForDespawn();
             unset($this->npcs[$positionString]);
         }
 

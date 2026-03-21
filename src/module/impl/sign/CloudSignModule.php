@@ -4,7 +4,6 @@ namespace pocketcloud\cloud\bridge\module\impl\sign;
 
 use JsonException;
 use pocketcloud\cloud\bridge\api\cache\InGameModuleCache;
-use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\event\sign\CloudSignAddEvent;
 use pocketcloud\cloud\bridge\event\sign\CloudSignRemoveEvent;
@@ -12,9 +11,7 @@ use pocketcloud\cloud\bridge\module\Module;
 use pocketcloud\cloud\bridge\module\impl\sign\listener\SignListener;
 use pocketcloud\cloud\bridge\module\impl\sign\task\CloudSignTask;
 use pocketcloud\cloud\bridge\util\Utils;
-use pocketmine\block\WallSign;
 use pocketmine\event\HandlerListManager;
-use pocketmine\math\Facing;
 use pocketmine\utils\Config;
 use pocketmine\world\Position;
 

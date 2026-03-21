@@ -74,7 +74,7 @@ final class TemplateInfoForm extends CustomForm {
         ];
 
         return MenuFormBuilder::create(
-            "§e" . $template->getName(),
+            $template->getName(),
             implode("\n", $body),
             [
                 new MenuOption("Manage Servers"),

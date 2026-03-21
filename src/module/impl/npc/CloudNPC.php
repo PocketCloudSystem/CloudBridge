@@ -2,59 +2,150 @@
 
 namespace pocketcloud\cloud\bridge\module\impl\npc;
 
-use Exception;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
+use pocketcloud\cloud\bridge\api\object\server\util\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
+use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\event\npc\CloudNPCSpawnEvent;
 use pocketcloud\cloud\bridge\event\npc\CloudNPCUpdateEvent;
 use pocketcloud\cloud\bridge\language\Language;
+use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\module\impl\npc\group\TemplateGroup;
 use pocketcloud\cloud\bridge\module\impl\npc\skin\CustomSkinModel;
+use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\SkinSaver;
 use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\entity\Human;
 use pocketmine\entity\Location;
+use pocketmine\entity\NeverSavedWithChunkEntity;
+use pocketmine\event\entity\EntityDamageByEntityEvent;
+use pocketmine\event\entity\EntityDamageEvent;
+use pocketmine\nbt\tag\CompoundTag;
+use pocketmine\player\Player;
 use pocketmine\world\Position;
-use Random\Randomizer;
+use r3pt1s\forms\builder\MenuFormBuilder;
+use r3pt1s\forms\element\menu\MenuOption;
 
-final class CloudNPC implements Writeable {
-
-    private ?Human $entity = null;
+final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEntity {
 
     public function __construct(
         private readonly Template|TemplateGroup $template,
-        private readonly Location $position,
+        private readonly Location $originLocation,
         private readonly string $creator,
         private readonly ?CustomSkinModel $customSkinModel,
         private readonly bool $headRotation
-    ) {}
+    ) {
+        $skin = SkinSaver::get($this->creator);
+        if ($this->getSkinModel() !== null && ($tempSkin = $this->customSkinModel->createSkin()) !== null) $skin = $tempSkin;
 
-    /** @internal */
-    public function tick(): void {
-        if ($this->entity !== null) {
-            if ($this->checkExistence()) {
-                $nameTag = Language::current()->translate("inGame.cloudnpc.name_tag" .
-                    ($this->isTemplateMaintenance() ? ".maintenance" : ""), [$this->getTemplateOnlineCount(), (!$this->hasTemplateGroup() ? $this->template->getName() : $this->template->getDisplayName())]);
-                if ($this->entity->getNameTag() !== $nameTag) {
-                    ($ev = new CloudNPCUpdateEvent($this, $this->entity->getNameTag(), $nameTag))->call();
-                    if ($ev->isCancelled()) return;
-                    $this->entity->setNameTag($ev->getNewNameTag());
+        parent::__construct(
+            Location::fromObject($this->originLocation, $this->originLocation->getWorld(), $this->originLocation->getYaw(), $this->originLocation->getPitch()),
+            $skin
+        );
+    }
+
+    /**
+     * This method should not be used - cloudnpcs are saved within a file inside the plugin_data/CloudBridge/ folfer
+     * @param bool $value
+     * @return void
+     */
+    public function setCanSaveWithChunk(bool $value = false): void {
+        parent::setCanSaveWithChunk(false);
+    }
+
+    public function setHasGravity(bool $v = false): void {
+        parent::setHasGravity(false);
+    }
+
+    protected function initEntity(CompoundTag $nbt): void {
+        parent::initEntity($nbt);
+        $this->setCanSaveWithChunk();
+        $this->setHasGravity();
+        $this->setNameTagAlwaysVisible();
+
+        ($ev = new CloudNPCSpawnEvent($this, $this))->call();
+        if ($ev->isCancelled()) $this->flagForDespawn();
+    }
+
+    public function attack(EntityDamageEvent $source): void {
+        $source->cancel();
+        if ($source instanceof EntityDamageByEntityEvent) {
+            $damager = $source->getDamager();
+            if ($damager instanceof Player) {
+                if (isset(CloudNPCModule::get()->npcDetection[$damager->getName()])) {
+                    unset(CloudNPCModule::get()->npcDetection[$damager->getName()]);
+                    if (CloudNPCModule::get()->removeCloudNPC($this)) {
+                        $damager->sendMessage(LanguageKey::INGAME_CLOUDNPC_REMOVED());
+                    } else {
+                        $damager->sendMessage(LanguageKey::INGAME_PREFIX() . "§cAn error occurred while removing the NPC.");
+                    }
+                    return;
                 }
 
-                if ($this->entity->getPosition()->distance($this->position) >= 0.5) {
-                    $this->entity->teleport($this->position);
-                }
-            } else {
-                $this->despawnEntity();
+                $servers = array_values(array_filter(
+                    $this->getServers(),
+                    fn(CloudServer $s) => $s->getName() !== CloudEnvironmentConfig::getServerName() &&
+                        $s->getServerStatus() === ServerStatus::ONLINE &&
+                        !($s->getTemplate()->isMaintenance() && !$damager->hasPermission("pocketcloud.bypass.maintenance"))
+                ));
+
+                $name = $this->hasTemplateGroup() ? $this->getTemplate()->getDisplayName() : $this->getTemplate()->getName();
+
+                $options = count($servers) === 0
+                    ? [new MenuOption(LanguageKey::INGAME_UI_CLOUDNPC_CHOOSE_SERVER_NO_SERVER())]
+                    : array_map(
+                        fn(CloudServer $s) => new MenuOption(LanguageKey::INGAME_UI_CLOUDNPC_CHOOSE_SERVER_BUTTON_SERVER()->translate(
+                            [
+                                $s->getName(),
+                                count($s->getCloudPlayers()),
+                                $s->getCloudServerData()->getMaxPlayers()
+                            ]
+                        )),
+                        $servers
+                    );
+
+                $damager->sendForm(MenuFormBuilder::create(LanguageKey::INGAME_UI_CLOUDNPC_CHOOSE_SERVER_TITLE()->translate([$name]), LanguageKey::INGAME_UI_CLOUDNPC_CHOOSE_SERVER_TEXT()->translate([count($servers), $name]))
+                    ->elements($options)
+                    ->onSubmit(function (Player $player, int $index) use($servers): void {
+                        $server = $servers[$index] ?? null;
+                        if (!$server instanceof CloudServer) return;
+
+                        $player->sendMessage(LanguageKey::INGAME_SERVER_CONNECT()->translate([$server->getName()]));
+                        if (!CloudPlayerProvider::provider()->transfer($player, $server)) {
+                            $player->sendMessage(LanguageKey::INGAME_SERVER_CONNECT_FAILED()->translate([$server->getName()]));
+                        }
+                    })
+                    ->build()
+                );
             }
         }
     }
 
+    protected function entityBaseTick(int $tickDiff = 1): bool {
+        if (!$this->checkExistence()) {
+            $this->flagForDespawn();
+            return true;
+        }
+
+        $hasUpd = parent::entityBaseTick($tickDiff);
+        $nameTag = Language::current()->translate("inGame.cloudnpc.name_tag" . ($this->isTemplateMaintenance() ? ".maintenance" : ""), [$this->getTemplateOnlineCount(), (!$this->hasTemplateGroup() ? $this->template->getName() : $this->template->getDisplayName())]);
+        if ($this->getNameTag() !== $nameTag) {
+            ($ev = new CloudNPCUpdateEvent($this, $this->getNameTag(), $nameTag))->call();
+            if (!$ev->isCancelled()) $this->setNameTag($ev->getNewNameTag());
+        }
+
+        if ($this->getPosition()->distanceSquared($this->originLocation) >= 0.5) {
+            $this->teleport($this->originLocation);
+        }
+
+        return $hasUpd;
+    }
+
     public function checkExistence(): bool {
-        return CloudNPCModule::get()->checkCloudNPC($this->position);
+        return CloudNPCModule::get()->checkCloudNPC($this->originLocation);
     }
 
     public function isTemplateMaintenance(): bool {
@@ -99,44 +190,12 @@ final class CloudNPC implements Writeable {
         return $servers;
     }
 
-    public function getPosition(): Position {
-        return $this->position;
-    }
-
-    public function despawnEntity(): void {
-        if ($this->entity !== null) {
-            $this->entity->flagForDespawn();
-            $this->entity = null;
-        }
-    }
-
-    public function spawnEntity(): void {
-        if (CloudNPCModule::get()->isEnabled()) {
-            try {
-                $skin = SkinSaver::get($this->creator);
-                if ($this->getSkinModel() !== null && ($tempSkin = $this->customSkinModel->createSkin()) !== null) $skin = $tempSkin;
-                if ($this->entity !== null && !$this->entity->isClosed()) $this->despawnEntity();
-                $yaw = ($this->position instanceof Location ? $this->position->getYaw() : new Randomizer()->getFloat(0, 1) * 360);
-                $pitch = ($this->position instanceof Location ? $this->position->getPitch() : 0);
-                $this->entity = new Human(Location::fromObject($this->position->add(0, 2, 0), $this->position->getWorld(), $yaw, $pitch), $skin);
-                $this->entity->setCanSaveWithChunk(false);
-                $this->entity->setNoClientPredictions();
-                $this->entity->setNameTagAlwaysVisible();
-                ($ev = new CloudNPCSpawnEvent($this, $this->entity))->call();
-                if ($ev->isCancelled()) return;
-                $this->entity->spawnToAll();
-            } catch (Exception $e) {
-                CloudNPCModule::get()->getLogger()->logException($e);
-            }
-        }
+    public function getOriginPosition(): Location {
+        return $this->originLocation;
     }
 
     public function getSkinModel(): ?CustomSkinModel {
         return $this->customSkinModel;
-    }
-
-    public function getEntity(): ?Human {
-        return $this->entity;
     }
 
     public function getCreator(): string {
@@ -147,10 +206,14 @@ final class CloudNPC implements Writeable {
         return $this->headRotation;
     }
 
+    public function isVisibleTo(Player $player): bool {
+        return isset($this->hasSpawned[spl_object_id($player)]) && $this->isAlive();
+    }
+
     public function write(): array {
         if ($this->hasTemplateGroup()) return [
             "group_id" => $this->template->getId(),
-            "position" => Utils::convertToString($this->position),
+            "position" => Utils::convertToString($this->originLocation),
             "creator" => $this->creator,
             "skin_model" => $this->customSkinModel?->getId(),
             "head_rotation" => $this->headRotation
@@ -158,7 +221,7 @@ final class CloudNPC implements Writeable {
 
         return [
             "template" => $this->template->getName(),
-            "position" => Utils::convertToString($this->position),
+            "position" => Utils::convertToString($this->originLocation),
             "creator" => $this->creator,
             "skin_model" => $this->customSkinModel?->getId(),
             "head_rotation" => $this->headRotation

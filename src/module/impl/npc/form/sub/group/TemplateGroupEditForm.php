@@ -40,7 +40,7 @@ final class TemplateGroupEditForm extends MenuForm {
 
             $player->sendForm(MenuFormBuilder::create(LanguageKey::INGAME_UI_TEMPLATE_GROUP_ADD_TEMPLATE_TITLE(), LanguageKey::INGAME_UI_TEMPLATE_GROUP_ADD_TEMPLATE_TEXT())
                 ->elements(array_map(fn(Template $t) => new MenuOption("§e" . $t->getName()), $templates))
-                ->onSubmit(function (Player $player, int $index, MenuOption $option) use($templates): void {
+                ->onSubmit(function (Player $player, int $index) use($templates): void {
                     $template = $templates[$index] ?? null;
                     if ($template !== null) {
                         $this->group->addTemplate($template->getName());
@@ -63,7 +63,7 @@ final class TemplateGroupEditForm extends MenuForm {
             
             $player->sendForm(MenuFormBuilder::create(LanguageKey::INGAME_UI_TEMPLATE_GROUP_REMOVE_TEMPLATE_TITLE(), LanguageKey::INGAME_UI_TEMPLATE_GROUP_REMOVE_TEMPLATE_TEXT())
                 ->elements(array_map(fn(string $t) => new MenuOption("§e" . $t), $templates))
-                ->onSubmit(function (Player $player, int $index, MenuOption $option) use($templates): void {
+                ->onSubmit(function (Player $player, int $index) use($templates): void {
                     $template = $this->templates[$index] ?? null;
                     if ($template !== null) {
                         $this->group->removeTemplate($template);

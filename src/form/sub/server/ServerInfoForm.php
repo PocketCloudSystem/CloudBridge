@@ -67,7 +67,7 @@ final class ServerInfoForm extends CustomForm {
         ];
 
         return MenuFormBuilder::create(
-            "§e" . $server->getName(),
+            $server->getName(),
             implode("\n", $body),
             [
                 new MenuOption("Transfer"),
@@ -76,7 +76,7 @@ final class ServerInfoForm extends CustomForm {
                 new MenuOption("Save"),
                 new MenuOption("Stop")
             ],
-            function (Player $player, int $index, MenuOption $option) use($server): void {
+            function (Player $player, int $index) use($server): void {
                 if ($index == 0) {
                     $player->chat("/transfer " . $server->getName());
                 } else if ($index == 1) {

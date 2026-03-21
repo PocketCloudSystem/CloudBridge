@@ -40,7 +40,7 @@ final class TemplateGroupMainForm extends MenuForm {
 
             $player->sendForm(MenuFormBuilder::create(LanguageKey::INGAME_UI_TEMPLATE_GROUP_EDIT_SELECTION_TITLE(), LanguageKey::INGAME_UI_TEMPLATE_GROUP_EDIT_SELECTION_TEXT())
                 ->elements(array_map(fn(TemplateGroup $g) => new MenuOption($g->getDisplayName() . "\n§r§e" . $g->getId()), $groups))
-                ->onSubmit(function (Player $player, int $index, MenuOption $option) use($groups): void {
+                ->onSubmit(function (Player $player, int $index) use($groups): void {
                     $group = $this->groups[$index] ?? null;
                     if ($group !== null) {
                         $player->sendForm(new TemplateGroupEditForm($group));

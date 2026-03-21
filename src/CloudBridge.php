@@ -48,6 +48,7 @@ final class CloudBridge extends PluginBase {
 
     protected function onLoad(): void {
         self::setInstance($this);
+        if (!is_dir($this->getDataFolder() . "skins")) mkdir($this->getDataFolder() . "skins");
         $this->libraryClassLoader = new LibraryClassLoader();
         CloudEnvironmentConfig::sync();
 

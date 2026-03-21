@@ -3,7 +3,6 @@
 namespace pocketcloud\cloud\bridge\command\util;
 
 use Closure;
-use InvalidArgumentException;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketmine\command\CommandSender;

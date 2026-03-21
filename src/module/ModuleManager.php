@@ -3,7 +3,6 @@
 namespace pocketcloud\cloud\bridge\module;
 
 use InvalidArgumentException;
-use LogicException;
 use pocketcloud\cloud\bridge\api\cache\InGameModuleCache;
 use pocketcloud\cloud\bridge\module\impl\hubCommand\HubCommandModule;
 use pocketcloud\cloud\bridge\module\impl\npc\CloudNPCModule;

@@ -21,7 +21,7 @@ final class ManageModulesForm extends MenuForm {
         $elements = [
             new MenuOption(LanguageKey::INGAME_UI_MANAGE_MODULE_BUTTON_ENABLE(), extraData: ["action" => "enable"]),
             new MenuOption(LanguageKey::INGAME_UI_MANAGE_MODULE_BUTTON_DISABLE(), extraData: ["action" => "disable"]),
-            new Divider(),
+            new Divider()
         ];
 
         $elements = array_merge(
@@ -30,7 +30,7 @@ final class ManageModulesForm extends MenuForm {
                 fn(Module $m) => new MenuOption(
                     Utils::multiLine(
                         ($m->isEnabled() ? "§a" : "§c") . $m->getName(),
-                        "§7" . $m->getDescription()
+                        "§r" . $m->getDescription()
                     ),
                     extraData: ["moduleName" => $m->getName()]
                 ),

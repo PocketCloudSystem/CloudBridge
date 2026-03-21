@@ -40,7 +40,7 @@ final class SkinModelMainForm extends MenuForm {
 
             $player->sendForm(MenuFormBuilder::create(LanguageKey::INGAME_UI_SKIN_MODEL_EDIT_SELECTION_TITLE(), LanguageKey::INGAME_UI_SKIN_MODEL_EDIT_SELECTION_TEXT())
                 ->elements(array_map(fn(CustomSkinModel $m) => new MenuOption("§e" . $m->getId()), $models))
-                ->onSubmit(function (Player $player, int $index, MenuOption $option) use ($models): void {
+                ->onSubmit(function (Player $player, int $index) use ($models): void {
                     $model = $models[$index] ?? null;
                     if ($model !== null) {
                         $player->sendForm(new SkinModelEditForm($model));
