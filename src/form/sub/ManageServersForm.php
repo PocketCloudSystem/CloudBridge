@@ -27,15 +27,15 @@ final class ManageServersForm extends MenuForm {
         $this->mechanism = $mechanism;
 
         $runningServers = $mechanism?->filter(CloudServerProvider::provider()->getAll()) ?? CloudServerProvider::provider()->getAll();
-        $maxPages = max(1, intval(ceil(count($runningServers) / FormConstants::MAX_SERVERS_PER_PAGE)));
+        $maxPages = max(1, intval(ceil(count($runningServers) / FormConstants::MAX_ENTRIES_PER_PAGE)));
       
         if ($this->requestedPage >= $maxPages) $this->requestedPage = $maxPages - 1;
         if ($this->requestedPage < 0) $this->requestedPage = 0;
 
         $displayedServers = array_slice(
             array_values($runningServers),
-            $this->requestedPage * FormConstants::MAX_SERVERS_PER_PAGE,
-            FormConstants::MAX_SERVERS_PER_PAGE
+            $this->requestedPage * FormConstants::MAX_ENTRIES_PER_PAGE,
+            FormConstants::MAX_ENTRIES_PER_PAGE
         );
 
         $displayedPage = $this->requestedPage + 1;
@@ -44,7 +44,7 @@ final class ManageServersForm extends MenuForm {
             new MenuOption(LanguageKey::INGAME_UI_MANAGE_SERVER_BUTTON_START(), extraData: ["action" => "start"]),
             new MenuOption(LanguageKey::INGAME_UI_MANAGE_SERVER_BUTTON_STOP(), extraData: ["action" => "stop"]),
             new MenuOption(LanguageKey::INGAME_UI_MANAGE_SERVER_BUTTON_INFO(), extraData: ["action" => "info"]),
-            new MenuOption("§6" . LanguageKey::INGAME_UI_MANAGE_SERVER_BUTTON_LIST() . " §8(filter)", extraData: ["action" => "filter"]),
+            new MenuOption(LanguageKey::INGAME_UI_MANAGE_SERVER_BUTTON_LIST() . " §c(filter)", extraData: ["action" => "filter"]),
             new Divider(),
         ];
 
@@ -53,7 +53,7 @@ final class ManageServersForm extends MenuForm {
             array_map(
                 fn(CloudServer $server) => new MenuOption(
                     Utils::multiLine(
-                        "§e" . $server->getName(),
+                        $server->getName(),
                         $server->getServerStatus()->getDisplay() .
                         " §8| §a" .
                         $server->getPlayerCount() .

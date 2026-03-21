@@ -17,8 +17,18 @@ final class StartServerForm extends CustomForm {
     /** @var array<Template> */
     private array $templates;
 
-    public function __construct() {
+    public function __construct(?Template $preSelected = null) {
         $this->templates = array_values(TemplateProvider::provider()->getAll());
+
+        $defaultIndex = 0;
+        if ($preSelected !== null) {
+            foreach ($this->templates as $i => $p) {
+                if ($p->getName() === $preSelected->getName()) {
+                    $defaultIndex = $i;
+                    break;
+                }
+            }
+        }
 
         parent::__construct(
             LanguageKey::INGAME_UI_MANAGE_SERVER_SUB_START_TITLE(),
@@ -26,32 +36,20 @@ final class StartServerForm extends CustomForm {
                 new Dropdown(
                     "template",
                     LanguageKey::INGAME_UI_MANAGE_SERVER_SUB_START_DROPDOWN_TEXT(),
-                    array_map(fn(Template $t) => $t->getName(), $this->templates)
+                    array_map(fn(Template $t) => $t->getName(), $this->templates),
+                    $defaultIndex
                 ),
                 new Slider(
                     "count",
                     LanguageKey::INGAME_UI_MANAGE_SERVER_SUB_START_COUNT_TEXT(),
-                    1.0, 10.0, 1.0, 1.0
+                    1.0, 20.0, 1.0, 1.0
                 )
-            ]
+            ],
+            true
         );
     }
 
     public function onSubmit(Player $player, CustomFormResponse $response): void {
-        $template = $this->templates[$response->getInt("template")] ?? null;
-        if ($template === null) {
-            $player->sendMessage(LanguageKey::INGAME_TEMPLATE_NOT_FOUND());
-            return;
-        }
-
-        $count = $response->getInt("count");
-        $running = count(CloudServerProvider::provider()->getAll($template));
-
-        if ($running + $count > $template->getMaxServerCount()) {
-            $player->sendMessage(LanguageKey::INGAME_MAX_SERVERS_REACHED()->translate([$template->getName()]));
-            return;
-        }
-
-        CloudServerProvider::provider()->start($template->getName(), $count);
+        $player->chat("/cloud start " . $response->getString("template") . " " . $response->getInt("count"));
     }
 }

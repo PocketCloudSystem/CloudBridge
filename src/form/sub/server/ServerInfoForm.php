@@ -4,11 +4,16 @@ namespace pocketcloud\cloud\bridge\form\sub\server;
 
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
+use pocketcloud\cloud\bridge\form\sub\ManagePlayersForm;
+use pocketcloud\cloud\bridge\form\sub\template\TemplateInfoForm;
+use pocketcloud\cloud\bridge\form\util\FormFilterMechanism;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\util\Utils;
 use pocketmine\player\Player;
+use r3pt1s\forms\builder\MenuFormBuilder;
 use r3pt1s\forms\element\custom\Dropdown;
+use r3pt1s\forms\element\menu\MenuOption;
 use r3pt1s\forms\type\custom\CustomForm;
+use r3pt1s\forms\type\menu\MenuForm;
 use r3pt1s\forms\type\misc\CustomFormResponse;
 
 final class ServerInfoForm extends CustomForm {
@@ -49,15 +54,41 @@ final class ServerInfoForm extends CustomForm {
             return;
         }
 
-        $player->sendMessage(Utils::multiLine(
-            "§8━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "§b§l" . $server->getName(),
-            "§8━━━━━━━━━━━━━━━━━━━━━━━━━",
-            "§7Template§8: §e" . $server->getTemplateName(),
-            "§7Status§8:   " . $server->getServerStatus()->getDisplay(),
-            "§7Players§8:  §a" . $server->getPlayerCount() . "§8/§c" . $server->getServerData()->getMaxPlayers(),
-            "§7Port§8:     §b" . $server->getServerData()->getPort(),
-            "§8━━━━━━━━━━━━━━━━━━━━━━━━━"
-        ));
+        $player->sendForm($this->serverInfoViewForm($server));
+    }
+
+    private function serverInfoViewForm(CloudServer $server): MenuForm {
+        $body = [
+            "§7Template: §b" . $server->getTemplateName() . " §8(§b" . $server->getTemplateName() . "§8/§b" . $server->getId() . "§8)",
+            "§7Player Count: §b" . $server->getPlayerCount() . "§8/§c" . $server->getServerData()->getMaxPlayers(),
+            "§7Server UUID: §b" . $server->getServerUuid(),
+            "§7Port: §b" . $server->getServerData()->getPort(),
+            "§7Status: §b" . $server->getServerStatus()->getDisplay()
+        ];
+
+        return MenuFormBuilder::create(
+            "§e" . $server->getName(),
+            implode("\n", $body),
+            [
+                new MenuOption("Transfer"),
+                new MenuOption("Manage Players"),
+                new MenuOption("View Template"),
+                new MenuOption("Save"),
+                new MenuOption("Stop")
+            ],
+            function (Player $player, int $index, MenuOption $option) use($server): void {
+                if ($index == 0) {
+                    $player->chat("/transfer " . $server->getName());
+                } else if ($index == 1) {
+                    $player->sendForm(new ManagePlayersForm(FormFilterMechanism::SERVER($server->getName()), 1));
+                } else if ($index == 2) {
+                    $player->sendForm(new TemplateInfoForm($server->getTemplate()));
+                } else if ($index == 3) {
+                    $player->chat("/cloud save " . $server->getName());
+                } else if ($index == 4) {
+                    $player->chat("/cloud stop " . $server->getName());
+                }
+            }
+        )->build();
     }
 }

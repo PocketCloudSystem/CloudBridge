@@ -11,7 +11,7 @@ final class InGameModuleCache {
     private static array $moduleStates = [
         self::SIGN_MODULE => false,
         self::NPC_MODULE => false,
-        self::HUB_COMMAND_MODULE => false,
+        self::HUB_COMMAND_MODULE => false
     ];
 
     public static function setModuleState(string $module, bool $enabled): void {

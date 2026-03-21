@@ -47,8 +47,7 @@ final class CloudServerProvider implements CloudAPIProvider {
     }
 
     public function getAll(?Template $template = null): array {
-        if ($template !== null) return array_filter($this->servers, fn(CloudServer $server) => $template->getName() ==
-            $server->getTemplate()->getName());
+        if ($template !== null) return array_filter($this->servers, fn(CloudServer $server) => $template->getName() == $server->getTemplate()->getName());
         return $this->servers;
     }
 

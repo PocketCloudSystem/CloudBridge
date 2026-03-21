@@ -54,12 +54,12 @@ final class CloudPlayer implements Writeable {
         $this->currentProxy = array_key_exists("currentProxy", $data) ? $data["currentProxy"] : $this->currentProxy;
     }
 
-    public function sendMessage(string $message): bool {
-        return $this->send($message, TextType::MESSAGE);
-    }
-
     public function send(string $message, TextType $textType): bool {
         return PlayerTextPacket::create($this->getName(), $message, $textType)->sendPacket();
+    }
+
+    public function sendMessage(string $message): bool {
+        return $this->send($message, TextType::MESSAGE);
     }
 
     public function getName(): string {

@@ -9,7 +9,9 @@ use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\language\LanguageKey;
+use pocketcloud\cloud\bridge\network\packet\data\LogType;
 use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\impl\ConsoleLogPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerHandshakeResponsePacket;
@@ -75,6 +77,10 @@ final class CloudAPI {
 
             Server::getInstance()->shutdown();
         });
+    }
+
+    public function logConsole(string $message, ?LogType $logType = null): bool {
+        return ConsoleLogPacket::create($message, $logType ?? LogType::INFO)->sendPacket();
     }
 
     public function getVerifyStatus(): VerifyStatus {

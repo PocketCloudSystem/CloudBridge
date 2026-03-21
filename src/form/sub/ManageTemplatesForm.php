@@ -2,11 +2,10 @@
 
 namespace pocketcloud\cloud\bridge\form\sub;
 
-use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
-use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
-use pocketcloud\cloud\bridge\form\sub\player\KickPlayerForm;
+use pocketcloud\cloud\bridge\api\object\template\Template;
+use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\form\sub\player\PlayerInfoForm;
-use pocketcloud\cloud\bridge\form\sub\player\TextPlayerForm;
+use pocketcloud\cloud\bridge\form\sub\template\TemplateInfoForm;
 use pocketcloud\cloud\bridge\form\util\FormConstants;
 use pocketcloud\cloud\bridge\form\util\FormFilterMechanism;
 use pocketcloud\cloud\bridge\language\LanguageKey;
@@ -16,7 +15,7 @@ use r3pt1s\forms\element\menu\MenuOption;
 use r3pt1s\forms\element\text\Divider;
 use r3pt1s\forms\type\menu\MenuForm;
 
-final class ManagePlayersForm extends MenuForm {
+final class ManageTemplatesForm extends MenuForm {
 
     private ?FormFilterMechanism $mechanism;
 
@@ -26,32 +25,30 @@ final class ManagePlayersForm extends MenuForm {
     ) {
         $this->mechanism = $mechanism;
 
-        $allPlayers = $mechanism?->filter(CloudPlayerProvider::provider()->getAll()) ?? CloudPlayerProvider::provider()->getAll();
-        $maxPages = max(1, intval(ceil(count($allPlayers) / FormConstants::MAX_ENTRIES_PER_PAGE)));
+        $templates = $mechanism?->filter(TemplateProvider::provider()->getAll()) ?? TemplateProvider::provider()->getAll();
+        $maxPages = max(1, intval(ceil(count($templates) / FormConstants::MAX_ENTRIES_PER_PAGE)));
 
         if ($this->requestedPage >= $maxPages) $this->requestedPage = $maxPages - 1;
         if ($this->requestedPage < 0) $this->requestedPage = 0;
 
-        $displayed = array_slice(array_values($allPlayers), $this->requestedPage * FormConstants::MAX_ENTRIES_PER_PAGE, FormConstants::MAX_ENTRIES_PER_PAGE);
+        $displayed = array_slice(array_values($templates), $this->requestedPage * FormConstants::MAX_ENTRIES_PER_PAGE, FormConstants::MAX_ENTRIES_PER_PAGE);
         $displayedPage = $this->requestedPage + 1;
 
         $elements = [
-            new MenuOption(LanguageKey::INGAME_UI_MANAGE_PLAYER_BUTTON_TEXT(), extraData: ["action" => "text"]),
-            new MenuOption(LanguageKey::INGAME_UI_MANAGE_PLAYER_BUTTON_KICK(), extraData: ["action" => "kick"]),
-            new MenuOption(LanguageKey::INGAME_UI_MANAGE_PLAYER_BUTTON_INFO(), extraData: ["action" => "info"]),
-            new MenuOption(LanguageKey::INGAME_UI_MANAGE_PLAYER_BUTTON_LIST() . " §c(filter)", extraData: ["action" => "filter"]),
-            new Divider(),
+            new MenuOption(LanguageKey::INGAME_UI_MANAGE_TEMPLATE_BUTTON_INFO(), extraData: ["action" => "info"]),
+            new MenuOption(LanguageKey::INGAME_UI_MANAGE_TEMPLATE_BUTTON_LIST() . " §c(filter)", extraData: ["action" => "filter"]),
+            new Divider()
         ];
 
         $elements = array_merge(
             $elements,
             array_map(
-                fn(CloudPlayer $p) => new MenuOption(
+                fn(Template $t) => new MenuOption(
                     Utils::multiLine(
-                        $p->getName(),
-                        "§b" . ($p->getCurrentServerName() ?? "§c-")
+                        $t->getName(),
+                        "§b" . $t->getPlayerCount() . " Players"
                     ),
-                    extraData: ["playerName" => $p->getName()]
+                    extraData: ["templateName" => $t->getName()]
                 ),
                 $displayed
             )
@@ -61,9 +58,9 @@ final class ManagePlayersForm extends MenuForm {
         if ($this->requestedPage > 0) $elements[] = new MenuOption("Previous Page", extraData: ["action" => FormConstants::ACTION_PREVIOUS_PAGE]);
 
         parent::__construct(
-            LanguageKey::INGAME_UI_MANAGE_PLAYER_TITLE(),
+            LanguageKey::INGAME_UI_MANAGE_TEMPLATE_TITLE(),
             Utils::multiLine(
-                "§7Online Players" . ($mechanism !== null ? " §8(§cfiltered§8)" : "") . ": §b" . count($allPlayers),
+                "§7Templates§8:" . ($mechanism !== null ? " §8(§cfiltered§8)" : "") . ": §b" . count($templates),
                 "§7Page§8: §a" . $displayedPage . "§8/§c" . $maxPages
             ),
             $elements
@@ -74,8 +71,6 @@ final class ManagePlayersForm extends MenuForm {
         $action = $option->get("action");
         if ($action !== null) {
             match ($action) {
-                "text" => $player->sendForm(new TextPlayerForm()),
-                "kick" => $player->sendForm(new KickPlayerForm()),
                 "info" => $player->sendForm(new PlayerInfoForm()),
                 "filter" => FormFilterMechanism::awaitMechanismOption($player)->onCompletion(
                     fn(?FormFilterMechanism $mechanism) => $player->sendForm(new self($mechanism, $this->requestedPage)),
@@ -89,13 +84,13 @@ final class ManagePlayersForm extends MenuForm {
             return;
         }
 
-        $playerName = $option->get("playerName");
-        if ($playerName !== null) {
-            $cloudPlayer = CloudPlayerProvider::provider()->get($playerName);
-            if ($cloudPlayer !== null) {
-                $player->sendForm(new PlayerInfoForm($cloudPlayer));
+        $templateName = $option->get("templateName");
+        if ($templateName !== null) {
+            $template = TemplateProvider::provider()->get($templateName);
+            if ($template !== null) {
+                $player->sendForm(new TemplateInfoForm($template));
             } else {
-                $player->sendMessage(LanguageKey::INGAME_PLAYER_NOT_FOUND());
+                $player->sendMessage(LanguageKey::INGAME_TEMPLATE_NOT_FOUND());
             }
         }
     }

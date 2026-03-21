@@ -40,8 +40,13 @@ final class KickPlayerForm extends CustomForm {
                 ),
                 new Input(
                     "reason",
-                    LanguageKey::INGAME_UI_MANAGE_PLAYER_SUB_KICK_REASON_TEXT(),
-                    "You were kicked!"
+                    "Reason §8(§cOptional§8, §7= Console reason§8)",
+                    "..."
+                ),
+                new Input(
+                    "disconnectScreenMessage",
+                    "Disconnect Screen Message §8(§cOptional§8, §7= Player screen message§8)",
+                    "..."
                 )
             ]
         );
@@ -54,9 +59,8 @@ final class KickPlayerForm extends CustomForm {
             return;
         }
 
-        $reason = trim($response->getString("reason"));
-        if ($reason === "") $reason = "Kicked by an admin";
-
-        $target->kick($reason, $reason);
+        $reason = $response->getString("reason");
+        $disconnectScreenMessage = $response->getString("disconnectScreenMessage");
+        $player->chat("/cloud kick " . $target->getName() . " \"$reason\" \"$disconnectScreenMessage\"");
     }
 }

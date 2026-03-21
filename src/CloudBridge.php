@@ -67,8 +67,8 @@ final class CloudBridge extends PluginBase {
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->registerPermission("pocketcloud.command.notify", "pocketcloud.command.cloud", "pocketcloud.bypass.maintenance");
         $this->registerPermission("pocketcloud.command.hub", "pocketcloud.command.transfer");
+        $this->registerPermission("pocketcloud.command.cloudnpc", "pocketcloud.command.template_group");
         $this->registerPermission("pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
-
 
         ProcessUtils::startCpuRetrieveCycle();
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {

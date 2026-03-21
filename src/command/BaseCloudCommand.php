@@ -92,7 +92,7 @@ abstract class BaseCloudCommand extends Command implements PluginOwned {
     final public function buildUsage(): string {
         $usages = [];
         foreach ($this->subCommands as $subCommand) {
-            $usages[] = LanguageKey::INGAME_PREFIX() .  "§c" . $subCommand->buildUsage();
+            $usages[] = "§c" . $subCommand->buildUsage();
         }
 
         if (!empty($this->parameters)) {
@@ -144,8 +144,7 @@ abstract class BaseCloudCommand extends Command implements PluginOwned {
                 $important = true;
             } else if ($command instanceof VanillaCommand) {
                 $description = $description instanceof Translatable ? $player->getLanguage()->translate($description) : $description;
-                if (method_exists(AvailableCommandsPacket::class, "convertArg") &&
-                    method_exists($player->getNetworkSession(), "getProtocolId")) {
+                if (method_exists(AvailableCommandsPacket::class, "convertArg") && method_exists($player->getNetworkSession(), "getProtocolId")) {
                     $overloads = [new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::convertArg($player->getNetworkSession()->getProtocolId(), AvailableCommandsPacket::ARG_TYPE_RAWTEXT), 0, true)])];
                 } else {
                     $overloads = [new CommandOverload(chaining: false, parameters: [CommandParameter::standard("args", AvailableCommandsPacket::ARG_TYPE_RAWTEXT, 0, true)])];
@@ -170,7 +169,7 @@ abstract class BaseCloudCommand extends Command implements PluginOwned {
     }
 
     public function mustUseSubCommands(): int {
-        return count($this->subCommands) > 0 && count($this->parameters) == 0;
+        return count($this->subCommands) > 0 && count($this->parameters) == 0 && count(array_filter($this->subCommands, fn(SubCommandData $subCommand) => $subCommand->isOptional())) !== count($this->subCommands);
     }
 
     public function getSubCommands(): array {

@@ -5,6 +5,7 @@ namespace pocketcloud\cloud\bridge\network\packet;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudNotificationPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\CloudSyncServerStoragePacket;
+use pocketcloud\cloud\bridge\network\packet\impl\ConsoleLogPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\LanguageSyncPacket;
@@ -83,6 +84,7 @@ final class PacketPool {
         $this->register(ServerStopResponsePacket::class);
         $this->register(ServerSaveRequestPacket::class);
         $this->register(ServerSaveResponsePacket::class);
+        $this->register(ConsoleLogPacket::class);
     }
 
     public function register(string $packetClass): void {
