@@ -15,7 +15,7 @@ final class PlayerSession {
 
     private ?int $signInteractionCooldown = null;
 
-    public function __construct(private string $name) {}
+    public function __construct(private readonly string $name) {}
 
     public function tick(): void {
         if ($this->npcInteractionCooldown !== null && $this->npcInteractionCooldown <= Server::getInstance()->getTick()) {

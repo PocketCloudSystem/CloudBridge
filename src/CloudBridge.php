@@ -15,6 +15,7 @@ use pocketcloud\cloud\bridge\player\PlayerSessionManager;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;
 use pocketcloud\cloud\bridge\task\ServerTimeoutTask;
 use pocketcloud\cloud\bridge\task\StatusChangeTask;
+use pocketcloud\cloud\bridge\traffic\TrafficMonitorManager;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\loader\LibraryClassLoader;
 use pocketcloud\cloud\bridge\util\net\Address;
@@ -35,6 +36,9 @@ final class CloudBridge extends PluginBase {
     private LibraryClassLoader $libraryClassLoader;
     private CloudAPI $cloudAPI;
     private Network $network;
+    private PlayerSessionManager $sessionManager;
+    private ModuleManager $moduleManager;
+    private TrafficMonitorManager $trafficMonitorManager;
 
     public function registerCommands(): void {
         $this->getServer()->getCommandMap()->registerAll("cloudBridge", [
@@ -61,8 +65,9 @@ final class CloudBridge extends PluginBase {
         $this->network->init();
         $this->network->start();
 
-        new PlayerSessionManager();
-        new ModuleManager();
+        $this->sessionManager = new PlayerSessionManager();
+        $this->moduleManager = new ModuleManager();
+        $this->trafficMonitorManager = new TrafficMonitorManager();
 
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
@@ -77,6 +82,7 @@ final class CloudBridge extends PluginBase {
         }), 40, 40);
 
         $this->getScheduler()->scheduleRepeatingTask(new ClosureTask(function (): void {
+            TrafficMonitorManager::getInstance()->tick(Server::getInstance()->getTick());
             PlayerSessionManager::getInstance()->tick();
             ModuleManager::getInstance()->tick();
         }), 1);
@@ -105,24 +111,36 @@ final class CloudBridge extends PluginBase {
         $this->getScheduler()->scheduleRepeatingTask(new StatusChangeTask(), 20);
     }
 
-    public function getLastAliveCheck(): int {
-        return $this->lastAliveCheck;
-    }
-
     public function setLastAliveCheck(int $lastAliveCheck): void {
         $this->lastAliveCheck = $lastAliveCheck;
+    }
+
+    public function getLastAliveCheck(): int {
+        return $this->lastAliveCheck;
     }
 
     public function getLibraryClassLoader(): LibraryClassLoader {
         return $this->libraryClassLoader;
     }
 
+    public function getCloudAPI(): CloudAPI {
+        return $this->cloudAPI;
+    }
+
     public function getNetwork(): Network {
         return $this->network;
     }
 
-    public function getCloudAPI(): CloudAPI {
-        return $this->cloudAPI;
+    public function getSessionManager(): PlayerSessionManager {
+        return $this->sessionManager;
+    }
+
+    public function getModuleManager(): ModuleManager {
+        return $this->moduleManager;
+    }
+
+    public function getTrafficMonitorManager(): TrafficMonitorManager {
+        return $this->trafficMonitorManager;
     }
 
     public static function getInstance(): self {

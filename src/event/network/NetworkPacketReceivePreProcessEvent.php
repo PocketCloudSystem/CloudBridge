@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\event\network;
 
+use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\util\net\Address;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
@@ -10,11 +11,16 @@ final class NetworkPacketReceivePreProcessEvent extends NetworkEvent implements 
     use CancellableTrait;
 
     public function __construct(
-        private readonly string $buffer,
-        private readonly bool $encryption,
-        Address $sender
+        Network $network,
+        protected readonly Address $sender,
+        protected readonly string $buffer,
+        protected readonly bool $encryption
     ) {
-        parent::__construct($sender);
+        parent::__construct($network);
+    }
+
+    public function getSender(): Address {
+        return $this->sender;
     }
 
     public function getBuffer(): string {

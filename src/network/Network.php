@@ -10,7 +10,8 @@ use pocketcloud\cloud\bridge\event\network\NetworkCloseEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketPreSendEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceivePreProcessEvent;
-use pocketcloud\cloud\bridge\event\network\NetworkPacketSendEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketSentEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketTooLargeEvent;
 use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\PacketPool;
@@ -57,19 +58,18 @@ final class Network extends Thread {
                     $unhandledPacket->getBuffer(), $bytes, $unhandledPacket->getAddress()
                 );
 
-                ($ev = new NetworkPacketReceivePreProcessEvent($unhandledPacket->getBuffer(), $encryption = CloudEnvironmentConfig::isNetworkEncryptionEnabled(), $unhandledPacket->getAddress()))->call();
+                ($ev = new NetworkPacketReceivePreProcessEvent($this, $unhandledPacket->getAddress(), $unhandledPacket->getBuffer(), $encryption = CloudEnvironmentConfig::isNetworkEncryptionEnabled()))->call();
                 if ($ev->isCancelled()) return;
 
                 try {
-                    if (($packet = $unhandledPacket->buildCloudPacket($encryption, CloudEnvironmentConfig::getNetworkAuthKey())) !==
-                        null) {
+                    if (($packet = $unhandledPacket->buildCloudPacket($encryption, CloudEnvironmentConfig::getNetworkAuthKey())) !== null) {
                         TrafficMonitorManager::getInstance()->callHandlers(
                             TrafficMonitorManager::TRAFFIC_NETWORK,
                             NetworkTrafficMonitor::parsePacketMode(NetworkTrafficMonitor::NETWORK_MODE_PACKET_IN, $packet::class),
                             $packet, $unhandledPacket->getAddress()
                         );
 
-                        ($ev = new NetworkPacketReceiveEvent($packet, $unhandledPacket->getAddress()))->call();
+                        ($ev = new NetworkPacketReceiveEvent($this, $unhandledPacket->getAddress(), $packet))->call();
                         if ($ev->isCancelled()) return;
                         $packet->handle();
 
@@ -110,26 +110,28 @@ final class Network extends Thread {
 
     public function sendPacket(CloudboundPacket $packet): bool {
         if (!$this->connected) return false;
-        if ($packet instanceof RequestPacket &&
-            !$packet->isPrepared()) throw new LogicException("RequestPackets cannot be directly sent over Network->sendPacket, please use " .
-            $packet::class .
-            "::dynamicRequest or the RequestManager");
-        ($ev = new NetworkPacketPreSendEvent($packet, $this->address))->call();
+        if ($packet instanceof RequestPacket && !$packet->isPrepared()) throw new LogicException("RequestPackets cannot be directly sent over Network->sendPacket, please use " . $packet::class . "::dynamicRequest or the RequestManager");
+        ($ev = new NetworkPacketPreSendEvent($this, $this->address, $packet))->call();
         if ($ev->isCancelled()) return false;
         $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled(), CloudEnvironmentConfig::getNetworkAuthKey());
         if ($buffer === null) return false;
-        $success = $this->write($buffer);
+        $success = $this->write($buffer, $bytes);
+        if ($bytes > 65507) {
+            new NetworkPacketTooLargeEvent($this, $this->address, $packet, $bytes, $buffer)->call();
+            return false;
+        }
+
         TrafficMonitorManager::getInstance()->callHandlers(
             TrafficMonitorManager::TRAFFIC_NETWORK,
             NetworkTrafficMonitor::parsePacketMode(NetworkTrafficMonitor::NETWORK_MODE_PACKET_OUT, $packet::class),
             $packet, $this->address, $success
         );
 
-        new NetworkPacketSendEvent($packet, $this->address, $success)->call();
+        new NetworkPacketSentEvent($this, $this->address, $packet, $success)->call();
         return $success;
     }
 
-    public function write(string $buffer): bool {
+    public function write(string $buffer, ?int &$bytes = null): bool {
         if (!$this->connected) return false;
         $sent = socket_send($this->socket, $buffer, $bytes = strlen($buffer), 0);
         if ($sent === false) return false;
@@ -157,7 +159,7 @@ final class Network extends Thread {
         Server::getInstance()->getTickSleeper()->removeNotifier($this->handlerEntry->getNotifierId());
         @socket_close($this->socket);
         $this->connected = false;
-        new NetworkCloseEvent()->call();
+        new NetworkCloseEvent($this)->call();
     }
 
     protected function onRun(): void {

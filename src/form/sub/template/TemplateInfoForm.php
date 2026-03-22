@@ -82,7 +82,7 @@ final class TemplateInfoForm extends CustomForm {
                 new MenuOption("Start new server"),
                 new MenuOption("Stop a server")
             ],
-            function (Player $player, int $index, MenuOption $option) use($template): void {
+            function (Player $player, int $index) use($template): void {
                 if ($index == 0) {
                     $player->sendForm(new ManageServersForm(FormFilterMechanism::TEMPLATE($template->getName())));
                 } else if ($index == 1) {
