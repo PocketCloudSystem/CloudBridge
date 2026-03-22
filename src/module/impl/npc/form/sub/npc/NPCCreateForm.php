@@ -62,7 +62,7 @@ final class NPCCreateForm extends CustomForm {
         $selectedModel = $response->getString("model");
         $model = ($selectedModel === "NONE") ? null : CloudNPCModule::get()->getSkinModel($selectedModel);
 
-        if (CloudNPCModule::get()->checkCloudNPC($player->getPosition())) {
+        if (CloudNPCModule::get()->checkCloudNPC($player->getLocation())) {
             $player->sendMessage(LanguageKey::INGAME_PREFIX() . "§cThere is already a NPC at your position!");
             return;
         }

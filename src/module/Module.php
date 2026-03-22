@@ -3,7 +3,6 @@
 namespace pocketcloud\cloud\bridge\module;
 
 use AttachableLogger;
-use LogicException;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketmine\Server;
 

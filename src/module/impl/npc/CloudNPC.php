@@ -25,7 +25,6 @@ use pocketmine\event\entity\EntityDamageByEntityEvent;
 use pocketmine\event\entity\EntityDamageEvent;
 use pocketmine\nbt\tag\CompoundTag;
 use pocketmine\player\Player;
-use pocketmine\world\Position;
 use r3pt1s\forms\builder\MenuFormBuilder;
 use r3pt1s\forms\element\menu\MenuOption;
 
@@ -100,8 +99,8 @@ final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEnti
                         fn(CloudServer $s) => new MenuOption(LanguageKey::INGAME_UI_CLOUDNPC_CHOOSE_SERVER_BUTTON_SERVER()->translate(
                             [
                                 $s->getName(),
-                                count($s->getCloudPlayers()),
-                                $s->getCloudServerData()->getMaxPlayers()
+                                $s->getPlayerCount(),
+                                $s->getServerData()->getMaxPlayers()
                             ]
                         )),
                         $servers
@@ -137,7 +136,7 @@ final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEnti
             if (!$ev->isCancelled()) $this->setNameTag($ev->getNewNameTag());
         }
 
-        if ($this->getPosition()->distanceSquared($this->originLocation) >= 0.5) {
+        if ($this->getLocation()->distanceSquared($this->originLocation) >= 0.5) {
             $this->teleport($this->originLocation);
         }
 
@@ -229,8 +228,7 @@ final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEnti
     }
 
     public static function read(array $data): ?CloudNPC {
-        if (Utils::containKeys($data, "group_id", "position", "creator", "skin_model") ||
-            Utils::containKeys($data, "template", "position", "creator", "skin_model")) {
+        if (Utils::containKeys($data, "group_id", "position", "creator", "skin_model") || Utils::containKeys($data, "template", "position", "creator", "skin_model")) {
             $headRotation = !isset($data["head_rotation"]) || !is_bool($data["head_rotation"]) || $data["head_rotation"];
             if ($data["skin_model"] !== null) $data["skin_model"] = CloudNPCModule::get()->getSkinModel($data["skin_model"]);
             if (isset($data["group_id"])) {
@@ -245,7 +243,7 @@ final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEnti
 
             /** @var Location $position */
             $position = Utils::convertToVector($data["position"]);
-            if (($template = TemplateProvider::provider()->get($data["template"])) !== null && $position instanceof Position) {
+            if (($template = TemplateProvider::provider()->get($data["template"])) !== null && $position instanceof Location) {
                 return new CloudNPC($template, $position, $data["creator"], $data["skin_model"], $headRotation);
             }
         }

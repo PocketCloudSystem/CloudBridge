@@ -10,6 +10,7 @@ use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
+use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\module\Module;
@@ -20,7 +21,9 @@ use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStartResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStopResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\RequestPacket;
+use pocketcloud\cloud\bridge\network\packet\RequestPacketFailureReason;
 use pocketmine\command\CommandSender;
+use Throwable;
 
 final class SubCommandExecutors {
 
@@ -33,18 +36,25 @@ final class SubCommandExecutors {
             $sender->sendMessage("§cCloud request timeout");
         } else if ($errorReason === ServerErrorReason::SERVER_EXISTENCE) {
             $sender->sendMessage(LanguageKey::INGAME_SERVER_NOT_FOUND());
-        } else if ($errorReason === ServerErrorReason::NO_ERROR) {
+        } else if ($errorReason === ServerErrorReason::NONE) {
             if ($requestPacket instanceof ServerSaveRequestPacket) {
                 $sender->sendMessage(LanguageKey::INGAME_SERVER_SAVED());
             }
         }
     }
 
-    private static function handleRequestTimeout(RequestPacket $requestPacket, CommandSender $sender): void {
+    private static function handleRequestTimeout(RequestPacket $requestPacket, CommandSender $sender, ?Throwable $e, ?RequestPacketFailureReason $failureReason): void {
+        if ($e !== null) {
+            CloudBridge::getInstance()->getLogger()->logException($e);
+            $sender->sendMessage("§cSomething unexpected happened: An error occurred. (" . ($failureReason?->name ?? "Unknown failure reason") . ")");
+            $sender->sendMessage($e->getMessage());
+            return;
+        }
+
         $sender->sendMessage("§8[§b" . $requestPacket->getName() . "§8/§c" . $requestPacket->getRequestId() . "§8] §cRequest timed out");
     }
 
-    public static function handleStartSub(CommandSender $sender, array $args): bool {
+    public static function handleStartSub(CommandSender $sender, string $commandLabel, array $args): bool {
         /** @var Template $template */
         $template = $args["template"];
         $count = $args["count"] ?? 1;
@@ -52,34 +62,34 @@ final class SubCommandExecutors {
 
         ($pk = CloudServerProvider::provider()->start($template, $count))
             ->then(fn(ServerStartResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk, $template->getName()))
-            ->failure(fn() => self::handleRequestTimeout($pk, $sender));
+            ->failure(fn(RequestPacket $packet, ?Throwable $e, ?RequestPacketFailureReason $failureReason) => self::handleRequestTimeout($pk, $sender, $e, $failureReason));
 
         return true;
     }
 
-    public static function handleStopSub(CommandSender $sender, array $args): bool {
+    public static function handleStopSub(CommandSender $sender, string $commandLabel, array $args): bool {
         $object = $args["object"];
         $forcefully = $args["forcefully"] ?? false;
 
         ($pk = CloudServerProvider::provider()->stop($object, $forcefully))
             ->then(fn(ServerStopResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk, $object))
-            ->failure(fn() => self::handleRequestTimeout($pk, $sender));
+            ->failure(fn(RequestPacket $packet, ?Throwable $e, ?RequestPacketFailureReason $failureReason) => self::handleRequestTimeout($pk, $sender, $e, $failureReason));
 
         return true;
     }
 
-    public static function handleSaveSub(CommandSender $sender, array $args): bool {
-        /** @var CloudServer $template */
+    public static function handleSaveSub(CommandSender $sender, string $commandLabel, array $args): bool {
+        /** @var CloudServer $server */
         $server = $args["server"];
 
         ($pk = CloudServerProvider::provider()->save($server))
             ->then(fn(ServerStopResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk))
-            ->failure(fn() => self::handleRequestTimeout($pk, $sender));
+            ->failure(fn(RequestPacket $packet, ?Throwable $e, ?RequestPacketFailureReason $failureReason) => self::handleRequestTimeout($pk, $sender, $e, $failureReason));
 
         return true;
     }
 
-    public static function handleEnableModuleSub(CommandSender $sender, array $args): bool {
+    public static function handleEnableModuleSub(CommandSender $sender, string $commandLabel, array $args): bool {
         /** @var Module $module */
         $module = $args["module"];
 
@@ -93,7 +103,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleDisableModuleSub(CommandSender $sender, array $args): bool {
+    public static function handleDisableModuleSub(CommandSender $sender, string $commandLabel, array $args): bool {
         /** @var Module $module */
         $module = $args["module"];
 
@@ -134,7 +144,7 @@ final class SubCommandExecutors {
         return true;
     }
 
-    public static function handleListSub(CommandSender $sender, array $args): bool {
+    public static function handleListSub(CommandSender $sender, string $commandLabel, array $args): bool {
         $type = $args["type"] ?? "servers";
 
         switch ($type) {

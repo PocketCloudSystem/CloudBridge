@@ -17,7 +17,6 @@ use pocketmine\world\Position;
 
 final class CloudSignModule extends Module {
 
-    public array $signDelay = [];
     /** @var array<CloudSign> */
     private array $signs = [];
     /** @var array<CloudSign> */
@@ -38,7 +37,6 @@ final class CloudSignModule extends Module {
     public function onDisable(): void {
         $this->task?->getHandler()->cancel();
         if ($this->listener !== null) HandlerListManager::global()->unregisterAll($this->listener);
-        $this->signDelay = [];
         $this->signs = [];
         $this->usingServerNames = [];
         $this->listener = null;

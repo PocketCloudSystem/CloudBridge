@@ -19,7 +19,7 @@ final class NPCListViewForm extends MenuForm {
             $text = "§7Template: §e" . $name;
         }
 
-        $pos = $this->cloudNPC->getPosition();
+        $pos = $this->cloudNPC->getLocation();
         $text .= "\n§7Position: §e" . $pos->getWorld()->getFolderName()
             . "§8: §e" . $pos->getX() . "§8, §e" . $pos->getY() . "§8, §e" . $pos->getZ();
         $text .= "\n§7Creator: §e" . $this->cloudNPC->getCreator();
@@ -36,7 +36,7 @@ final class NPCListViewForm extends MenuForm {
 
     public function onSubmit(Player $player, int $index, MenuOption $option): void {
         if ($index === 0) {
-            $player->teleport($this->cloudNPC->getPosition());
+            $player->teleport($this->cloudNPC->getLocation());
         } else {
             $player->sendForm(new NPCListForm());
         }

@@ -19,7 +19,7 @@ trait CommandParameterTrait {
         }
     }
 
-    public function parseArgs(array $args, ?ParameterData &$currentParameter = null): array|false {
+    public function parseArgs(array $args, ?ParameterData &$currentParameter = null): array|false|null {
         $args = array_values($args);
         $parsedArgs = [];
         try {
@@ -30,9 +30,10 @@ trait CommandParameterTrait {
                     if (!isset($this->parameters[$i + 1]) && $parameter->getType() === ParameterType::STRING) {
                         // last arg, chaining every other arg together, resulting in massive chained string
                         $parsedArgs[$parameter->getName()] = $parameter->parseValue(implode(" ", array_slice($args, $i)));
+                        break;
                     } else $parsedArgs[$parameter->getName()] = $parameter->parseValue($args[$i]);
                 } else {
-                    if (!$parameter->isOptional()) return false;
+                    if (!$parameter->isOptional()) return null;
                 }
             }
         } catch (InvalidArgumentException) {

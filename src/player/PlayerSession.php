@@ -5,15 +5,49 @@ namespace pocketcloud\cloud\bridge\player;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
-final readonly class PlayerSession {
+final class PlayerSession {
+
+    public const int DEFAULT_INTERACTION_COOLDOWN = 10;
+
+    private ?int $npcInteractionCooldown = null;
+    private bool $awaitNpcRemoval = false;
+    private ?int $awaitNpcRemovalTimeoutTick = null;
+
+    private ?int $signInteractionCooldown = null;
 
     public function __construct(private string $name) {}
 
-    public static function get(Player $player): PlayerSession {
-        return PlayerSessionManager::getInstance()->get($player);
+    public function tick(): void {
+        if ($this->npcInteractionCooldown !== null && $this->npcInteractionCooldown <= Server::getInstance()->getTick()) {
+            $this->npcInteractionCooldown = null;
+        }
+
+        if ($this->awaitNpcRemoval && $this->awaitNpcRemovalTimeoutTick <= Server::getInstance()->getTick()) {
+            $this->awaitNpcRemoval = true;
+            $this->awaitNpcRemovalTimeoutTick = null;
+        }
+
+        if ($this->signInteractionCooldown !== null && $this->signInteractionCooldown <= Server::getInstance()->getTick()) {
+            $this->signInteractionCooldown = null;
+        }
     }
 
-    public function tick(): void {}
+    public function setAwaitNpcRemoval(bool $awaitNpcRemoval): PlayerSession {
+        $this->awaitNpcRemoval = $awaitNpcRemoval;
+        if ($awaitNpcRemoval) $this->awaitNpcRemovalTimeoutTick = Server::getInstance()->getTick();
+        else $this->awaitNpcRemovalTimeoutTick = null;
+        return $this;
+    }
+
+    public function setOnNpcInteractionCooldown(): PlayerSession {
+        $this->npcInteractionCooldown = Server::getInstance()->getTick() + self::DEFAULT_INTERACTION_COOLDOWN;
+        return $this;
+    }
+
+    public function setOnSignInteractionCooldown(): PlayerSession {
+        $this->signInteractionCooldown = Server::getInstance()->getTick() + self::DEFAULT_INTERACTION_COOLDOWN;
+        return $this;
+    }
 
     public function getPlayer(): ?Player {
         return Server::getInstance()->getPlayerExact($this->name);
@@ -21,5 +55,25 @@ final readonly class PlayerSession {
 
     public function getPlayerName(): string {
         return $this->name;
+    }
+
+    public function isOnNpcInteractionCooldown(): bool {
+        return $this->npcInteractionCooldown !== null;
+    }
+
+    public function isOnSignInteractionCooldown(): bool {
+        return $this->signInteractionCooldown !== null;
+    }
+
+    public function isAwaitNpcRemoval(): bool {
+        return $this->awaitNpcRemoval;
+    }
+
+    public function getNpcInteractionCooldown(): int {
+        return $this->npcInteractionCooldown;
+    }
+
+    public static function get(Player $player): PlayerSession {
+        return PlayerSessionManager::getInstance()->get($player);
     }
 }

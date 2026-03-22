@@ -89,8 +89,8 @@ final class CloudCommand extends BaseCloudCommand {
     }
 
     public function run(CommandSender $sender, string $commandLabel, array $args): bool {
-        if (!($sender instanceof Player)) return true;
-        $sender->sendForm(new CloudMainForm());
+        if ($sender instanceof Player) $sender->sendForm(new CloudMainForm());
+        else $sender->sendMessage($this->buildUsage());
         return true;
     }
 }

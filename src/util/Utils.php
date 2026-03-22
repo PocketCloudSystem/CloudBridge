@@ -10,7 +10,7 @@ use pocketmine\world\Position;
 final class Utils {
 
     public static function containKeys(array $array, string|int ...$keys): bool {
-        return array_all($keys, fn(string|int $key) => isset($array[$key]));
+        return array_all($keys, fn(string|int $key) => array_key_exists($key, $array));
     }
 
     public static function multiLine(string ...$lines): string {

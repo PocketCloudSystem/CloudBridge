@@ -57,8 +57,13 @@ abstract class BaseCloudCommand extends Command implements PluginOwned {
         }
 
         if (!is_array($parsedArgs)) {
+            if ($parsedArgs === null) {
+                $sender->sendMessage($subCommand?->buildUsage() ?? $this->buildUsage());
+                return true;
+            }
+
             if ($currentParameter?->getType()?->getErrorMessage() !== null) {
-                $sender->sendMessage(LanguageKey::INGAME_PREFIX() . $currentParameter->getType()->getErrorMessage());
+                $sender->sendMessage($currentParameter->getType()->getErrorMessage());
                 return true;
             }
 

@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl;
 
-use pocketcloud\cloud\bridge\api\cache\MaintenanceListCache;
+use pocketcloud\cloud\bridge\api\cache\NotificationListCache;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
@@ -16,7 +16,7 @@ final class NotificationListSyncPacket extends CloudPacket implements Clientboun
     }
 
     public function handle(): void {
-        MaintenanceListCache::sync($this->list);
+        NotificationListCache::sync($this->list);
     }
 
     public function encodePayload(PacketData $packetData): void {}

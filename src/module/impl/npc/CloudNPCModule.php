@@ -14,15 +14,13 @@ use pocketcloud\cloud\bridge\module\impl\npc\group\TemplateGroup;
 use pocketcloud\cloud\bridge\module\impl\npc\listener\NPCListener;
 use pocketcloud\cloud\bridge\module\impl\npc\skin\CustomSkinModel;
 use pocketcloud\cloud\bridge\util\Utils;
+use pocketmine\entity\Location;
 use pocketmine\event\HandlerListManager;
 use pocketmine\Server;
 use pocketmine\utils\Config;
-use pocketmine\world\Position;
 
 final class CloudNPCModule extends Module {
 
-    public array $npcDelay = [];
-    public array $npcDetection = [];
     /** @var array<CloudNPC> */
     private array $npcs = [];
     /** @var array<TemplateGroup> */
@@ -48,8 +46,6 @@ final class CloudNPCModule extends Module {
         foreach ($this->npcs as $npc) $npc->flagForDespawn();
         if ($this->listener !== null) HandlerListManager::global()->unregisterAll($this->listener);
         $this->listener = null;
-        $this->npcDelay = [];
-        $this->npcDetection = [];
         $this->npcs = [];
         $this->templateGroups = [];
         $this->customSkinModels = [];
@@ -73,8 +69,7 @@ final class CloudNPCModule extends Module {
         }
 
         foreach ($this->getNPCConfig()->getAll() as $positionString => $npcData) {
-            if (($cloudNPC = CloudNPC::read($this->checkForMigration($npcData))) !== null &&
-                $positionString == $npcData["position"]) {
+            if (($cloudNPC = CloudNPC::read($this->checkForMigration($npcData))) !== null && $positionString == $npcData["position"]) {
                 $this->npcs[$positionString] = $cloudNPC;
                 $cloudNPC->spawnToAll();
             }
@@ -93,7 +88,7 @@ final class CloudNPCModule extends Module {
     }
 
     public function addCloudNPC(CloudNPC $npc): bool {
-        $positionString = Utils::convertToString($npc->getPosition());
+        $positionString = Utils::convertToString($npc->getLocation());
         if (isset($this->npcs[$positionString])) return false;
 
         ($ev = new CloudNPCCreateEvent($npc))->call();
@@ -170,7 +165,7 @@ final class CloudNPCModule extends Module {
     }
 
     public function removeCloudNPC(CloudNPC $npc): bool {
-        $positionString = Utils::convertToString($npc->getPosition());
+        $positionString = Utils::convertToString($npc->getLocation());
         if (!isset($this->npcs[$positionString])) return false;
 
         ($ev = new CloudNPCRemoveEvent($npc))->call();
@@ -245,7 +240,7 @@ final class CloudNPCModule extends Module {
         return true;
     }
 
-    public function checkCloudNPC(Position $position): bool {
+    public function checkCloudNPC(Location $position): bool {
         return isset($this->npcs[Utils::convertToString($position)]);
     }
 
@@ -261,7 +256,7 @@ final class CloudNPCModule extends Module {
         return new Config(CloudBridge::getInstance()->getDataFolder() . "cloudNpcs.json", 1);
     }
 
-    public function getCloudNPC(Position $position): ?CloudNPC {
+    public function getCloudNPC(Location $position): ?CloudNPC {
         return $this->npcs[Utils::convertToString($position)] ?? null;
     }
 

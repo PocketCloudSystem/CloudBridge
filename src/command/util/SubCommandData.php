@@ -47,7 +47,7 @@ final class SubCommandData {
         try {
             return ($this->handler)($sender, $commandLabel, $args);
         } catch (Throwable $e) {
-            $sender->sendMessage("An error occurred while executing the command: " . $e->getMessage());
+            $sender->sendMessage("§cAn error occurred while executing the command: " . $e->getMessage());
             CloudBridge::getInstance()->getLogger()->logException($e);
         }
 
@@ -66,10 +66,10 @@ final class SubCommandData {
                 $parameter->getName() .
                 ": " .
                 strtolower($parameter->getType()->name) .
-                ($parameter->isOptional() ? "]" : ">") .
-                " §8- §c" .
-                $this->getDescription();
+                ($parameter->isOptional() ? "]" : ">");
         }
+
+        if ($this->description !== "") $base .= " §8- §c" . $this->getDescription();
 
         return $base;
     }

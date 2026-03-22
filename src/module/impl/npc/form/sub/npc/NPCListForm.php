@@ -25,7 +25,7 @@ final class NPCListForm extends MenuForm {
                     "§e" .
                     ($npc->hasTemplateGroup() ? $npc->getTemplate()->getDisplayName() : $npc->getTemplate()->getName()) .
                     "\n§e" .
-                    str_replace(":", "§8:§e", Utils::convertToString($npc->getPosition()))
+                    str_replace(":", "§8:§e", Utils::convertToString($npc->getLocation()))
                 ),
                 $this->npcs
             )

@@ -3,9 +3,9 @@
 namespace pocketcloud\cloud\bridge\module\impl\npc\form;
 
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\module\impl\npc\CloudNPCModule;
 use pocketcloud\cloud\bridge\module\impl\npc\form\sub\npc\NPCCreateForm;
 use pocketcloud\cloud\bridge\module\impl\npc\form\sub\npc\NPCListForm;
+use pocketcloud\cloud\bridge\player\PlayerSession;
 use pocketmine\player\Player;
 use r3pt1s\forms\element\menu\MenuOption;
 use r3pt1s\forms\type\menu\MenuForm;
@@ -26,15 +26,16 @@ final class NPCMainForm extends MenuForm {
     }
 
     public function onSubmit(Player $player, int $index, MenuOption $option): void {
+        $session = PlayerSession::get($player);
         if ($index === 0) {
             $player->sendForm(new NPCCreateForm());
         } elseif ($index === 1) {
-            if (isset(CloudNPCModule::get()->npcDetection[$player->getName()])) {
+            if ($session->isAwaitNpcRemoval()) {
                 $player->sendMessage(LanguageKey::INGAME_CLOUDNPC_PROCESS_CANCELLED());
-                unset(CloudNPCModule::get()->npcDetection[$player->getName()]);
+                $session->setAwaitNpcRemoval(false);
             } else {
                 $player->sendMessage(LanguageKey::INGAME_CLOUDNPC_SELECT());
-                CloudNPCModule::get()->npcDetection[$player->getName()] = $player->getName();
+                $session->setAwaitNpcRemoval(true);
             }
         } elseif ($index === 2) {
             $player->sendForm(new NPCListForm());
