@@ -18,6 +18,7 @@ use pocketcloud\cloud\bridge\module\ModuleManager;
 use pocketcloud\cloud\bridge\network\packet\data\ServerErrorReason;
 use pocketcloud\cloud\bridge\network\packet\data\TextType;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerSaveRequestPacket;
+use pocketcloud\cloud\bridge\network\packet\impl\response\ServerSaveResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStartResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\response\ServerStopResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\RequestPacket;
@@ -83,7 +84,7 @@ final class SubCommandExecutors {
         $server = $args["server"];
 
         ($pk = CloudServerProvider::provider()->save($server))
-            ->then(fn(ServerStopResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk))
+            ->then(fn(ServerSaveResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk))
             ->failure(fn(RequestPacket $packet, ?Throwable $e, ?RequestPacketFailureReason $failureReason) => self::handleRequestTimeout($pk, $sender, $e, $failureReason));
 
         return true;

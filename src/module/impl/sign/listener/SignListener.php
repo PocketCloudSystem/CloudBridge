@@ -17,6 +17,11 @@ use pocketmine\event\player\PlayerInteractEvent;
 final class SignListener implements Listener {
 
     public function onChange(SignChangeEvent $event): void {
+        if (CloudSignModule::get()->getCloudSign($event->getSign()->getPosition()) !== null) {
+            $event->cancel();
+            return;
+        }
+
         if ($event->getNewText()->getLine(0) == "[PocketCloud]") {
             if ($event->getPlayer()->hasPermission("pocketcloud.cloudsign.add")) {
                 if (($template = TemplateProvider::provider()->get($event->getNewText()->getLine(1))) !== null) {
