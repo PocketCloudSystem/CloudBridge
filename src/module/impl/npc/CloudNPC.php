@@ -14,6 +14,7 @@ use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\module\impl\npc\group\TemplateGroup;
 use pocketcloud\cloud\bridge\module\impl\npc\skin\CustomSkinModel;
+use pocketcloud\cloud\bridge\player\PlayerSession;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\SkinSaver;
@@ -74,8 +75,8 @@ final class CloudNPC extends Human implements Writeable, NeverSavedWithChunkEnti
         if ($source instanceof EntityDamageByEntityEvent) {
             $damager = $source->getDamager();
             if ($damager instanceof Player) {
-                if (isset(CloudNPCModule::get()->npcDetection[$damager->getName()])) {
-                    unset(CloudNPCModule::get()->npcDetection[$damager->getName()]);
+                if (PlayerSession::get($damager)->isAwaitNpcRemoval()) {
+                    PlayerSession::get($damager)->setAwaitNpcRemoval(false);
                     if (CloudNPCModule::get()->removeCloudNPC($this)) {
                         $damager->sendMessage(LanguageKey::INGAME_CLOUDNPC_REMOVED());
                     } else {
