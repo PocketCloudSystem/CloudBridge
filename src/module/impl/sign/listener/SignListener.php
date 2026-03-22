@@ -36,6 +36,7 @@ final class SignListener implements Listener {
         $player = $event->getPlayer();
         $session = PlayerSession::get($player);
         if (($sign = CloudSignModule::get()->getCloudSign($event->getBlock()->getPosition())) !== null) {
+            $event->cancel();
             if ($session->isOnSignInteractionCooldown()) return;
             $session->setOnsignInteractionCooldown();
             if ($sign->hasUsingServer() && !$sign->getUsingServer()->getTemplate()->isMaintenance()) {
