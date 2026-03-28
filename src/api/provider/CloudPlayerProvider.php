@@ -68,7 +68,7 @@ final class CloudPlayerProvider implements CloudAPIProvider {
 
     public function getAll(?Template $template = null): array {
         if ($template !== null) {
-            return array_filter($this->players, fn(CloudPlayer $player) => str_starts_with($player->getCurrentServerName(), $template->getName()) || str_starts_with($player->getCurrentProxyName(), $template->getName()));
+            return array_filter($this->players, fn(CloudPlayer $player) => $player->getCurrentServerName() !== null && str_starts_with($player->getCurrentServerName(), $template->getName()) || str_starts_with($player->getCurrentProxyName(), $template->getName()));
         }
 
         return $this->players;
