@@ -2,9 +2,10 @@
 
 namespace pocketcloud\cloud\bridge\api\object\server\util;
 
+use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;
 
-enum ServerStatus: string {
+enum ServerStatus: string implements Writeable {
     use EnumHelperTrait;
 
     case STARTING = "§2STARTING";
@@ -44,5 +45,9 @@ enum ServerStatus: string {
 
     public function isOffline(): bool {
         return $this === self::OFFLINE;
+    }
+
+    public function write(): string {
+        return $this->name;
     }
 }
