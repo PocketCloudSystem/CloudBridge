@@ -72,9 +72,11 @@ final class CloudBridge extends PluginBase {
         $this->getScheduler()->scheduleRepeatingTask(new RequestTimeoutTask(), 20);
         $this->getServer()->getPluginManager()->registerEvents(new EventListener(), $this);
         $this->registerPermission("pocketcloud.command.notify", "pocketcloud.command.cloud", "pocketcloud.bypass.maintenance");
-        $this->registerPermission("pocketcloud.command.hub", "pocketcloud.command.transfer");
+        $this->registerPermission("pocketcloud.command.transfer");
         $this->registerPermission("pocketcloud.command.cloudnpc", "pocketcloud.command.template_group");
         $this->registerPermission("pocketcloud.cloudsign.add", "pocketcloud.cloudsign.remove");
+
+        $this->registerDefaultPermission("pocketcloud.command.hub");
 
         ProcessUtils::startCpuRetrieveCycle();
         $this->getScheduler()->scheduleDelayedRepeatingTask(new ClosureTask(function (): void {
@@ -102,6 +104,15 @@ final class CloudBridge extends PluginBase {
         if ($operator !== null) {
             foreach ($permissions as $permission) {
                 DefaultPermissions::registerPermission(new Permission($permission), [$operator]);
+            }
+        }
+    }
+
+    public function registerDefaultPermission(string...$permissions): void {
+        $user = PermissionManager::getInstance()->getPermission(DefaultPermissions::ROOT_USER);
+        if ($user !== null) {
+            foreach ($permissions as $permission) {
+                DefaultPermissions::registerPermission(new Permission($permission), [$user]);
             }
         }
     }
