@@ -4,22 +4,18 @@ namespace pocketcloud\cloud\bridge\event\network;
 
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
-use pocketcloud\cloud\bridge\network\packet\Packet;
-use pocketcloud\cloud\bridge\util\net\Address;
 
-class NetworkPacketSentEvent extends NetworkPacketEvent {
+class NetworkPacketSentEvent extends NetworkEvent {
 
     public function __construct(
         Network $network,
-        Address $sender,
-        CloudboundPacket $packet,
+        protected readonly CloudboundPacket $packet,
         protected readonly bool $success
     ) {
-        parent::__construct($network, $sender, $packet);
+        parent::__construct($network);
     }
 
-    /** @return CloudboundPacket */
-    public function getPacket(): Packet {
+    public function getPacket(): CloudboundPacket {
         return $this->packet;
     }
 

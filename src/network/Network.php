@@ -11,10 +11,10 @@ use pocketcloud\cloud\bridge\event\network\NetworkPacketPreSendEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceivePreProcessEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketSentEvent;
+use pocketcloud\cloud\bridge\event\network\NetworkPacketTooLargeEvent;
 use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\PacketPool;
-use pocketcloud\cloud\bridge\network\packet\RequestPacket;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\UnhandledPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketSerializer;
@@ -34,6 +34,7 @@ use Socket;
 final class Network extends Thread {
     use SingletonTrait;
 
+    private int $packetSizeLimit;
     private ThreadSafeArray $buffer;
     private ThreadSafeArray $sendBuffer;
     private SleeperHandlerEntry $handlerEntry;
@@ -42,6 +43,7 @@ final class Network extends Thread {
 
     public function __construct(private readonly Address $address) {
         self::setInstance($this);
+        $this->packetSizeLimit = CloudEnvironmentConfig::getPacketSizeLimit();
         $this->buffer = new ThreadSafeArray();
         $this->sendBuffer = new ThreadSafeArray();
 
@@ -55,7 +57,7 @@ final class Network extends Thread {
 
                 TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, $unhandledPacket->getBytes(), TrafficMonitor::REGULAR_MODE_IN);
 
-                ($ev = new NetworkPacketReceivePreProcessEvent($this, $unhandledPacket->getAddress(), $unhandledPacket->getBuffer(), $encryption = CloudEnvironmentConfig::isNetworkEncryptionEnabled()))->call();
+                ($ev = new NetworkPacketReceivePreProcessEvent($this, $unhandledPacket->getBuffer(), $encryption = CloudEnvironmentConfig::isNetworkEncryptionEnabled()))->call();
                 if ($ev->isCancelled()) continue;
 
                 try {
@@ -66,7 +68,7 @@ final class Network extends Thread {
                             $packet, $unhandledPacket->getAddress()
                         );
 
-                        ($ev = new NetworkPacketReceiveEvent($this, $unhandledPacket->getAddress(), $packet))->call();
+                        ($ev = new NetworkPacketReceiveEvent($this, $packet))->call();
                         if ($ev->isCancelled()) continue;
                         $packet->handle();
 
@@ -98,7 +100,7 @@ final class Network extends Thread {
             throw new RuntimeException(socket_strerror(socket_last_error()));
         }
 
-        CloudBridge::getInstance()->getLogger()->info("Successfully connected to Cloud via TCP at §b" . $this->address);
+        CloudBridge::getInstance()->getLogger()->info("Successfully §aconnected §rto the §bcloud§r.");
     }
 
     protected function onRun(): void {
@@ -117,7 +119,7 @@ final class Network extends Thread {
             $write = $except = [];
             if (socket_select($read, $write, $except, 0, 50000) > 0) {
                 $chunk = "";
-                $res = socket_recv($this->socket, $chunk, 65535, 0);
+                $res = @socket_recv($this->socket, $chunk, 65535, 0);
 
                 if ($res === 0 || $res === false) {
                     $this->connected = false;
@@ -128,6 +130,12 @@ final class Network extends Thread {
 
                 while (strlen($readBuffer) >= 4) {
                     $length = unpack("N", substr($readBuffer, 0, 4))[1];
+
+                    if ($length > $this->packetSizeLimit || $length < 0) {
+                        $this->connected = false;
+                        break 2;
+                    }
+
                     if (strlen($readBuffer) < 4 + $length) break;
 
                     $payload = substr($readBuffer, 4, $length);
@@ -157,22 +165,27 @@ final class Network extends Thread {
             if ($result === false) return false;
             $sent += $result;
         }
+
         return true;
     }
 
     public function sendPacket(CloudboundPacket $packet): bool {
         if (!$this->connected) return false;
 
-        ($ev = new NetworkPacketPreSendEvent($this, $this->address, $packet))->call();
+        ($ev = new NetworkPacketPreSendEvent($this, $packet))->call();
         if ($ev->isCancelled()) return false;
 
         $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled(), CloudEnvironmentConfig::getNetworkAuthKey());
         if ($buffer === null) return false;
+        if (($length = strlen($buffer)) > $this->packetSizeLimit) {
+            new NetworkPacketTooLargeEvent($this, $packet, $length, $buffer);
+            return false;
+        }
 
         $this->sendBuffer[] = $buffer;
 
         TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, strlen($buffer), TrafficMonitor::REGULAR_MODE_OUT);
-        new NetworkPacketSentEvent($this, $this->address, $packet, true)->call();
+        new NetworkPacketSentEvent($this, $packet, true)->call();
 
         return true;
     }

@@ -5,19 +5,17 @@ namespace pocketcloud\cloud\bridge\event\network;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\Packet;
-use pocketcloud\cloud\bridge\util\net\Address;
 use pocketmine\event\Cancellable;
 use pocketmine\event\CancellableTrait;
 
-class NetworkPacketReceiveEvent extends NetworkPacketEvent implements Cancellable {
+class NetworkPacketReceiveEvent extends NetworkEvent implements Cancellable {
     use CancellableTrait;
 
     public function __construct(
         Network $network,
-        Address $sender,
-        ClientboundPacket $packet
+        protected readonly ClientboundPacket $packet
     ) {
-        parent::__construct($network, $sender, $packet);
+        parent::__construct($network);
     }
 
     /** @return ClientboundPacket */

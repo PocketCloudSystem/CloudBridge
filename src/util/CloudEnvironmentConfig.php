@@ -19,7 +19,8 @@ final class CloudEnvironmentConfig {
         "cloud-path" => null,
         "cloud-language" => null,
         "server-timeout" => null,
-        "auth-key" => null
+        "auth-key" => null,
+        "packet_size_limit" => null
     ];
 
     public static function sync(): void {
@@ -35,10 +36,7 @@ final class CloudEnvironmentConfig {
 
     public static function syncVariable(string $variable, ?Config $config = null): mixed {
         $config = $config ?? self::serverProperties();
-        if (!$config->exists($variable)) throw new RuntimeException("Variable '" .
-            $variable .
-            "' not found inside " .
-            $config->getPath());
+        if (!$config->exists($variable)) throw new RuntimeException("Variable '" . $variable . "' not found inside " . $config->getPath());
         return self::$data[$variable] = $config->get($variable);
     }
 
@@ -47,14 +45,8 @@ final class CloudEnvironmentConfig {
     }
 
     public static function fetchVariable(string $variable, bool $canReturnNull = true): mixed {
-        if (!array_key_exists($variable, self::$data)) throw new RuntimeException("Variable '" .
-            $variable .
-            "' does not exist");
-        return self::$data[$variable]
-            ??
-            ($canReturnNull ? null : throw new RuntimeException("Variable '" .
-                $variable .
-                "' should not return null, therefore CloudEnvironmentConfig didn't sync yet"));
+        if (!array_key_exists($variable, self::$data)) throw new RuntimeException("Variable '" . $variable . "' does not exist");
+        return self::$data[$variable] ?? ($canReturnNull ? null : throw new RuntimeException("Variable '" . $variable . "' should not return null, therefore CloudEnvironmentConfig didn't sync yet"));
     }
 
     public static function getNetworkPort(): int {
@@ -91,5 +83,9 @@ final class CloudEnvironmentConfig {
 
     public static function getNetworkAuthKey(): string {
         return self::fetchVariable("auth-key", false);
+    }
+
+    public static function getPacketSizeLimit(): int {
+        return self::fetchVariable("packet-size-limit", false);
     }
 }
