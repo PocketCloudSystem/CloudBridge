@@ -20,7 +20,7 @@ final class CloudEnvironmentConfig {
         "cloud-language" => null,
         "server-timeout" => null,
         "auth-key" => null,
-        "packet_size_limit" => null
+        "packet-size-limit" => null
     ];
 
     public static function sync(): void {
