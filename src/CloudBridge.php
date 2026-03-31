@@ -94,7 +94,7 @@ final class CloudBridge extends PluginBase {
 
     protected function onDisable(): void {
         $this->network->sendPacket(DisconnectPacket::create(ServerDisconnectReason::SERVER_SHUTDOWN));
-        $this->network->close();
+        $this->network->shutdownGracefully();
 
         Server::getInstance()->shutdown();
     }

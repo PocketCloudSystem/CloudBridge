@@ -40,6 +40,8 @@ final class Network extends Thread {
     private SleeperHandlerEntry $handlerEntry;
     private Socket $socket;
     private bool $connected = false;
+    private bool $gracefulShutdown = false;
+    private bool $canShutdownNow = false;
 
     public function __construct(private readonly Address $address) {
         self::setInstance($this);
@@ -81,6 +83,10 @@ final class Network extends Thread {
                     CloudBridge::getInstance()->getLogger()->logException($e);
                 }
             }
+
+            if ($this->canShutdownNow) {
+                $this->close();
+            }
         });
     }
 
@@ -107,12 +113,16 @@ final class Network extends Thread {
         $notifier = $this->handlerEntry->createNotifier();
         $readBuffer = "";
 
-        while ($this->connected && !$this->isKilled) {
+        while (($this->connected && !$this->isKilled) || !($this->sendBuffer->count() == 0)) {
             while (($buffer = $this->sendBuffer->shift()) !== null) {
                 if (!$this->tcpWrite($buffer)) {
                     $this->connected = false;
                     break 2;
                 }
+            }
+
+            if ($this->gracefulShutdown && $this->sendBuffer->count() == 0) {
+                break;
             }
 
             $read = [$this->socket];
@@ -152,6 +162,7 @@ final class Network extends Thread {
             }
         }
 
+        @socket_shutdown($this->socket);
         @socket_close($this->socket);
         $notifier->wakeupSleeper();
     }
@@ -190,7 +201,11 @@ final class Network extends Thread {
         return true;
     }
 
-    public function close(): void {
+    public function shutdownGracefully() : void {
+        $this->gracefulShutdown = true;
+    }
+
+    private function close(): void {
         $this->connected = false;
         $this->quit();
         new NetworkCloseEvent($this)->call();
