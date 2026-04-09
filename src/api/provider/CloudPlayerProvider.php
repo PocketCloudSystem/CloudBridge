@@ -46,10 +46,7 @@ final class CloudPlayerProvider implements CloudAPIProvider {
 
     public function get(Player|string $name): ?CloudPlayer {
         $name = $name instanceof Player ? $name->getName() : $name;
-        return $this->players[$name]
-            ??
-            array_find($this->players, fn(CloudPlayer $player) => $player->getXboxUserId() == $name ||
-                $player->getUniqueId() == $name);
+        return $this->players[$name] ?? array_find($this->players, fn(CloudPlayer $player) => $player->getXboxUserId() == $name || $player->getUniqueId() == $name);
     }
 
     public function add(CloudPlayer $player): void {

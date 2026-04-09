@@ -35,7 +35,7 @@ final class CloudCommand extends BaseCloudCommand {
             "stop",
             "Stop a server",
             SubCommandExecutors::handleStopSub(...),
-            [ParameterType::STRING->with("object", false), ParameterType::BOOLEAN->with("forcefully")],
+            [ParameterType::COMBINED_SERVER_TEMPLATE_GROUP->with("object", false), ParameterType::BOOLEAN->with("forcefully")],
             optional: true
         ));
 

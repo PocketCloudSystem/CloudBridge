@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\types\command\CommandHardEnum;
 use pocketmine\network\mcpe\protocol\types\command\CommandParameter;
+use pocketmine\network\mcpe\protocol\types\command\CommandSoftEnum;
 
 final readonly class ParameterData {
 
@@ -23,7 +24,11 @@ final readonly class ParameterData {
     public function buildCommandParameter(): CommandParameter {
         $enum = null;
         if (($this->type->getNetworkType() & AvailableCommandsPacket::ARG_FLAG_ENUM) && $this->type->getEnumName() !== null) {
-            $enum = new CommandHardEnum($this->type->getEnumName(), $this->type->getEnumContent() ?? $this->allowedStrings);
+            if ($this->type->isSoftEnum()) {
+                $enum = new CommandSoftEnum($this->type->getEnumName(), $this->type->getEnumContent() ?? $this->allowedStrings);
+            } else {
+                $enum = new CommandHardEnum($this->type->getEnumName(), $this->type->getEnumContent() ?? $this->allowedStrings);
+            }
         }
 
         return CommandParameter::allFields($this->name, $this->type->getNetworkType() | AvailableCommandsPacket::ARG_FLAG_VALID, $this->optional, 0, $enum, null);

@@ -16,6 +16,7 @@ use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\module\ModuleManager;
 use pocketcloud\cloud\bridge\network\packet\data\TextType;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\UpdateSoftEnumPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
 use UnitEnum;
@@ -38,6 +39,10 @@ enum ParameterType {
      * @see ServerGroup
      */
     case GROUP;
+    /**
+     * This will only show servers as it is currently only used for /cloud stop
+     */
+    case COMBINED_SERVER_TEMPLATE_GROUP;
     /**
      * @see Player
      */
@@ -108,17 +113,28 @@ enum ParameterType {
                 $player = CloudPlayerProvider::provider()->get($value);
                 if ($player === null) return throw new InvalidArgumentException();
                 return $player;
+            case self::COMBINED_SERVER_TEMPLATE_GROUP:
+                $obj = CloudServerProvider::provider()->get($value) ?? TemplateProvider::provider()->get($value) ?? ServerGroupProvider::provider()->get($value) ?? null;
+                if ($obj === null) return throw new InvalidArgumentException();
+                return $obj;
         }
 
         return null;
     }
 
+    public function isSoftEnum(): bool {
+        return match ($this) {
+            self::SERVER, self::TEMPLATE, self::GROUP, self::COMBINED_SERVER_TEMPLATE_GROUP => true,
+            default => false
+        };
+    }
+
     public function getNetworkType(): int {
         return match ($this) {
-            self::STRING, self::SERVER, self::CLOUD_PLAYER, self::GROUP, self::TEMPLATE => AvailableCommandsPacket::ARG_TYPE_STRING,
+            self::STRING, self::CLOUD_PLAYER => AvailableCommandsPacket::ARG_TYPE_STRING,
             self::INTEGER => AvailableCommandsPacket::ARG_TYPE_INT,
             self::FLOAT => AvailableCommandsPacket::ARG_TYPE_FLOAT,
-            self::ENUM, self::TEXT_TYPE, self::MODULE, self::BOOLEAN => AvailableCommandsPacket::ARG_FLAG_ENUM,
+            self::ENUM, self::TEXT_TYPE, self::MODULE, self::BOOLEAN, self::SERVER, self::GROUP, self::TEMPLATE, self::COMBINED_SERVER_TEMPLATE_GROUP => AvailableCommandsPacket::ARG_FLAG_ENUM,
             self::PLAYER => AvailableCommandsPacket::ARG_TYPE_TARGET,
         };
     }
@@ -129,6 +145,18 @@ enum ParameterType {
             self::BOOLEAN => "choices",
             self::TEXT_TYPE => "text_types",
             self::MODULE => "modules",
+            self::TEMPLATE => "templates",
+            self::GROUP => "server_groups",
+            self::SERVER, self::COMBINED_SERVER_TEMPLATE_GROUP => "servers",
+            default => null
+        };
+    }
+
+    public function generateEnumContent(): ?array {
+        return match ($this) {
+            self::TEMPLATE => array_map(fn(Template $t) => strtolower($t->getName()), TemplateProvider::provider()->getAll()),
+            self::SERVER, self::COMBINED_SERVER_TEMPLATE_GROUP => array_map(fn(CloudServer $s) => strtolower($s->getName()), CloudServerProvider::provider()->getAll()),
+            self::GROUP => array_map(fn(ServerGroup $g) => strtolower($g->getName()), ServerGroupProvider::provider()->getAll()),
             default => null
         };
     }
@@ -138,6 +166,7 @@ enum ParameterType {
             self::BOOLEAN => ["true", "false"],
             self::TEXT_TYPE => array_map(fn(UnitEnum $e) => strtolower($e->name), TextType::cases()),
             self::MODULE => array_map(fn(string $s) => strtolower($s), InGameModuleCache::getAll()),
+            self::TEMPLATE, self::SERVER, self::GROUP, self::COMBINED_SERVER_TEMPLATE_GROUP => $this->generateEnumContent(),
             default => null
         };
     }
@@ -150,11 +179,20 @@ enum ParameterType {
             self::SERVER => LanguageKey::INGAME_SERVER_NOT_FOUND(),
             self::TEMPLATE => LanguageKey::INGAME_TEMPLATE_NOT_FOUND(),
             self::GROUP => LanguageKey::INGAME_PREFIX() . "§cServer group not found!",
+            self::COMBINED_SERVER_TEMPLATE_GROUP => LanguageKey::INGAME_PREFIX() . "§cArgument must either be a server, template or group but none given!",
             self::PLAYER, self::CLOUD_PLAYER => LanguageKey::INGAME_PLAYER_NOT_FOUND(),
             self::MODULE => LanguageKey::INGAME_PREFIX() . "§cModule not found!",
             self::TEXT_TYPE => LanguageKey::INGAME_PREFIX() . "§cInvalid text type!",
             self::ENUM => LanguageKey::INGAME_PREFIX() . "§cInvalid option!",
             default => null
         };
+    }
+
+    public static function updateEnum(ParameterType $type): void {
+        if (!$type->isSoftEnum()) return;
+
+        foreach (Server::getInstance()->getOnlinePlayers() as $player) {
+            $player->getNetworkSession()->sendDataPacket(UpdateSoftEnumPacket::create($type->getEnumName(), $type->generateEnumContent(), UpdateSoftEnumPacket::TYPE_SET));
+        }
     }
 }

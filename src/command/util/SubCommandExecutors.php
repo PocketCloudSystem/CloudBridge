@@ -72,8 +72,8 @@ final class SubCommandExecutors {
         $object = $args["object"];
         $forcefully = $args["forcefully"] ?? false;
 
-        ($pk = CloudServerProvider::provider()->stop($object, $forcefully))
-            ->then(fn(ServerStopResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk, $object))
+        ($pk = CloudServerProvider::provider()->stop($object->getName(), $forcefully))
+            ->then(fn(ServerStopResponsePacket $packet) => self::handleServerErrorReason($sender, $packet->getErrorReason(), $pk, $object->getName()))
             ->failure(fn(RequestPacket $packet, ?Throwable $e, ?RequestPacketFailureReason $failureReason) => self::handleRequestTimeout($pk, $sender, $e, $failureReason));
 
         return true;

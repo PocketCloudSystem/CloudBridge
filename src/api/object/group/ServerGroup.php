@@ -10,10 +10,14 @@ use pocketcloud\cloud\bridge\util\Utils;
 
 final class ServerGroup implements Writeable {
 
+    private array $lowerCaseTemplates = [];
+
     public function __construct(
         private readonly string $name,
         private array $templates
-    ) {}
+    ) {
+        $this->lowerCaseTemplates = array_map(fn(string $template) => strtolower($template), $this->templates);
+    }
 
     public static function read(array $data): ?self {
         if (!Utils::containKeys($data, "name", "templates")) return null;
@@ -26,11 +30,12 @@ final class ServerGroup implements Writeable {
     /** @internal */
     public function sync(array $data): void {
         $this->templates = $data["templates"] ?? $this->templates;
+        $this->lowerCaseTemplates = array_map(fn(string $template) => strtolower($template), $this->templates);
     }
 
     public function is(Template|string $template): bool {
         $template = $template instanceof Template ? $template->getName() : $template;
-        return in_array($template, $this->templates);
+        return in_array($template, $this->templates) || in_array(strtolower($template), $this->lowerCaseTemplates);
     }
 
     public function getName(): string {

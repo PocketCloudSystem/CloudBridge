@@ -2,6 +2,8 @@
 
 namespace pocketcloud\cloud\bridge\player;
 
+use pocketcloud\cloud\bridge\command\util\ParameterType;
+use pocketmine\network\mcpe\protocol\UpdateSoftEnumPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
@@ -15,7 +17,23 @@ final class PlayerSession {
 
     private ?int $signInteractionCooldown = null;
 
-    public function __construct(private readonly string $name) {}
+    public function __construct(private readonly string $name) {
+        $player = $this->getPlayer();
+        if ($player !== null) {
+            $pks = [];
+            foreach (ParameterType::cases() as $type) {
+                if ($type->isSoftEnum()) {
+                    $pks[] = UpdateSoftEnumPacket::create($type->getEnumName(), $type->generateEnumContent(), UpdateSoftEnumPacket::TYPE_ADD);
+                }
+            }
+
+            if (!empty($pks)) {
+                foreach ($pks as $pk) {
+                    $player->getNetworkSession()->sendDataPacket($pk);
+                }
+            }
+        }
+    }
 
     public function tick(): void {
         if ($this->npcInteractionCooldown !== null && $this->npcInteractionCooldown <= Server::getInstance()->getTick()) {

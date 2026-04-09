@@ -6,6 +6,7 @@ use pocketcloud\cloud\bridge\api\cache\MaintenanceListCache;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\command\BaseCloudCommand;
+use pocketcloud\cloud\bridge\command\util\ParameterType;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
@@ -21,6 +22,7 @@ use pocketmine\event\player\PlayerQuitEvent;
 use pocketmine\event\server\DataPacketSendEvent;
 use pocketmine\lang\Translatable;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
+use pocketmine\network\mcpe\protocol\UpdateSoftEnumPacket;
 use pocketmine\player\Player;
 use pocketmine\Server;
 
@@ -107,6 +109,18 @@ final class EventListener implements Listener {
      */
     public function onJoin(PlayerJoinEvent $event): void {
         PlayerSessionManager::getInstance()->create($event->getPlayer());
+        $pks = [];
+        foreach (ParameterType::cases() as $type) {
+            if ($type->isSoftEnum()) {
+                $pks[] = UpdateSoftEnumPacket::create($type->getEnumName(), [], UpdateSoftEnumPacket::TYPE_REMOVE);
+            }
+        }
+
+        if (!empty($pks)) {
+            foreach ($pks as $pk) {
+                $event->getPlayer()->getNetworkSession()->sendDataPacket($pk);
+            }
+        }
     }
 
     /**
