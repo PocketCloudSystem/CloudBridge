@@ -24,6 +24,10 @@ enum ServerStatus: string implements Writeable {
         return $this->value;
     }
 
+    public function isPending(): bool {
+        return $this === self::PENDING;
+    }
+
     public function isStarting(): bool {
         return $this === self::STARTING;
     }
