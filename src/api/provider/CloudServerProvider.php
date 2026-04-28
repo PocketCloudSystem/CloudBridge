@@ -36,13 +36,11 @@ final class CloudServerProvider implements CloudAPIProvider {
     }
 
     public function freeServer(Template $template, array $exclusions = [], bool $prioritizeLowServers = false): ?CloudServer {
-        $availableServers = array_filter($this->getAll($template), fn(CloudServer $server) => !in_array($server->getName(), $exclusions) &&
-            $server->getServerStatus()->isOnline(true));
+        $availableServers = array_filter($this->getAll($template), fn(CloudServer $server) => !in_array($server->getName(), $exclusions) && $server->getServerStatus()->isOnline(true));
         if (empty($availableServers)) return null;
-        $serverClasses = array_map(fn(CloudServer $server) => $server, $availableServers);
-        $servers = array_map(fn(CloudServer $server) => count($server->getPlayers()), $availableServers);
-        arsort($servers);
-        return ($prioritizeLowServers ? ($serverClasses[array_key_last($servers)] ?? null) : ($serverClasses[array_key_first($servers)] ?? null));
+        $availableServers = array_values($availableServers);
+        usort($availableServers, fn(CloudServer $a, CloudServer $b) => $a->getPlayerCount() <=> $b->getPlayerCount());
+        return $prioritizeLowServers ? $availableServers[0] : $availableServers[array_key_last($availableServers)];
     }
 
     public function getAll(?Template $template = null): array {
