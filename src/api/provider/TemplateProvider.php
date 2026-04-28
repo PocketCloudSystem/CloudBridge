@@ -23,6 +23,18 @@ final class TemplateProvider implements CloudAPIProvider {
         }
     }
 
+    public function addAll(Template ...$templates): void {
+        foreach ($templates as $template) {
+            if ($this->isset($template)) {
+                $this->templates[strtolower($template->getName())]->sync($template->write());
+            } else {
+                $this->templates[strtolower($template->getName())] = $template;
+            }
+        }
+
+        ParameterType::updateEnum(ParameterType::TEMPLATE);
+    }
+
     public function isset(Template|string $name): bool {
         $name = $name instanceof Template ? $name->getName() : $name;
         return isset($this->templates[strtolower($name)]);

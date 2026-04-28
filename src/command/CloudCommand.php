@@ -27,7 +27,7 @@ final class CloudCommand extends BaseCloudCommand {
             "start",
             "Start a server",
             SubCommandExecutors::handleStartSub(...),
-            [ParameterType::TEMPLATE->with("template", false), ParameterType::INTEGER->with("count")],
+            [ParameterType::COMBINED_TEMPLATE_GROUP->with("template", false), ParameterType::INTEGER->with("count")],
             optional: true
         ));
 

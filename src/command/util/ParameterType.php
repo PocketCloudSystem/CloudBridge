@@ -44,6 +44,10 @@ enum ParameterType {
      */
     case COMBINED_SERVER_TEMPLATE_GROUP;
     /**
+     * This will only show templates.
+     */
+    case COMBINED_TEMPLATE_GROUP;
+    /**
      * @see Player
      */
     case PLAYER;
@@ -117,6 +121,10 @@ enum ParameterType {
                 $obj = CloudServerProvider::provider()->get($value) ?? TemplateProvider::provider()->get($value) ?? ServerGroupProvider::provider()->get($value) ?? null;
                 if ($obj === null) return throw new InvalidArgumentException();
                 return $obj;
+            case self::COMBINED_TEMPLATE_GROUP:
+                $obj = TemplateProvider::provider()->get($value) ?? ServerGroupProvider::provider()->get($value) ?? null;
+                if ($obj === null) return throw new InvalidArgumentException();
+                return $obj;
         }
 
         return null;
@@ -134,8 +142,8 @@ enum ParameterType {
             self::STRING, self::CLOUD_PLAYER => AvailableCommandsPacket::ARG_TYPE_STRING,
             self::INTEGER => AvailableCommandsPacket::ARG_TYPE_INT,
             self::FLOAT => AvailableCommandsPacket::ARG_TYPE_FLOAT,
-            self::ENUM, self::TEXT_TYPE, self::MODULE, self::BOOLEAN, self::SERVER, self::GROUP, self::TEMPLATE, self::COMBINED_SERVER_TEMPLATE_GROUP => AvailableCommandsPacket::ARG_FLAG_ENUM,
-            self::PLAYER => AvailableCommandsPacket::ARG_TYPE_TARGET,
+            self::ENUM, self::TEXT_TYPE, self::MODULE, self::BOOLEAN, self::SERVER, self::GROUP, self::TEMPLATE, self::COMBINED_SERVER_TEMPLATE_GROUP, self::COMBINED_TEMPLATE_GROUP => AvailableCommandsPacket::ARG_FLAG_ENUM,
+            self::PLAYER => AvailableCommandsPacket::ARG_TYPE_TARGET
         };
     }
 
@@ -154,7 +162,7 @@ enum ParameterType {
 
     public function generateEnumContent(): ?array {
         return match ($this) {
-            self::TEMPLATE => array_map(fn(Template $t) => strtolower($t->getName()), TemplateProvider::provider()->getAll()),
+            self::TEMPLATE, self::COMBINED_TEMPLATE_GROUP => array_map(fn(Template $t) => strtolower($t->getName()), TemplateProvider::provider()->getAll()),
             self::SERVER, self::COMBINED_SERVER_TEMPLATE_GROUP => array_map(fn(CloudServer $s) => strtolower($s->getName()), CloudServerProvider::provider()->getAll()),
             self::GROUP => array_map(fn(ServerGroup $g) => strtolower($g->getName()), ServerGroupProvider::provider()->getAll()),
             default => null
@@ -180,6 +188,7 @@ enum ParameterType {
             self::TEMPLATE => LanguageKey::INGAME_TEMPLATE_NOT_FOUND(),
             self::GROUP => LanguageKey::INGAME_PREFIX() . "§cServer group not found!",
             self::COMBINED_SERVER_TEMPLATE_GROUP => LanguageKey::INGAME_PREFIX() . "§cArgument must either be a server, template or group but none given!",
+            self::COMBINED_TEMPLATE_GROUP => LanguageKey::INGAME_PREFIX() . "§cArgument must either be a server or a server group but none given!",
             self::PLAYER, self::CLOUD_PLAYER => LanguageKey::INGAME_PLAYER_NOT_FOUND(),
             self::MODULE => LanguageKey::INGAME_PREFIX() . "§cModule not found!",
             self::TEXT_TYPE => LanguageKey::INGAME_PREFIX() . "§cInvalid text type!",

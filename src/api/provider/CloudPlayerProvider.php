@@ -54,6 +54,12 @@ final class CloudPlayerProvider implements CloudAPIProvider {
         else $this->players[$player->getName()] = $player;
     }
 
+    public function addAll(CloudPlayer ...$players): void {
+        foreach ($players as $player) {
+            $this->add($player);
+        }
+    }
+
     public function isset(CloudPlayer|string $name): bool {
         $name = $name instanceof CloudPlayer ? $name->getName() : $name;
         return isset($this->players[$name]);

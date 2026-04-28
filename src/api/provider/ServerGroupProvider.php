@@ -18,8 +18,19 @@ final class ServerGroupProvider implements CloudAPIProvider {
             $this->serverGroups[strtolower($serverGroup->getName())]->sync($serverGroup->write());
         } else {
             $this->serverGroups[strtolower($serverGroup->getName())] = $serverGroup;
-            ParameterType::updateEnum(ParameterType::GROUP);
         }
+    }
+
+    public function addAll(ServerGroup ...$serverGroups): void {
+        foreach ($serverGroups as $serverGroup) {
+            if ($this->isset($serverGroup)) {
+                $this->serverGroups[strtolower($serverGroup->getName())]->sync($serverGroup->write());
+            } else {
+                $this->serverGroups[strtolower($serverGroup->getName())] = $serverGroup;
+            }
+        }
+
+        ParameterType::updateEnum(ParameterType::GROUP);
     }
 
     public function isset(ServerGroup|string $name): bool {

@@ -59,6 +59,18 @@ final class CloudServerProvider implements CloudAPIProvider {
         }
     }
 
+    public function addAll(CloudServer ...$servers): void {
+        foreach ($servers as $server) {
+            if ($this->isset($server)) {
+                $this->servers[strtolower($server->getName())]->sync($server->write());
+            } else {
+                $this->servers[strtolower($server->getName())] = $server;
+            }
+        }
+
+        ParameterType::updateEnum(ParameterType::SERVER);
+    }
+
     public function isset(CloudServer|string $name): bool {
         $name = $name instanceof CloudServer ? $name->getName() : $name;
         return isset($this->servers[strtolower($name)]);
