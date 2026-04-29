@@ -1,5 +1,5 @@
 name: CloudBridge
-version: 4.0.0
+version: 4.0.1
 api: 5.0.0
 load: STARTUP
 main: pocketcloud\cloud\bridge\CloudBridge

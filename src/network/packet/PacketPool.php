@@ -92,7 +92,7 @@ final class PacketPool {
     public function register(string $packetClass): void {
         if (!is_subclass_of($packetClass, CloudPacket::class)) return;
         try {
-            CloudBridge::getInstance()->getLogger()->info("Registering packet " .
+            CloudBridge::getInstance()->getLogger()->debug("Registering packet " .
                 ($packetName = new ReflectionClass($packetClass)->getShortName()) .
                 " (" .
                 $packetClass .
