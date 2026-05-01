@@ -3,6 +3,9 @@
 namespace pocketcloud\cloud\bridge\network\packet;
 
 use Closure;
+use pocketcloud\cloud\bridge\exception\NetworkException;
+use pocketcloud\cloud\bridge\exception\PacketException;
+use pocketcloud\cloud\bridge\exception\PacketTooLargeException;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketcloud\cloud\bridge\network\request\RequestManager;
 use RuntimeException;
@@ -23,7 +26,11 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
         return new static(...$args)->sendRequest();
     }
 
-    public function sendRequest(): RequestPacket|false {
+    /**
+     * @return RequestPacket
+     * @throws NetworkException|PacketException|PacketTooLargeException
+     */
+    public function sendRequest(): RequestPacket {
         return RequestManager::getInstance()->send($this);
     }
 
@@ -46,11 +53,11 @@ abstract class RequestPacket extends CloudPacket implements CloudboundPacket {
     final public function decodePayload(PacketData $packetData): void {}
 
     /**
-     * Should not be used for RequestPackets, use @return bool
+     * Should not be used for RequestPackets, use
      * @deprecated
      * @see RequestPacket::sendRequest() instead
      */
-    public function sendPacket(): bool {
+    public function sendPacket(): void {
         throw new RuntimeException("Use sendRequest() instead of sendPacket()");
     }
 

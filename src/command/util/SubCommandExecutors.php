@@ -125,9 +125,8 @@ final class SubCommandExecutors {
         $textType = $args["type"];
         $message = $args["message"];
 
-        if ($player->send($message, $textType)) {
-            $player->sendMessage(Language::current()->translate("inGame.text.successful." . strtolower($textType->getName()), [$player->getName()]));
-        }
+        $player->send($message, $textType);
+        $player->sendMessage(Language::current()->translate("inGame.text.successful." . strtolower($textType->getName()), [$player->getName()]));
 
         return true;
     }
@@ -138,9 +137,8 @@ final class SubCommandExecutors {
         $reason = $args["reason"] ?? "";
         $disconnectScreenMessage = $args["disconnectScreenMessage"] ?? "";
 
-        if ($player->kick($reason, $disconnectScreenMessage)) {
-            $player->sendMessage(Language::current()->translate("inGame.kick.successful", [$player->getName()]));
-        }
+        $player->kick($reason, $disconnectScreenMessage);
+        $player->sendMessage(Language::current()->translate("inGame.kick.successful", [$player->getName()]));
 
         return true;
     }

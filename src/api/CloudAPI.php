@@ -59,8 +59,11 @@ final class CloudAPI {
                 CloudBridge::getInstance()->registerCommands();
                 CloudBridge::getInstance()->startTasks();
                 CloudBridge::getInstance()->getLogger()->info(LanguageKey::INGAME_SERVER_VERIFIED());
-                if (!KeepAlivePacket::create()->sendPacket()) {
+                try {
+                    KeepAlivePacket::create()->sendPacket();
+                } catch (Throwable $e) {
                     CloudBridge::getInstance()->getLogger()->warning("§cFailed to send first KeepAlivePacket, shutting down...");
+                    CloudBridge::getInstance()->getLogger()->logException($e);
                     Server::getInstance()->shutdown();
                 }
             } else {
@@ -79,8 +82,8 @@ final class CloudAPI {
         });
     }
 
-    public function logConsole(string $message, ?LogType $logType = null): bool {
-        return ConsoleLogPacket::create($message, $logType ?? LogType::INFO)->sendPacket();
+    public function logConsole(string $message, ?LogType $logType = null): void {
+        ConsoleLogPacket::create($message, $logType ?? LogType::INFO)->sendPacket();
     }
 
     public function getVerifyStatus(): VerifyStatus {

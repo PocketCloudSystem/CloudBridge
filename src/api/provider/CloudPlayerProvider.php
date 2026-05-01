@@ -36,7 +36,8 @@ final class CloudPlayerProvider implements CloudAPIProvider {
             }
 
             if ($serverPlayer === null) {
-                return PlayerTransferPacket::create($cloudPlayer->getName(), $server->getName())->sendPacket();
+                PlayerTransferPacket::create($cloudPlayer->getName(), $server->getName())->sendPacket();
+                return true;
             }
 
             return $serverPlayer->getNetworkSession()->sendDataPacket(TransferPacket::create($server->getName(), $server->getServerData()->getPort(), false));

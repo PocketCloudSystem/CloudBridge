@@ -2,7 +2,6 @@
 
 namespace pocketcloud\cloud\bridge\network;
 
-use JsonException;
 use LogicException;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\CloudBridge;
@@ -12,7 +11,9 @@ use pocketcloud\cloud\bridge\event\network\NetworkPacketReceiveEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketReceivePreProcessEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketSentEvent;
 use pocketcloud\cloud\bridge\event\network\NetworkPacketTooLargeEvent;
+use pocketcloud\cloud\bridge\exception\NetworkException;
 use pocketcloud\cloud\bridge\exception\PacketException;
+use pocketcloud\cloud\bridge\exception\PacketTooLargeException;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\PacketPool;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
@@ -28,8 +29,8 @@ use pocketmine\Server;
 use pocketmine\snooze\SleeperHandlerEntry;
 use pocketmine\thread\Thread;
 use pocketmine\utils\SingletonTrait;
-use RuntimeException;
 use Socket;
+use Throwable;
 
 final class Network extends Thread {
     use SingletonTrait;
@@ -79,13 +80,14 @@ final class Network extends Thread {
                             RequestManager::getInstance()->remove($packet->getRequestId());
                         }
                     }
-                } catch (PacketException|JsonException $e) {
+                } catch (Throwable $e) {
                     CloudBridge::getInstance()->getLogger()->logException($e);
                 }
             }
 
             if ($this->canShutdownNow) {
                 $this->close();
+                Server::getInstance()->shutdown();
             }
         });
     }
@@ -94,7 +96,7 @@ final class Network extends Thread {
         if ($this->connected) throw new LogicException("Socket has already been established");
 
         $socket = @socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        if (!$socket) throw new RuntimeException(socket_strerror(socket_last_error()));
+        if (!$socket) throw new NetworkException(socket_strerror(socket_last_error()));
 
         socket_set_option($socket, SOL_TCP, TCP_NODELAY, 1);
 
@@ -103,7 +105,7 @@ final class Network extends Thread {
             $this->connected = true;
             socket_set_nonblock($this->socket);
         } else {
-            throw new RuntimeException(socket_strerror(socket_last_error()));
+            throw new NetworkException(socket_strerror(socket_last_error()));
         }
 
         CloudBridge::getInstance()->getLogger()->info("Successfully §aconnected §rto the §bcloud§r.");
@@ -164,6 +166,7 @@ final class Network extends Thread {
 
         @socket_shutdown($this->socket);
         @socket_close($this->socket);
+        $this->canShutdownNow = true;
         $notifier->wakeupSleeper();
     }
 
@@ -180,25 +183,27 @@ final class Network extends Thread {
         return true;
     }
 
-    public function sendPacket(CloudboundPacket $packet): bool {
-        if (!$this->connected) return false;
+    /**
+     * @param CloudboundPacket $packet
+     * @throws NetworkException|PacketException|PacketTooLargeException
+     * @return void
+     */
+    public function sendPacket(CloudboundPacket $packet): void {
+        if (!$this->connected) throw new NetworkException("Client not connected to cloud");
 
         ($ev = new NetworkPacketPreSendEvent($this, $packet))->call();
-        if ($ev->isCancelled()) return false;
+        if ($ev->isCancelled()) return;
 
         $buffer = PacketSerializer::encode($packet, CloudEnvironmentConfig::isNetworkEncryptionEnabled(), CloudEnvironmentConfig::getNetworkAuthKey());
-        if ($buffer === null) return false;
         if (($length = strlen($buffer)) > $this->packetSizeLimit) {
-            new NetworkPacketTooLargeEvent($this, $packet, $length, $buffer);
-            return false;
+            new NetworkPacketTooLargeEvent($this, $packet, $length, $buffer)->call();
+            throw new PacketTooLargeException($packet, $length, $this->packetSizeLimit);
         }
 
         $this->sendBuffer[] = $buffer;
 
         TrafficMonitorManager::getInstance()->pushBytes(TrafficMonitorManager::TRAFFIC_NETWORK, strlen($buffer), TrafficMonitor::REGULAR_MODE_OUT);
         new NetworkPacketSentEvent($this, $packet, true)->call();
-
-        return true;
     }
 
     public function shutdownGracefully() : void {

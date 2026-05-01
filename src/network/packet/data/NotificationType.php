@@ -22,8 +22,8 @@ enum NotificationType implements Writeable {
     case PLAYER_KICKED;
     case PLAYER_SWITCHED_SERVER;
 
-    public function notify(array $args): bool {
-        return CloudNotificationPacket::create($this, $args)->sendPacket();
+    public function notify(array $args): void {
+        CloudNotificationPacket::create($this, $args)->sendPacket();
     }
 
     public function getName(): string {

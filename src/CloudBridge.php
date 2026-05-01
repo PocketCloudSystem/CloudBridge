@@ -27,6 +27,7 @@ use pocketmine\plugin\PluginBase;
 use pocketmine\scheduler\ClosureTask;
 use pocketmine\Server;
 use pocketmine\utils\SingletonTrait;
+use Throwable;
 
 final class CloudBridge extends PluginBase {
     use SingletonTrait;
@@ -93,8 +94,12 @@ final class CloudBridge extends PluginBase {
     }
 
     protected function onDisable(): void {
-        $this->network->sendPacket(DisconnectPacket::create(ServerDisconnectReason::SERVER_SHUTDOWN));
-        $this->network->shutdownGracefully();
+        try {
+            $this->network->sendPacket(DisconnectPacket::create(ServerDisconnectReason::SERVER_SHUTDOWN));
+            $this->network->shutdownGracefully();
+        } catch (Throwable $e) {
+            $this->getLogger()->debug("Could not send DisconnectPacket (connection already lost): " . $e->getMessage());
+        }
 
         Server::getInstance()->shutdown();
     }

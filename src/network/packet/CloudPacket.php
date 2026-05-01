@@ -2,6 +2,9 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
+use pocketcloud\cloud\bridge\exception\NetworkException;
+use pocketcloud\cloud\bridge\exception\PacketException;
+use pocketcloud\cloud\bridge\exception\PacketTooLargeException;
 use pocketcloud\cloud\bridge\network\Network;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use ReflectionClass;
@@ -37,9 +40,13 @@ abstract class CloudPacket implements Packet {
         $this->decodePayload($packetData);
     }
 
-    public function sendPacket(): bool {
-        if (!$this instanceof CloudboundPacket) return false;
-        return Network::getInstance()->sendPacket($this);
+    /**
+     * @return void
+     * @throws NetworkException|PacketException|PacketTooLargeException
+     */
+    public function sendPacket(): void {
+        if (!$this instanceof CloudboundPacket) return;
+        Network::getInstance()->sendPacket($this);
     }
 
     abstract public function handle(): void;

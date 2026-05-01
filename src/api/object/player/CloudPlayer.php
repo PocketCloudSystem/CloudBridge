@@ -54,40 +54,40 @@ final class CloudPlayer implements Writeable {
         $this->currentProxy = array_key_exists("currentProxy", $data) ? $data["currentProxy"] : $this->currentProxy;
     }
 
-    public function send(string $message, TextType $textType): bool {
-        return PlayerTextPacket::create($this->getName(), $message, $textType)->sendPacket();
+    public function send(string $message, TextType $textType): void {
+        PlayerTextPacket::create($this->getName(), $message, $textType)->sendPacket();
     }
 
-    public function sendMessage(string $message): bool {
-        return $this->send($message, TextType::MESSAGE);
+    public function sendMessage(string $message): void {
+        $this->send($message, TextType::MESSAGE);
     }
 
     public function getName(): string {
         return $this->name;
     }
 
-    public function sendPopup(string $message): bool {
-        return $this->send($message, TextType::POPUP);
+    public function sendPopup(string $message): void {
+        $this->send($message, TextType::POPUP);
     }
 
-    public function sendTip(string $message): bool {
-        return $this->send($message, TextType::TIP);
+    public function sendTip(string $message): void {
+        $this->send($message, TextType::TIP);
     }
 
-    public function sendTitle(string $message): bool {
-        return $this->send($message, TextType::TITLE);
+    public function sendTitle(string $message): void {
+        $this->send($message, TextType::TITLE);
     }
 
-    public function sendActionBarMessage(string $message): bool {
-        return $this->send($message, TextType::ACTION_BAR);
+    public function sendActionBarMessage(string $message): void {
+        $this->send($message, TextType::ACTION_BAR);
     }
 
-    public function sendToastNotification(string $title, string $body): bool {
-        return $this->send($title . "\n" . $body, TextType::TOAST_NOTIFICATION);
+    public function sendToastNotification(string $title, string $body): void {
+        $this->send($title . "\n" . $body, TextType::TOAST_NOTIFICATION);
     }
 
-    public function kick(string $reason = "", string $disconnectScreenMessage = ""): bool {
-        return PlayerKickPacket::create($this->name, $reason, $disconnectScreenMessage)->sendPacket();
+    public function kick(string $reason = "", string $disconnectScreenMessage = ""): void {
+        PlayerKickPacket::create($this->name, $reason, $disconnectScreenMessage)->sendPacket();
     }
 
     public function getAddress(): string {

@@ -10,7 +10,7 @@ use pocketcloud\cloud\bridge\util\Utils;
 
 final class ServerGroup implements Writeable {
 
-    private array $lowerCaseTemplates = [];
+    private array $lowerCaseTemplates;
 
     public function __construct(
         private readonly string $name,

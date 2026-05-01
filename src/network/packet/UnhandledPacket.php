@@ -3,7 +3,6 @@
 namespace pocketcloud\cloud\bridge\network\packet;
 
 
-use JsonException;
 use pmmp\thread\ThreadSafe;
 use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\network\packet\util\PacketSerializer;
@@ -18,7 +17,7 @@ final class UnhandledPacket extends ThreadSafe {
     ) {}
 
     /**
-     * @throws PacketException|JsonException
+     * @throws PacketException
      */
     public function buildCloudPacket(bool $encryptionEnabled, string $authenticationKey): ?ClientboundPacket {
         return PacketSerializer::decode($this->buffer, $encryptionEnabled, $authenticationKey);

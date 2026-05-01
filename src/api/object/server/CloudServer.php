@@ -46,9 +46,9 @@ final class CloudServer implements Writeable {
         if (isset($data["internalStorage"])) $this->serverStorage->sync($data["internalStorage"]);
     }
 
-    public function setServerStatus(ServerStatus $serverStatus): bool {
+    public function setServerStatus(ServerStatus $serverStatus): void {
         $this->serverStatus = $serverStatus;
-        return ServerChangeStatusPacket::create($this->serverUuid, $serverStatus)->sendPacket();
+        ServerChangeStatusPacket::create($this->serverUuid, $serverStatus)->sendPacket();
     }
 
     public function getPlayer(string $name): ?CloudPlayer {
