@@ -1,19 +1,18 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\data;
+namespace pocketcloud\cloud\bridge\network\packet\type;
 
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;
 
-enum TextType implements Writeable {
+enum ServerErrorReason implements Writeable {
     use EnumHelperTrait;
 
-    case MESSAGE;
-    case POPUP;
-    case TIP;
-    case TITLE;
-    case ACTION_BAR;
-    case TOAST_NOTIFICATION;
+    case NONE;
+    case TEMPLATE_EXISTENCE;
+    case MAX_SERVERS;
+    case SERVER_EXISTENCE;
+    case REQUEST_TIMEOUT;
 
     public function getName(): string {
         return $this->name;

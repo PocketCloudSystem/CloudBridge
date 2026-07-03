@@ -2,13 +2,15 @@
 
 namespace pocketcloud\cloud\bridge\api\object\player;
 
+use Exception;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerKickPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerTextPacket;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\Utils;
+use pocketcloud\cloud\bridge\util\mapper\MapperUtils;
 use pocketmine\player\Player;
 
 final class CloudPlayer implements Writeable {
@@ -18,20 +20,16 @@ final class CloudPlayer implements Writeable {
         private readonly string $address,
         private readonly string $xboxUserId,
         private readonly string $uniqueId,
-        private ?string $currentServer,
-        private ?string $currentProxy
+        private ?string $currentServerName,
+        private ?string $currentProxyName
     ) {}
 
     public static function read(array $data): ?self {
-        if (!Utils::containKeys($data, "name", "address", "xboxUserId", "uniqueId")) return null;
-        return new CloudPlayer(
-            $data["name"],
-            $data["address"],
-            $data["xboxUserId"],
-            $data["uniqueId"],
-            $data["currentServer"] ?? null,
-            $data["currentProxy"] ?? null
-        );
+        try {
+            return MapperUtils::fromMap($data, self::class);
+        } catch (Exception) {
+            return null;
+        }
     }
 
     public static function fromPlayer(Player $player): self {
@@ -50,8 +48,8 @@ final class CloudPlayer implements Writeable {
 
     /** @internal */
     public function sync(array $data): void {
-        $this->currentServer = array_key_exists("currentServer", $data) ? $data["currentServer"] : $this->currentServer;
-        $this->currentProxy = array_key_exists("currentProxy", $data) ? $data["currentProxy"] : $this->currentProxy;
+        $this->currentServerName = array_key_exists("currentServerName", $data) ? $data["currentServerName"] : $this->currentServerName;
+        $this->currentProxyName = array_key_exists("currentProxyName", $data) ? $data["currentProxyName"] : $this->currentProxyName;
     }
 
     public function send(string $message, TextType $textType): void {
@@ -99,43 +97,32 @@ final class CloudPlayer implements Writeable {
     }
 
     public function setCurrentServer(CloudServer|string|null $currentServer): void {
-        $currentServer = ($currentServer
-        instanceof
-        CloudServer ? $currentServer->getName() : (is_string($currentServer) ? $currentServer : null));
-        $this->currentServer = $currentServer;
+        $currentServer = ($currentServer instanceof CloudServer ? $currentServer->getName() : (is_string($currentServer) ? $currentServer : null));
+        $this->currentServerName = $currentServer;
     }
 
     public function setCurrentProxy(CloudServer|string|null $currentProxy): void {
-        $currentProxy = ($currentProxy
-        instanceof
-        CloudServer ? $currentProxy->getName() : (is_string($currentProxy) ? $currentProxy : null));
-        $this->currentProxy = $currentProxy;
+        $currentProxy = ($currentProxy instanceof CloudServer ? $currentProxy->getName() : (is_string($currentProxy) ? $currentProxy : null));
+        $this->currentProxyName = $currentProxy;
     }
 
     public function getCurrentServer(): ?CloudServer {
-        return CloudServerProvider::provider()->get($this->currentServer);
+        return CloudServerProvider::provider()->get($this->currentServerName);
     }
 
     public function getCurrentProxy(): ?CloudServer {
-        return CloudServerProvider::provider()->get($this->currentProxy);
+        return CloudServerProvider::provider()->get($this->currentProxyName);
     }
 
     public function getCurrentServerName(): ?string {
-        return $this->currentServer;
+        return $this->currentServerName;
     }
 
     public function getCurrentProxyName(): ?string {
-        return $this->currentProxy;
+        return $this->currentProxyName;
     }
 
     public function write(): array {
-        return [
-            "name" => $this->name,
-            "address" => $this->address,
-            "xboxUserId" => $this->xboxUserId,
-            "uniqueId" => $this->uniqueId,
-            "currentServer" => $this->currentServer,
-            "currentProxy" => $this->currentProxy
-        ];
+        return MapperUtils::toMap($this);
     }
 }

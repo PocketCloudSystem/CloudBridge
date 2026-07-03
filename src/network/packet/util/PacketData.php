@@ -8,13 +8,13 @@ use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\server\CloudServer;
 use pocketcloud\cloud\bridge\api\object\server\util\ServerStatus;
 use pocketcloud\cloud\bridge\api\object\template\Template;
-use pocketcloud\cloud\bridge\network\packet\data\LogType;
-use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
-use pocketcloud\cloud\bridge\network\packet\data\ServerCommandExecutionResult;
-use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
-use pocketcloud\cloud\bridge\network\packet\data\ServerErrorReason;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
-use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\type\LogType;
+use pocketcloud\cloud\bridge\network\packet\type\NotificationType;
+use pocketcloud\cloud\bridge\network\packet\type\ServerCommandExecutionResult;
+use pocketcloud\cloud\bridge\network\packet\type\ServerDisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\type\ServerErrorReason;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\VerificationStatus;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 
 final class PacketData implements JsonSerializable {
@@ -128,8 +128,8 @@ final class PacketData implements JsonSerializable {
         return ServerErrorReason::fromName($this->readString());
     }
 
-    public function readVerifyStatus(): ?VerifyStatus {
-        return VerifyStatus::fromName($this->readString());
+    public function readVerifyStatus(): ?VerificationStatus {
+        return VerificationStatus::fromName($this->readString());
     }
 
     public function readTextType(): ?TextType {

@@ -2,15 +2,15 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl\response;
 
-use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\type\VerificationStatus;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
 final class ServerHandshakeResponsePacket extends ResponsePacket {
 
-    public function __construct(private ?VerifyStatus $verifyStatus = null) {}
+    public function __construct(private ?VerificationStatus $verifyStatus = null) {}
 
-    public static function create(VerifyStatus $verifyStatus): self {
+    public static function create(VerificationStatus $verifyStatus): self {
         return new self($verifyStatus);
     }
 
@@ -20,7 +20,7 @@ final class ServerHandshakeResponsePacket extends ResponsePacket {
 
     public function handle(): void {}
 
-    public function getVerifyStatus(): ?VerifyStatus {
+    public function getVerifyStatus(): ?VerificationStatus {
         return $this->verifyStatus;
     }
 }

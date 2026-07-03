@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\api\cache\NotificationListCache;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
+use pocketcloud\cloud\bridge\network\packet\type\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketmine\player\Player;
 use pocketmine\Server;

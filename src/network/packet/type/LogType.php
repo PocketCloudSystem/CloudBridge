@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\data;
+namespace pocketcloud\cloud\bridge\network\packet\type;
 
 use LogLevel;
 use pocketcloud\cloud\bridge\util\misc\Writeable;

@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\api\provider\CloudServerProvider;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
-use pocketcloud\cloud\bridge\util\Utils;
+use pocketcloud\cloud\bridge\util\mapper\MapperUtils;
 
 final class Template implements Writeable {
 
@@ -23,24 +23,12 @@ final class Template implements Writeable {
         private int $maxServerCount,
         private float $startNewPercentage,
         private bool $autoStart,
-        private readonly string $templateType
+        private readonly string $templateType,
+        private readonly string $serverSoftware
     ) {}
 
     public static function read(array $data): ?Template {
-        if (!Utils::containKeys($data, "name", "lobby", "maintenance", "static", "alwaysCopyToStaticServers", "maxPlayerCount", "minServerCount", "maxServerCount", "startNewPercentage", "autoStart", "templateType")) return null;
-        return new Template(
-            $data["name"],
-            boolval($data["lobby"]),
-            boolval($data["maintenance"]),
-            boolval($data["static"]),
-            boolval($data["alwaysCopyToStaticServers"]),
-            intval($data["maxPlayerCount"]),
-            intval($data["minServerCount"]),
-            intval($data["maxServerCount"]),
-            boolval($data["startNewPercentage"]),
-            boolval($data["autoStart"]),
-            $data["templateType"]
-        );
+        return MapperUtils::fromMap($data, self::class);
     }
 
     /** @internal */
@@ -123,18 +111,6 @@ final class Template implements Writeable {
     }
 
     public function write(): array {
-        return [
-            "name" => $this->name,
-            "lobby" => $this->lobby,
-            "maintenance" => $this->maintenance,
-            "static" => $this->static,
-            "alwaysCopyToStaticServers" => $this->alwaysCopyToStaticServers,
-            "maxPlayerCount" => $this->maxPlayerCount,
-            "minServerCount" => $this->minServerCount,
-            "maxServerCount" => $this->maxServerCount,
-            "startNewPercentage" => $this->startNewPercentage,
-            "autoStart" => $this->autoStart,
-            "templateType" => $this->templateType
-        ];
+        return MapperUtils::toMap($this);
     }
 }

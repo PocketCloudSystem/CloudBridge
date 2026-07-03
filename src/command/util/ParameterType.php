@@ -14,7 +14,7 @@ use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\language\LanguageKey;
 use pocketcloud\cloud\bridge\module\ModuleManager;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
 use pocketmine\network\mcpe\protocol\AvailableCommandsPacket;
 use pocketmine\network\mcpe\protocol\UpdateSoftEnumPacket;
 use pocketmine\player\Player;

@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet\impl\response;
 
-use pocketcloud\cloud\bridge\network\packet\data\ServerErrorReason;
+use pocketcloud\cloud\bridge\network\packet\type\ServerErrorReason;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 

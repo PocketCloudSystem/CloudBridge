@@ -5,7 +5,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketmine\Server;
 

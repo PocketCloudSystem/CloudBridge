@@ -5,7 +5,7 @@ namespace pocketcloud\cloud\bridge\form\sub\player;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
 use pocketmine\player\Player;
 use r3pt1s\forms\element\custom\Dropdown;
 use r3pt1s\forms\element\custom\Input;

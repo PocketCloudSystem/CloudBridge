@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\test;
+namespace pocketcloud\cloud\bridge\util\mapper;
 
 use BackedEnum;
 use ReflectionClass;
@@ -117,7 +117,7 @@ final class MapperUtils {
 
         if (enum_exists($target)) {
             try {
-                return $target::from($value);
+                return self::enumFindCase($target, $value);
             } catch (ValueError) {
                 return $value;
             }
@@ -170,11 +170,7 @@ final class MapperUtils {
 
         foreach ($candidates as $candidate) {
             if (enum_exists($candidate)) {
-                try {
-                    return $candidate::from($value);
-                } catch (ValueError) {
-                    continue;
-                }
+                return self::enumFindCase($candidate, $value);
             }
         }
 
@@ -277,5 +273,9 @@ final class MapperUtils {
             "mixed" => true,
             default => $value instanceof $typeName
         };
+    }
+
+    private static function enumFindCase(string $enum, string $value): ?object {
+        return array_find($enum::cases(), fn(UnitEnum $case) => strtolower($case->name) == strtolower($value)) ?? throw new ValueError();
     }
 }

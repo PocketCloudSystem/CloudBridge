@@ -9,8 +9,8 @@ use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\network\packet\data\LogType;
-use pocketcloud\cloud\bridge\network\packet\data\VerifyStatus;
+use pocketcloud\cloud\bridge\network\packet\type\LogType;
+use pocketcloud\cloud\bridge\network\packet\type\VerificationStatus;
 use pocketcloud\cloud\bridge\network\packet\impl\ConsoleLogPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\KeepAlivePacket;
 use pocketcloud\cloud\bridge\network\packet\impl\request\ServerHandshakeRequestPacket;
@@ -31,7 +31,7 @@ final class CloudAPI {
         getInstance as public get;
     }
 
-    private VerifyStatus $verifyStatus = VerifyStatus::NOT_APPLIED;
+    private VerificationStatus $verifyStatus = VerificationStatus::PENDING;
 
     /**
      * @var array<class-string<T>, T>
@@ -54,7 +54,7 @@ final class CloudAPI {
         ServerHandshakeRequestPacket::create(CloudEnvironmentConfig::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers())->sendRequest()->then(function (ServerHandshakeResponsePacket $packet): void {
             $status = $packet->getVerifyStatus();
             $this->verifyStatus = $status;
-            if ($status === VerifyStatus::VERIFIED) {
+            if ($status === VerificationStatus::VERIFIED) {
                 CloudBridge::getInstance()->setLastAliveCheck(time());
                 CloudBridge::getInstance()->registerCommands();
                 CloudBridge::getInstance()->startTasks();
@@ -86,7 +86,7 @@ final class CloudAPI {
         ConsoleLogPacket::create($message, $logType ?? LogType::INFO)->sendPacket();
     }
 
-    public function getVerifyStatus(): VerifyStatus {
+    public function getVerifyStatus(): VerificationStatus {
         return $this->verifyStatus;
     }
 

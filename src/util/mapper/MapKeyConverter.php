@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\test;
+namespace pocketcloud\cloud\bridge\util\mapper;
 
 /**
  * @template T

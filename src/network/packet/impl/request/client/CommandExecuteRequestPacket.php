@@ -3,7 +3,7 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl\request\client;
 
 use pocketcloud\cloud\bridge\command\sender\CloudCommandSender;
-use pocketcloud\cloud\bridge\network\packet\data\ServerCommandExecutionResult;
+use pocketcloud\cloud\bridge\network\packet\type\ServerCommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\RequestClientPacket;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;

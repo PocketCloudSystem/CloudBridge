@@ -61,7 +61,7 @@ final class ServerInfoForm extends CustomForm {
         $body = [
             "§7Template: §b" . $server->getTemplateName() . " §8(§b" . $server->getTemplateName() . "§8/§b" . $server->getId() . "§8)",
             "§7Player Count: §b" . $server->getPlayerCount() . "§8/§c" . $server->getServerData()->getMaxPlayers(),
-            "§7Server UUID: §b" . $server->getServerUuid(),
+            "§7Server UUID: §b" . $server->getUuid(),
             "§7Port: §b" . $server->getServerData()->getPort(),
             "§7Status: §b" . $server->getServerStatus()->getDisplay()
         ];

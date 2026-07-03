@@ -2,51 +2,40 @@
 
 namespace pocketcloud\cloud\bridge\api\object\group;
 
+use Exception;
 use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\object\template\Template;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\util\misc\Writeable;
-use pocketcloud\cloud\bridge\util\Utils;
+use pocketcloud\cloud\bridge\util\mapper\MapperUtils;
 
 final class ServerGroup implements Writeable {
-
-    private array $lowerCaseTemplates;
 
     public function __construct(
         private readonly string $name,
         private array $templates
-    ) {
-        $this->lowerCaseTemplates = array_map(fn(string $template) => strtolower($template), $this->templates);
-    }
+    ) {}
 
     public static function read(array $data): ?self {
-        if (!Utils::containKeys($data, "name", "templates")) return null;
-        return new self(
-            $data["name"],
-            $data["templates"]
-        );
+        try {
+            return MapperUtils::fromMap($data, self::class);
+        } catch (Exception) {
+            return null;
+        }
     }
 
     /** @internal */
     public function sync(array $data): void {
         $this->templates = $data["templates"] ?? $this->templates;
-        $this->lowerCaseTemplates = array_map(fn(string $template) => strtolower($template), $this->templates);
     }
 
     public function is(Template|string $template): bool {
         $template = $template instanceof Template ? $template->getName() : $template;
-        return in_array($template, $this->templates) || in_array(strtolower($template), $this->lowerCaseTemplates);
+        return in_array($template, $this->templates);
     }
 
     public function getName(): string {
         return $this->name;
-    }
-
-    public function write(): array {
-        return [
-            "name" => $this->name,
-            "templates" => $this->templates
-        ];
     }
 
     public function getPlayerCount(): int {
@@ -62,5 +51,9 @@ final class ServerGroup implements Writeable {
 
     public function getTemplates(): array {
         return $this->templates;
+    }
+
+    public function write(): array {
+        return MapperUtils::toMap($this);
     }
 }

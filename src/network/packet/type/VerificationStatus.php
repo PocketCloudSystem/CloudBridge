@@ -1,18 +1,16 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\data;
+namespace pocketcloud\cloud\bridge\network\packet\type;
 
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;
 
-enum ServerErrorReason implements Writeable {
+enum VerificationStatus implements Writeable {
     use EnumHelperTrait;
 
-    case NONE;
-    case TEMPLATE_EXISTENCE;
-    case MAX_SERVERS;
-    case SERVER_EXISTENCE;
-    case REQUEST_TIMEOUT;
+    case DENIED;
+    case VERIFIED;
+    case PENDING;
 
     public function getName(): string {
         return $this->name;

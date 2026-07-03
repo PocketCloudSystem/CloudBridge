@@ -8,7 +8,7 @@ use pocketcloud\cloud\bridge\api\provider\TemplateProvider;
 use pocketcloud\cloud\bridge\command\BaseCloudCommand;
 use pocketcloud\cloud\bridge\command\util\ParameterType;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\network\packet\data\NotificationType;
+use pocketcloud\cloud\bridge\network\packet\type\NotificationType;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerConnectPacket;
 use pocketcloud\cloud\bridge\network\packet\impl\PlayerDisconnectPacket;
 use pocketcloud\cloud\bridge\player\PlayerSessionManager;

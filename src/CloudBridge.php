@@ -9,7 +9,7 @@ use pocketcloud\cloud\bridge\command\TransferCommand;
 use pocketcloud\cloud\bridge\listener\EventListener;
 use pocketcloud\cloud\bridge\module\ModuleManager;
 use pocketcloud\cloud\bridge\network\Network;
-use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\type\ServerDisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\impl\DisconnectPacket;
 use pocketcloud\cloud\bridge\player\PlayerSessionManager;
 use pocketcloud\cloud\bridge\task\RequestTimeoutTask;

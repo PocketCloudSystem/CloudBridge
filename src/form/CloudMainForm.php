@@ -11,7 +11,7 @@ use pocketcloud\cloud\bridge\form\sub\ManageTemplatesForm;
 use pocketcloud\cloud\bridge\form\sub\server\ServerInfoForm;
 use pocketcloud\cloud\bridge\form\util\FormFilterMechanism;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\network\packet\data\LogType;
+use pocketcloud\cloud\bridge\network\packet\type\LogType;
 use pocketcloud\cloud\bridge\util\CloudEnvironmentConfig;
 use pocketmine\player\Player;
 use r3pt1s\forms\builder\CustomFormBuilder;

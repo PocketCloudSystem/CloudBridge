@@ -1,16 +1,19 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\data;
+namespace pocketcloud\cloud\bridge\network\packet\type;
 
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;
 
-enum VerifyStatus implements Writeable {
+enum TextType implements Writeable {
     use EnumHelperTrait;
 
-    case DENIED;
-    case VERIFIED;
-    case NOT_APPLIED;
+    case MESSAGE;
+    case POPUP;
+    case TIP;
+    case TITLE;
+    case ACTION_BAR;
+    case TOAST_NOTIFICATION;
 
     public function getName(): string {
         return $this->name;

@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\api\object\player\CloudPlayer;
 use pocketcloud\cloud\bridge\api\provider\CloudPlayerProvider;
 use pocketcloud\cloud\bridge\form\sub\server\ServerInfoForm;
 use pocketcloud\cloud\bridge\language\LanguageKey;
-use pocketcloud\cloud\bridge\network\packet\data\TextType;
+use pocketcloud\cloud\bridge\network\packet\type\TextType;
 use pocketmine\player\Player;
 use r3pt1s\forms\builder\CustomFormBuilder;
 use r3pt1s\forms\builder\MenuFormBuilder;

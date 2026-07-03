@@ -1,6 +1,6 @@
 <?php
 
-namespace pocketcloud\cloud\bridge\network\packet\data;
+namespace pocketcloud\cloud\bridge\network\packet\type;
 
 use pocketcloud\cloud\bridge\util\misc\Writeable;
 use pocketcloud\cloud\bridge\util\trait\EnumHelperTrait;

@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\data\ServerDisconnectReason;
+use pocketcloud\cloud\bridge\network\packet\type\ServerDisconnectReason;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 use pocketmine\Server;
 

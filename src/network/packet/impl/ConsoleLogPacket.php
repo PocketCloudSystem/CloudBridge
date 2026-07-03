@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\data\LogType;
+use pocketcloud\cloud\bridge\network\packet\type\LogType;
 use pocketcloud\cloud\bridge\network\packet\util\PacketData;
 
 final class ConsoleLogPacket extends CloudPacket implements ClientboundPacket, CloudboundPacket {
