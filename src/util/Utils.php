@@ -6,6 +6,8 @@ use pocketmine\entity\Location;
 use pocketmine\math\Vector3;
 use pocketmine\Server;
 use pocketmine\world\Position;
+use UnitEnum;
+use ValueError;
 
 final class Utils {
 
@@ -51,5 +53,10 @@ final class Utils {
 
         @imagedestroy($pathOrImage);
         return $bytes;
+    }
+
+    public static function findEnumCase(string $enumClass, string $case): UnitEnum {
+        if (!enum_exists($enumClass, false)) throw new ValueError();
+        return array_find($enumClass::cases(), fn(UnitEnum $c) => strtolower($c->name) == strtolower($case)) ?? throw new ValueError();
     }
 }

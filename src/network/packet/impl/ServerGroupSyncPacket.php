@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\api\object\group\ServerGroup;
 use pocketcloud\cloud\bridge\api\provider\ServerGroupProvider;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class ServerGroupSyncPacket extends CloudPacket implements ClientboundPacket {
 

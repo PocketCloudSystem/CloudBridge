@@ -6,7 +6,7 @@ use Closure;
 use pocketcloud\cloud\bridge\exception\NetworkException;
 use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\exception\PacketTooLargeException;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketcloud\cloud\bridge\network\request\RequestManager;
 use RuntimeException;
 use Throwable;

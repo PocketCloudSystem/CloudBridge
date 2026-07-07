@@ -5,7 +5,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl;
 use pocketcloud\cloud\bridge\language\Language;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class LanguageSyncPacket extends CloudPacket implements ClientboundPacket {
 

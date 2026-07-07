@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 /**
  * The normal response packet sent to sub-servers from the cloud after the sub-servers sent a request via RequestPacket

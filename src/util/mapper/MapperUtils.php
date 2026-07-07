@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\util\mapper;
 
-use BackedEnum;
+use pocketcloud\cloud\bridge\util\Utils;
 use ReflectionClass;
 use ReflectionException;
 use ReflectionIntersectionType;
@@ -117,7 +117,7 @@ final class MapperUtils {
 
         if (enum_exists($target)) {
             try {
-                return self::enumFindCase($target, $value);
+                return Utils::findEnumCase($target, $value);
             } catch (ValueError) {
                 return $value;
             }
@@ -146,7 +146,7 @@ final class MapperUtils {
         if (is_scalar($value)) return $value;
 
         if ($value instanceof UnitEnum) {
-            return $value instanceof BackedEnum ? $value->value : $value->name;
+            return $value->name;
         }
 
         if (is_array($value)) {
@@ -170,7 +170,7 @@ final class MapperUtils {
 
         foreach ($candidates as $candidate) {
             if (enum_exists($candidate)) {
-                return self::enumFindCase($candidate, $value);
+                return Utils::findEnumCase($candidate, $value);
             }
         }
 
@@ -206,7 +206,7 @@ final class MapperUtils {
         if (isset(self::$fieldCache[$class])) return self::$fieldCache[$class];
 
         $properties = [];
-        foreach ((new ReflectionClass($class))->getProperties() as $property) {
+        foreach (new ReflectionClass($class)->getProperties() as $property) {
             if (!$property->isStatic() && count($property->getAttributes(Transient::class)) === 0) {
                 $properties[] = $property;
             }
@@ -273,9 +273,5 @@ final class MapperUtils {
             "mixed" => true,
             default => $value instanceof $typeName
         };
-    }
-
-    private static function enumFindCase(string $enum, string $value): ?object {
-        return array_find($enum::cases(), fn(UnitEnum $case) => strtolower($case->name) == strtolower($value)) ?? throw new ValueError();
     }
 }

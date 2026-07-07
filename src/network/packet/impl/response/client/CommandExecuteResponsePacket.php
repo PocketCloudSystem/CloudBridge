@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\response\client;
 
 use pocketcloud\cloud\bridge\network\packet\type\ServerCommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\ResponseClientPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class CommandExecuteResponsePacket extends ResponseClientPacket {
 

@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\exception\NetworkException;
 use pocketcloud\cloud\bridge\exception\PacketException;
 use pocketcloud\cloud\bridge\exception\PacketTooLargeException;
 use pocketcloud\cloud\bridge\network\Network;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use ReflectionClass;
 use RuntimeException;
 
@@ -31,12 +31,8 @@ abstract class CloudPacket implements Packet {
     }
 
     public function decode(PacketData $packetData): void {
-        $packetName = $packetData->readString();
-        if ($packetName !==
-            $this->getName()) throw new RuntimeException("Packet name does not equal the actual class name? What have you done?");
         $this->sentTimestamp = $packetData->readFloat();
-        if ($this->sentTimestamp ===
-            null) throw new RuntimeException("Packet data does not contain the actual sent timestamp? What have you done?");
+        if ($this->sentTimestamp === null) throw new RuntimeException("Packet data does not contain the actual sent timestamp? What have you done?");
         $this->decodePayload($packetData);
     }
 

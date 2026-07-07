@@ -7,7 +7,7 @@ use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\type\LogType;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class ConsoleLogPacket extends CloudPacket implements ClientboundPacket, CloudboundPacket {
 
@@ -25,7 +25,7 @@ final class ConsoleLogPacket extends CloudPacket implements ClientboundPacket, C
     }
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAllTypeSafe([&$this->message, &$this->logType], [fn() => $packetData->readString(), fn() => $packetData->readLogType()]);
+        $packetData->readAllTypeSafe([&$this->message, &$this->logType], [fn() => $packetData->readString(), fn() => $packetData->readEnum(LogType::class)]);
     }
 
     public function getMessage(): string {

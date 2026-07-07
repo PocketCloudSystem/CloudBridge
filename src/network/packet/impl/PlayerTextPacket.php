@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\type\TextType;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketmine\Server;
 
 final class PlayerTextPacket extends CloudPacket implements CloudboundPacket, ClientboundPacket {
@@ -55,7 +55,7 @@ final class PlayerTextPacket extends CloudPacket implements CloudboundPacket, Cl
     }
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAllTypeSafe([&$this->player, &$this->text, &$this->type], [fn() => $packetData->readString(), fn() => $packetData->readString(), fn() => $packetData->readTextType()]);
+        $packetData->readAllTypeSafe([&$this->player, &$this->text, &$this->type], [fn() => $packetData->readString(), fn() => $packetData->readString(), fn() => $packetData->readEnum(TextType::class)]);
     }
 
     public function getPlayer(): string {

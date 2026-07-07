@@ -6,7 +6,7 @@ use Exception;
 use pocketcloud\cloud\bridge\CloudBridge;
 use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use r3pt1s\forms\Forms;
 use Symfony\Component\Filesystem\Path;
 

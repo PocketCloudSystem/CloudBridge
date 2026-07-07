@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\response;
 
 use pocketcloud\cloud\bridge\network\packet\type\ServerErrorReason;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class ServerStartResponsePacket extends ResponsePacket {
 
@@ -17,7 +17,7 @@ final class ServerStartResponsePacket extends ResponsePacket {
     public function handle(): void {}
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAllTypeSafe([&$this->errorReason], [fn() => $packetData->readServerErrorReason()]);
+        $packetData->readAllTypeSafe([&$this->errorReason], [fn() => $packetData->readEnum(ServerErrorReason::class)]);
     }
 
     public function getErrorReason(): ?ServerErrorReason {

@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl;
 
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class PlayerUpdateNotificationStatePacket extends CloudPacket implements CloudboundPacket {
 

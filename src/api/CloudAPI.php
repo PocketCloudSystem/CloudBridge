@@ -31,7 +31,7 @@ final class CloudAPI {
         getInstance as public get;
     }
 
-    private VerificationStatus $verifyStatus = VerificationStatus::PENDING;
+    private VerificationStatus $verificationStatus = VerificationStatus::PENDING;
 
     /**
      * @var array<class-string<T>, T>
@@ -53,7 +53,7 @@ final class CloudAPI {
     public function requestLogin(): void {
         ServerHandshakeRequestPacket::create(CloudEnvironmentConfig::getServerName(), getmypid(), Server::getInstance()->getMaxPlayers())->sendRequest()->then(function (ServerHandshakeResponsePacket $packet): void {
             $status = $packet->getVerifyStatus();
-            $this->verifyStatus = $status;
+            $this->verificationStatus = $status;
             if ($status === VerificationStatus::VERIFIED) {
                 CloudBridge::getInstance()->setLastAliveCheck(time());
                 CloudBridge::getInstance()->registerCommands();
@@ -86,8 +86,8 @@ final class CloudAPI {
         ConsoleLogPacket::create($message, $logType ?? LogType::INFO)->sendPacket();
     }
 
-    public function getVerifyStatus(): VerificationStatus {
-        return $this->verifyStatus;
+    public function getVerificationStatus(): VerificationStatus {
+        return $this->verificationStatus;
     }
 
     /**

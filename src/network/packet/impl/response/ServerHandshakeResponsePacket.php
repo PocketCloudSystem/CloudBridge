@@ -4,7 +4,7 @@ namespace pocketcloud\cloud\bridge\network\packet\impl\response;
 
 use pocketcloud\cloud\bridge\network\packet\type\VerificationStatus;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class ServerHandshakeResponsePacket extends ResponsePacket {
 
@@ -15,7 +15,7 @@ final class ServerHandshakeResponsePacket extends ResponsePacket {
     }
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAllTypeSafe([&$this->verifyStatus], [fn() => $packetData->readVerifyStatus()]);
+        $packetData->readAllTypeSafe([&$this->verifyStatus], [fn() => $packetData->readEnum(VerificationStatus::class)]);
     }
 
     public function handle(): void {}

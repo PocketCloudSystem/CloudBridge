@@ -16,7 +16,7 @@ use pocketcloud\cloud\bridge\util\mapper\MapperUtils;
 
 final class CloudServer implements Writeable {
 
-    private CloudServerStorage $serverStorage;
+    private CloudServerStorage $storage;
     private VerificationStatus $verificationStatus = VerificationStatus::PENDING;
     private ?int $startTime = null;
     private ?int $verifiedTime = null;
@@ -27,9 +27,9 @@ final class CloudServer implements Writeable {
         private readonly string $templateName,
         private readonly CloudServerData $serverData,
         private ServerStatus $status,
-        array $serverStorage = []
+        array $storage = []
     ) {
-        $this->serverStorage = new CloudServerStorage($this, $serverStorage);
+        $this->storage = new CloudServerStorage($this, $storage);
     }
 
     public static function read(array $data): ?self {
@@ -39,7 +39,10 @@ final class CloudServer implements Writeable {
     /** @internal */
     public function sync(array $data): void {
         $this->status = isset($data["status"]) ? ServerStatus::fromName($data["status"]) : $this->status;
-        if (isset($data["internalStorage"])) $this->serverStorage->sync($data["internalStorage"]);
+        if (isset($data["internalStorage"])) $this->storage->sync($data["internalStorage"]);
+        if (isset($data["startTime"])) $this->startTime = $data["startTime"];
+        if (isset($data["verifiedTime"])) $this->verifiedTime = $data["verifiedTime"];
+        if (isset($data["verificationStatus"])) $this->verificationStatus = VerificationStatus::fromName($data["verificationStatus"]);
     }
 
     public function setServerStatus(ServerStatus $status): void {
@@ -87,12 +90,12 @@ final class CloudServer implements Writeable {
         return $this->status;
     }
 
-    public function getServerStorage(): CloudServerStorage {
-        return $this->serverStorage;
+    public function getVerificationStatus(): VerificationStatus {
+        return $this->verificationStatus;
     }
 
-    public function getStatus(): VerificationStatus {
-        return $this->status;
+    public function getStorage(): CloudServerStorage {
+        return $this->storage;
     }
 
     public function getStartTime(): ?int {

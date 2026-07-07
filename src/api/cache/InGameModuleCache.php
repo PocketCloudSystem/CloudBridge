@@ -14,6 +14,16 @@ final class InGameModuleCache {
         self::HUB_COMMAND_MODULE => false
     ];
 
+    public static function sync(array $enabledModules): void {
+        foreach (self::$moduleStates as $m => $_) {
+            self::$moduleStates[$m] = false;
+        }
+
+        foreach ($enabledModules as $m => $_) {
+            self::$moduleStates[$m] = true;
+        }
+    }
+
     public static function setModuleState(string $module, bool $enabled): void {
         self::$moduleStates[$module] = $enabled;
     }

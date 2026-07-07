@@ -5,7 +5,7 @@ namespace pocketcloud\cloud\bridge\network\packet;
 
 use pmmp\thread\ThreadSafe;
 use pocketcloud\cloud\bridge\exception\PacketException;
-use pocketcloud\cloud\bridge\network\packet\util\PacketSerializer;
+use pocketcloud\cloud\bridge\network\packet\codec\PacketSerializer;
 use pocketcloud\cloud\bridge\util\net\Address;
 
 final class UnhandledPacket extends ThreadSafe {

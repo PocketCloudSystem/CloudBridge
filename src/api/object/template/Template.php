@@ -106,6 +106,10 @@ final class Template implements Writeable {
         return $this->templateType;
     }
 
+    public function getServerSoftware(): string {
+        return $this->serverSoftware;
+    }
+
     public function getParentServerGroup(): ?ServerGroup {
         return ServerGroupProvider::provider()->get($this);
     }

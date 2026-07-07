@@ -7,7 +7,7 @@ use pocketcloud\cloud\bridge\network\packet\ClientboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\CloudPacket;
 use pocketcloud\cloud\bridge\network\packet\type\ServerDisconnectReason;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketmine\Server;
 
 final class DisconnectPacket extends CloudPacket implements ClientboundPacket, CloudboundPacket {
@@ -33,7 +33,7 @@ final class DisconnectPacket extends CloudPacket implements ClientboundPacket, C
     }
 
     public function decodePayload(PacketData $packetData): void {
-        $packetData->readAllTypeSafe([&$this->reason], [fn() => $packetData->readServerDisconnectReason()]);
+        $packetData->readAllTypeSafe([&$this->reason], [fn() => $packetData->readEnum(ServerDisconnectReason::class)]);
     }
 
     public function getReason(): ?ServerDisconnectReason {

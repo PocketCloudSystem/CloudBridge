@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 /**
  * A different version from the regular ResponsePacket

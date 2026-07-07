@@ -6,7 +6,7 @@ use pocketcloud\cloud\bridge\command\sender\CloudCommandSender;
 use pocketcloud\cloud\bridge\network\packet\type\ServerCommandExecutionResult;
 use pocketcloud\cloud\bridge\network\packet\impl\response\client\CommandExecuteResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\RequestClientPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 use pocketmine\Server;
 
 final class CommandExecuteRequestPacket extends RequestClientPacket {

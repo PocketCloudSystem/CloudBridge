@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 /**
  *  ClientboundPacket -> Server (Client) is the receiver, Cloud is the sender (only encode)

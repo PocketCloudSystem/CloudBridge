@@ -3,7 +3,7 @@
 namespace pocketcloud\cloud\bridge\network\packet\impl\response;
 
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 final class PlayerWhitelistCheckResponsePacket extends ResponsePacket {
 

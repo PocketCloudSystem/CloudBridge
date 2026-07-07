@@ -2,7 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network\packet;
 
-use pocketcloud\cloud\bridge\network\packet\util\PacketData;
+use pocketcloud\cloud\bridge\network\packet\data\PacketData;
 
 /**
  *  CloudboundPacket -> Cloud is the receiver (only decode), Server (Client) is the sender

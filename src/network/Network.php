@@ -2,6 +2,7 @@
 
 namespace pocketcloud\cloud\bridge\network;
 
+use GlobalLogger;
 use LogicException;
 use pmmp\thread\ThreadSafeArray;
 use pocketcloud\cloud\bridge\CloudBridge;
@@ -18,7 +19,7 @@ use pocketcloud\cloud\bridge\network\packet\CloudboundPacket;
 use pocketcloud\cloud\bridge\network\packet\PacketPool;
 use pocketcloud\cloud\bridge\network\packet\ResponsePacket;
 use pocketcloud\cloud\bridge\network\packet\UnhandledPacket;
-use pocketcloud\cloud\bridge\network\packet\util\PacketSerializer;
+use pocketcloud\cloud\bridge\network\packet\codec\PacketSerializer;
 use pocketcloud\cloud\bridge\network\request\RequestManager;
 use pocketcloud\cloud\bridge\traffic\impl\NetworkTrafficMonitor;
 use pocketcloud\cloud\bridge\traffic\TrafficMonitor;
@@ -119,6 +120,7 @@ final class Network extends Thread {
             while (($buffer = $this->sendBuffer->shift()) !== null) {
                 if (!$this->tcpWrite($buffer)) {
                     $this->connected = false;
+                    GlobalLogger::get()->warning("Failed to write tcp message, disconnecting...");
                     break 2;
                 }
             }
@@ -144,6 +146,7 @@ final class Network extends Thread {
                     $length = unpack("N", substr($readBuffer, 0, 4))[1];
 
                     if ($length > $this->packetSizeLimit || $length < 0) {
+                        GlobalLogger::get()->warning("Received a packet with size " . $length . ", disconnecting...");
                         $this->connected = false;
                         break 2;
                     }
